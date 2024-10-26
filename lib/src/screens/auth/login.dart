@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:kitokopay/customs/custom_text_field.dart';
+import 'package:kitokopay/src/customs/custom_text_field.dart';
+import 'package:kitokopay/src/screens/auth/register.dart';
 
 class LoginScreen extends StatelessWidget {
   // Change MainScreen to LoginScreen
@@ -91,23 +92,28 @@ class LoginScreen extends StatelessWidget {
                   const SizedBox(height: 16),
 
                   // Register Now text
-                  Center(
-                    child: RichText(
-                      text: const TextSpan(
-                        text: "Don't have an account? ",
-                        style: TextStyle(color: Colors.black),
-                        children: [
-                          TextSpan(
-                            text: "Register Now",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue,
-                            ),
-                          ),
-                        ],
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "Don't have an account?",
+                        style: TextStyle(color: Colors.black, fontSize: 18),
                       ),
-                    ),
-                  ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const RegistrationScreen()));
+                        },
+                        child: const Text(
+                          "Log In",
+                          style: TextStyle(
+                              color: Colors.black, fontWeight: FontWeight.bold),
+                        ),
+                      )
+                    ],
+                  )
                 ],
               ),
             ),

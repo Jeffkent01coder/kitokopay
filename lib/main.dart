@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kitokopay/screens/login.dart';
+import 'package:kitokopay/src/screens/auth/login.dart';
 
 void main() {
   runApp(const MyApp());
