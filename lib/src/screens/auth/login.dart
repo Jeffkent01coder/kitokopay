@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:kitokopay/src/customs/custom_text_field.dart';
 import 'package:kitokopay/src/screens/auth/register.dart';
+import 'package:kitokopay/src/screens/home/home.dart'; // Import HomeScreen
 
 class LoginScreen extends StatelessWidget {
-  // Change MainScreen to LoginScreen
   const LoginScreen({super.key});
 
   @override
@@ -31,30 +31,28 @@ class LoginScreen extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(24.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start, // Align left
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // Logo Image
                   Center(
                     child: Image.asset(
                       'assets/images/Kitokopaylogo.png', // Replace with your logo asset
-                      width: 100,
-                      height: 100,
+                      width: 120,
+                      height: 120,
                     ),
                   ),
                   const SizedBox(height: 16),
 
-                  // Welcome Text
-                  const Center(
-                    child: Text(
-                      "Welcome Back",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  // Welcome Text aligned left
+                  const Text(
+                    "Welcome Back",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 32), // Adjust spacing as needed
 
                   // Custom Text Field with Country Picker
                   const Text(
@@ -74,7 +72,15 @@ class LoginScreen extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        // Navigate to HomeScreen on Log In button click
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HomeScreen(),
+                          ),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         padding: const EdgeInsets.all(16),
@@ -101,19 +107,24 @@ class LoginScreen extends StatelessWidget {
                       ),
                       GestureDetector(
                         onTap: () {
+                          // Navigate to RegistrationScreen on tap
                           Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const RegistrationScreen()));
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const RegistrationScreen(),
+                            ),
+                          );
                         },
                         child: const Text(
-                          "Log In",
+                          " Register Now",
                           style: TextStyle(
-                              color: Colors.black, fontWeight: FontWeight.bold),
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      )
+                      ),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),

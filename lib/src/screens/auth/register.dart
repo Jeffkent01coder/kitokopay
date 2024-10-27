@@ -17,7 +17,7 @@ class RegistrationScreen extends StatelessWidget {
             child: Container(
               color: Colors.grey[200],
               child: Image.asset(
-                'assets/images/login.png', // Replace with your image asset
+                'assets/images/register.png', // Replace with your image asset
                 fit: BoxFit.cover,
                 width: double.infinity,
                 height: double.infinity,
@@ -38,23 +38,31 @@ class RegistrationScreen extends StatelessWidget {
                   Center(
                     child: Image.asset(
                       'assets/images/Kitokopaylogo.png', // Replace with your logo asset
-                      width: 100,
-                      height: 100,
+                      width: 120,
+                      height: 120,
                     ),
                   ),
                   const SizedBox(height: 16),
 
                   // Welcome Text
-                  const Center(
-                    child: Text(
-                      "Welcome Back",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  const Text(
+                    "Sign Up",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
+                  const SizedBox(height: 32), 
+
+                   // Welcome Text
+                  const Text(
+                      "Enter your phone number to create an account and \n get started",
+                      style: TextStyle(
+                        fontSize: 14,
+                      ),
+                    ),
                   const SizedBox(height: 32),
+
 
                   // Custom Text Field with Country Picker
                   const Text(
@@ -80,7 +88,7 @@ class RegistrationScreen extends StatelessWidget {
                         padding: const EdgeInsets.all(16),
                       ),
                       child: const Text(
-                        "Log In",
+                        "Register Now",
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
@@ -106,7 +114,7 @@ class RegistrationScreen extends StatelessWidget {
                                   builder: (context) => LoginScreen()));
                         },
                         child: const Text(
-                          "Register Now",
+                          "Log In",
                           style: TextStyle(
                               color: Colors.black, fontWeight: FontWeight.bold),
                         ),
