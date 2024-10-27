@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kitokopay/src/screens/home/loans.dart';
+import 'package:kitokopay/src/screens/ui/loans.dart';
 
 class SidebarMenu extends StatefulWidget {
   const SidebarMenu({super.key});

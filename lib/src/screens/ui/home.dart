@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kitokopay/src/customs/atmcarditem.dart'; // Ensure this import is valid
-import 'package:kitokopay/src/customs/sidemenubar.dart'; // Ensure this import is valid
+import 'package:kitokopay/src/customs/sidemenubar.dart';
+import 'package:kitokopay/src/screens/ui/payments.dart'; // Ensure this import is valid
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -82,21 +83,27 @@ class HomeScreen extends StatelessWidget {
                       Flexible(
                         child: CardItem(
                           accountNumber: '1234 5678 9101 1121',
-                          amount: 'CDF 10,000', isSelected: false, onSelect: () {  },
+                          amount: 'CDF 10,000',
+                          isSelected: false,
+                          onSelect: () {},
                         ),
                       ),
                       const SizedBox(width: 10), // Spacing between cards
                       Flexible(
                         child: CardItem(
                           accountNumber: '1234 5678 9101 1122',
-                          amount: 'CDF 8,500', isSelected: false, onSelect: () {  },
+                          amount: 'CDF 8,500',
+                          isSelected: false,
+                          onSelect: () {},
                         ),
                       ),
                       const SizedBox(width: 10), // Spacing between cards
                       Flexible(
                         child: CardItem(
                           accountNumber: '1234 5678 9101 1123',
-                          amount: 'CDF 5,000', isSelected: false, onSelect: () {  },
+                          amount: 'CDF 5,000',
+                          isSelected: false,
+                          onSelect: () {},
                         ),
                       ),
                     ],
@@ -118,13 +125,23 @@ class HomeScreen extends StatelessWidget {
                   Row(
                     children: [
                       Flexible(
-                        child: _buildQuickServiceCard(
-                          color: const Color(0xFF7FC1E4),
-                          icon: Icons.payment,
-                          title: 'Payments',
-                          description: 'Pay for goods and services',
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const PaymentPage()),
+                            );
+                          },
+                          child: _buildQuickServiceCard(
+                            color: const Color(0xFF7FC1E4),
+                            icon: Icons.payment,
+                            title: 'Payments',
+                            description: 'Pay for goods and services',
+                          ),
                         ),
                       ),
+
                       const SizedBox(width: 10), // Spacing between cards
                       Flexible(
                         child: _buildQuickServiceCard(

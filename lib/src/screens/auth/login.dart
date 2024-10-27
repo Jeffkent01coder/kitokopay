@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kitokopay/src/customs/custom_text_field.dart';
 import 'package:kitokopay/src/screens/auth/register.dart';
-import 'package:kitokopay/src/screens/home/home.dart'; // Import HomeScreen
+import 'package:kitokopay/src/screens/ui/home.dart'; // Import HomeScreen
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
