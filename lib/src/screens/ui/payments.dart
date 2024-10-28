@@ -3,6 +3,7 @@ import 'package:kitokopay/src/customs/appbar.dart';
 import 'package:kitokopay/src/customs/atmcarditem.dart';
 import 'package:kitokopay/src/customs/footer.dart';
 import 'package:kitokopay/src/screens/ui/payments/initiatepayments/paymentconfirmation.dart';
+import 'package:kitokopay/src/screens/ui/payments/payment/payment.dart';
 
 class PaymentPage extends StatefulWidget {
   const PaymentPage({super.key});
@@ -261,33 +262,31 @@ class _PaymentPageState extends State<PaymentPage> {
     );
   }
 
-  Widget _buildCardTabBar() {
-    return Card(
-      color: Colors.lightBlue,
-      margin: const EdgeInsets.all(16),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildCardTab('Initiate Payments', 0),
-            _buildCardTab('Payments', 1),
-            _buildCardTab('Manage Favourites', 2),
-          ],
-        ),
-      ),
-    );
-  }
-
+   // Build individual tab for the card tab bar
   Widget _buildCardTab(String title, int index) {
     final isSelected =
-        _selectedTabIndex == index; // Check if this tab is selected
+        _selectedTabIndex == index; // Check if the tab is selected
 
     return GestureDetector(
       onTap: () {
         setState(() {
           _selectedTabIndex = index; // Update the selected tab index
         });
+
+        // Navigate to the appropriate screen when the tab is clicked
+        if (index == 0) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const PaymentPage()),
+          );
+        } else if (index == 1) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const PaymentScreen()),
+          );
+        } else {
+          print("hello jeff");
+        }
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -295,21 +294,85 @@ class _PaymentPageState extends State<PaymentPage> {
           Text(
             title,
             style: TextStyle(
-              color: isSelected ? const Color(0xFF3C4B9D) : Colors.white,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              color: isSelected
+                  ? const Color(0xFF3C4B9D)
+                  : Colors.white, // Change color if selected
+              fontWeight: isSelected
+                  ? FontWeight.bold
+                  : FontWeight.normal, // Bold if selected
+              decoration: TextDecoration.none, // Remove underline
             ),
           ),
+          // Line below the text if the tab is selected
           if (isSelected)
             Container(
-              height: 2,
-              width: 40,
-              color: const Color(0xFF3C4B9D),
-              margin: const EdgeInsets.only(top: 4),
+              height: 2, // Height of the line
+              width: 40, // Width of the line
+              color: const Color(0xFF3C4B9D), // Color of the line
+              margin: const EdgeInsets.only(top: 4), // Margin above the line
             ),
         ],
       ),
     );
   }
+
+// Build card tab bar for navigation
+  Widget _buildCardTabBar() {
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        color: Colors.lightBlue,
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _buildCardTab('Initiate Payments', 0),
+          _buildCardTab('Payments', 1),
+          _buildCardTab('Manage Favourites', 2),
+        ],
+      ),
+    );
+  }
+
+// Build a row for displaying payment details
+  Widget _buildDetailsRow(String leftTitle, String leftValue, String rightTitle,
+      String rightValue) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              leftTitle,
+              style: const TextStyle(color: Colors.white),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              leftValue,
+              style: const TextStyle(color: Colors.white),
+            ),
+          ],
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              rightTitle,
+              style: const TextStyle(color: Colors.white),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              rightValue,
+              style: const TextStyle(color: Colors.white),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
 
   Widget _buildBusinessCard(String name, IconData icon) {
     return Expanded(

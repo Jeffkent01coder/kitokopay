@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:kitokopay/src/customs/appbar.dart';
 import 'package:kitokopay/src/customs/footer.dart';
+import 'package:kitokopay/src/screens/ui/payments.dart';
+import 'package:kitokopay/src/screens/ui/payments/initiatepayments/successpayment.dart';
+import 'package:kitokopay/src/screens/ui/payments/payment/payment.dart';
 
 class PaymentPinPage extends StatefulWidget {
   const PaymentPinPage({super.key});
@@ -127,21 +130,23 @@ class _PaymentPinPageState extends State<PaymentPinPage> {
                             // Confirm Payment Button
                             ElevatedButton(
                               onPressed: () {
-                                // Handle confirm payment action
-                                // Here you can also validate the PIN
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const SuccessPaymentPage(), // Ensure this matches your class
+                                  ),
+                                );
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    Colors.lightBlue, // Skyblue background
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 32, vertical: 16),
+                                backgroundColor: Colors.lightBlue,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
                               ),
                               child: const Text(
-                                "Pay Now",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
+                                'Pay Now',
+                                style: TextStyle(color: Colors.white),
                               ),
                             ),
                           ],
@@ -240,6 +245,7 @@ class _PaymentPinPageState extends State<PaymentPinPage> {
   }
 
   // Build individual tab for the card tab bar
+  // Build individual tab for the card tab bar
   Widget _buildCardTab(String title, int index) {
     final isSelected =
         _selectedTabIndex == index; // Check if the tab is selected
@@ -249,11 +255,25 @@ class _PaymentPinPageState extends State<PaymentPinPage> {
         setState(() {
           _selectedTabIndex = index; // Update the selected tab index
         });
+
+        // Navigate to the appropriate screen when the tab is clicked
+        if (index == 0) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const PaymentPage()),
+          );
+        } else if (index == 1) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const PaymentScreen()),
+          );
+        } else {
+          print("hello jeff");
+        }
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Text widget with conditional styling
           Text(
             title,
             style: TextStyle(
@@ -279,17 +299,16 @@ class _PaymentPinPageState extends State<PaymentPinPage> {
     );
   }
 
-  // Build card tab bar for navigation
+// Build card tab bar for navigation
   Widget _buildCardTabBar() {
     return Container(
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
         color: Colors.lightBlue,
-        borderRadius:
-            BorderRadius.circular(12.0), // Rounded corners for the tab bar
+        borderRadius: BorderRadius.circular(12.0),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween, // Spread tabs evenly
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           _buildCardTab('Initiate Payments', 0),
           _buildCardTab('Payments', 1),
@@ -299,7 +318,7 @@ class _PaymentPinPageState extends State<PaymentPinPage> {
     );
   }
 
-  // Function to build the card details row
+// Build a row for displaying payment details
   Widget _buildDetailsRow(String leftTitle, String leftValue, String rightTitle,
       String rightValue) {
     return Row(
@@ -310,19 +329,12 @@ class _PaymentPinPageState extends State<PaymentPinPage> {
           children: [
             Text(
               leftTitle,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
+              style: const TextStyle(color: Colors.white),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             Text(
               leftValue,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(color: Colors.white),
             ),
           ],
         ),
@@ -331,23 +343,17 @@ class _PaymentPinPageState extends State<PaymentPinPage> {
           children: [
             Text(
               rightTitle,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
+              style: const TextStyle(color: Colors.white),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             Text(
               rightValue,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(color: Colors.white),
             ),
           ],
         ),
       ],
     );
   }
+
 }

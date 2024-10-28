@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:kitokopay/src/customs/appbar.dart';
 import 'package:kitokopay/src/customs/footer.dart';
+import 'package:kitokopay/src/screens/ui/payments.dart';
 import 'package:kitokopay/src/screens/ui/payments/initiatepayments/paymentpin.dart';
+import 'package:kitokopay/src/screens/ui/payments/payment/payment.dart';
 
 class PaymentConfirmationPage extends StatefulWidget {
   const PaymentConfirmationPage({super.key});
@@ -12,7 +14,7 @@ class PaymentConfirmationPage extends StatefulWidget {
 }
 
 class _PaymentConfirmationPageState extends State<PaymentConfirmationPage> {
-    int _selectedTabIndex = 0;
+  int _selectedTabIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -44,8 +46,7 @@ class _PaymentConfirmationPageState extends State<PaymentConfirmationPage> {
                           alignment: Alignment.center,
                           decoration: const BoxDecoration(
                             image: DecorationImage(
-                              image: AssetImage(
-                                  'assets/images/confirm.png'),
+                              image: AssetImage('assets/images/confirm.png'),
                               fit: BoxFit.fitHeight,
                             ),
                           ),
@@ -216,6 +217,7 @@ class _PaymentConfirmationPageState extends State<PaymentConfirmationPage> {
   }
 
   // Build individual tab for the card tab bar
+  // Build individual tab for the card tab bar
   Widget _buildCardTab(String title, int index) {
     final isSelected =
         _selectedTabIndex == index; // Check if the tab is selected
@@ -225,11 +227,25 @@ class _PaymentConfirmationPageState extends State<PaymentConfirmationPage> {
         setState(() {
           _selectedTabIndex = index; // Update the selected tab index
         });
+
+        // Navigate to the appropriate screen when the tab is clicked
+        if (index == 0) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const PaymentPage()),
+          );
+        } else if (index == 1) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const PaymentScreen()),
+          );
+        } else {
+          print("hello jeff");
+        }
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Text widget with conditional styling
           Text(
             title,
             style: TextStyle(
@@ -255,17 +271,16 @@ class _PaymentConfirmationPageState extends State<PaymentConfirmationPage> {
     );
   }
 
-  // Build card tab bar for navigation
+// Build card tab bar for navigation
   Widget _buildCardTabBar() {
     return Container(
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
         color: Colors.lightBlue,
-        borderRadius:
-            BorderRadius.circular(12.0), // Rounded corners for the tab bar
+        borderRadius: BorderRadius.circular(12.0),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween, // Spread tabs evenly
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           _buildCardTab('Initiate Payments', 0),
           _buildCardTab('Payments', 1),
@@ -275,7 +290,7 @@ class _PaymentConfirmationPageState extends State<PaymentConfirmationPage> {
     );
   }
 
-  // Function to build the card details row
+// Build a row for displaying payment details
   Widget _buildDetailsRow(String leftTitle, String leftValue, String rightTitle,
       String rightValue) {
     return Row(
@@ -286,19 +301,12 @@ class _PaymentConfirmationPageState extends State<PaymentConfirmationPage> {
           children: [
             Text(
               leftTitle,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
+              style: const TextStyle(color: Colors.white),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             Text(
               leftValue,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(color: Colors.white),
             ),
           ],
         ),
@@ -307,23 +315,17 @@ class _PaymentConfirmationPageState extends State<PaymentConfirmationPage> {
           children: [
             Text(
               rightTitle,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
+              style: const TextStyle(color: Colors.white),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             Text(
               rightValue,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(color: Colors.white),
             ),
           ],
         ),
       ],
     );
   }
+
 }
