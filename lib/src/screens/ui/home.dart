@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:kitokopay/src/customs/atmcarditem.dart'; // Ensure this import is valid
-import 'package:kitokopay/src/customs/sidemenubar.dart';
+import 'package:kitokopay/src/customs/footer.dart';
 import 'package:kitokopay/src/screens/ui/payments.dart'; // Ensure this import is valid
+import 'package:kitokopay/src/customs/appbar.dart'; // Import your CustomAppBar
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -11,43 +12,18 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor:
           const Color(0xFF3C4B9D), // Background color for the screen
-      body: Row(
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(60.0), // Adjust height as needed
+        child: CustomAppBar(), // Use your CustomAppBar here
+      ),
+      body: Column(
         children: [
-          // Sidebar Menu that sticks to the left side
-          const SidebarMenu(),
-
-          // Main content area
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Top right section: username, image placeholder, notification icon
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Hi Jeff', // Username (Replace with dynamic username if needed)
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      CircleAvatar(
-                        radius: 18,
-                        backgroundColor: Colors.white,
-                        child: Icon(Icons.person, color: Color(0xFF3C4B9D)),
-                      ),
-                      SizedBox(width: 10),
-                      Icon(
-                        Icons.notifications,
-                        color: Colors.white,
-                      ),
-                    ],
-                  ),
                   const SizedBox(height: 20),
 
                   // Your Cards Section
@@ -141,7 +117,6 @@ class HomeScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-
                       const SizedBox(width: 10), // Spacing between cards
                       Flexible(
                         child: _buildQuickServiceCard(
@@ -212,6 +187,7 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
+          const Footer(), // Add Footer here
         ],
       ),
     );

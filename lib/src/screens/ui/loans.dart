@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:kitokopay/src/customs/atmcarditem.dart';
-import 'package:kitokopay/src/customs/sidemenubar.dart';
+import 'package:kitokopay/src/customs/footer.dart';
+import '../../customs/appbar.dart'; // Ensure this is still necessary
 
 class LoansPage extends StatefulWidget {
   const LoansPage({super.key});
@@ -10,355 +10,363 @@ class LoansPage extends StatefulWidget {
 }
 
 class _LoansPageState extends State<LoansPage> {
-  int? selectedCardIndex;
-
-  void onCardSelect(int index) {
-    setState(() {
-      if (selectedCardIndex == index) {
-        selectedCardIndex = null;
-      } else {
-        selectedCardIndex = index;
-      }
-    });
-  }
+  int _selectedTabIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF3C4B9D),
-      body: Row(
-        children: [
-          const SidebarMenu(),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      appBar: const CustomAppBar(), // Custom app bar
+
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 20),
+            // Card tab bar for navigation
+            _buildCardTabBar(),
+            const SizedBox(height: 30),
+            Expanded(
+              child: Row(
                 children: [
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Hi Jeff',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      CircleAvatar(
-                        radius: 18,
-                        backgroundColor: Colors.white,
-                        child: Icon(Icons.person, color: Color(0xFF3C4B9D)),
-                      ),
-                      SizedBox(width: 10),
-                      Icon(Icons.notifications, color: Colors.white),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
+                  // Left Column (Apply Loan)
                   Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: SingleChildScrollView(
-                        child: Column(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Apply Loan title
+                        const Text(
+                          "Apply Loan",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Loan Amount slider
+                        _buildSliderSection("Loan Amount", "CDF 27,000",
+                            "CDF 10,000", "CDF 150,000"),
+
+                        const SizedBox(height: 16),
+
+                        // Due Date slider
+                        _buildSliderSection(
+                            "Due Date", "30 Days", "10 Days", "30 Days"),
+
+                        const SizedBox(height: 30),
+
+                        // Continue Button
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              // Handle continue action
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  Colors.lightBlue, // Skyblue background
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                            ),
+                            child: const Text(
+                              "Continue",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Vertical Divider
+                  Container(
+                    width: 1,
+                    height: double.infinity,
+                    color: Colors.white.withOpacity(0.4),
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                  ),
+
+                  // Right Column (Loan Details)
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Loan Details title
+                        const Text(
+                          "Loan Details",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Row 1: Loan Amount and Repayment Date
+                        _buildDetailsRow("Loan Amount", "CDF 27,000",
+                            "Repayment Date", "18.08.2024"),
+
+                        const SizedBox(height: 16),
+
+                        // Row 2: Interest Rate and Repayment Amount
+                        _buildDetailsRow("Interest Rate", "10%",
+                            "Repayment Amount", "CDF 28,500"),
+
+                        const SizedBox(height: 16),
+
+                        // Row 3: Loan Recipient Account
+                        const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const SizedBox(height: 20),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  'Choose Card',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                TextButton(
-                                  onPressed: () {},
-                                  child: const Text(
-                                    'View All',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                            Text(
+                              "Loan Recipient Account",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: CardItem(
-                                    accountNumber: '1234 5678 9101 1121',
-                                    amount: 'CDF 10,000',
-                                    isSelected: selectedCardIndex == 0,
-                                    onSelect: () => onCardSelect(0),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: CardItem(
-                                    accountNumber: '1234 5678 9101 1122',
-                                    amount: 'CDF 8,500',
-                                    isSelected: selectedCardIndex == 1,
-                                    onSelect: () => onCardSelect(1),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: CardItem(
-                                    accountNumber: '1234 5678 9101 1123',
-                                    amount: 'CDF 5,000',
-                                    isSelected: selectedCardIndex == 2,
-                                    onSelect: () => onCardSelect(2),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 30),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        'Loan History',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 10),
-                                      Card(
-                                        color: const Color(0xFF4564A8),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(16.0),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              const Text(
-                                                'Amount Borrowed',
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 10),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  const Text(
-                                                    'CDF 64,000',
-                                                    style: TextStyle(
-                                                        color: Colors.white),
-                                                  ),
-                                                  ElevatedButton(
-                                                    onPressed: () {},
-                                                    style: ElevatedButton
-                                                        .styleFrom(
-                                                      backgroundColor:
-                                                          const Color(
-                                                              0xFF7FC1E4),
-                                                    ),
-                                                    child: const Text('Repay',
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.white)),
-                                                  ),
-                                                ],
-                                              ),
-                                              const SizedBox(height: 10),
-                                              const Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Text('Application Date:',
-                                                      style: TextStyle(
-                                                          color: Colors.white)),
-                                                  Row(
-                                                    children: [
-                                                      Text('1 June 2024',
-                                                          style: TextStyle(
-                                                              color: Colors
-                                                                  .white)),
-                                                      SizedBox(width: 8),
-                                                      Icon(Icons.arrow_forward,
-                                                          color: Colors.white),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 20),
-                                      Card(
-                                        color: const Color(0xFF4564A8),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(16.0),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              const Text(
-                                                'Another Loan',
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 10),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  const Text(
-                                                    'CDF 32,000',
-                                                    style: TextStyle(
-                                                        color: Colors.white),
-                                                  ),
-                                                  ElevatedButton(
-                                                    onPressed: () {},
-                                                    style: ElevatedButton
-                                                        .styleFrom(
-                                                      backgroundColor:
-                                                          const Color(
-                                                              0xFF7FC1E4),
-                                                    ),
-                                                    child: const Text('Repay',
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.white)),
-                                                  ),
-                                                ],
-                                              ),
-                                              const SizedBox(height: 10),
-                                              const Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Text('Application Date:',
-                                                      style: TextStyle(
-                                                          color: Colors.white)),
-                                                  Row(
-                                                    children: [
-                                                      Text('15 July 2024',
-                                                          style: TextStyle(
-                                                              color: Colors
-                                                                  .white)),
-                                                      SizedBox(width: 8),
-                                                      Icon(Icons.arrow_forward,
-                                                          color: Colors.white),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const VerticalDivider(
-                                    color: Colors.white, thickness: 1),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        'Loan Details',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                      Card(
-                                        color: const Color(0xFF4564A8),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(16.0),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              ElevatedButton(
-                                                onPressed: () {},
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      const Color(0xFF7FC1E4),
-                                                ),
-                                                child: const Text('Active',
-                                                    style: TextStyle(
-                                                        color: Colors.white)),
-                                              ),
-                                              const SizedBox(height: 10),
-                                              loanDetailRow(
-                                                  'Loan Amount:', 'CDF 65250'),
-                                              loanDetailRow('Repayment Date:',
-                                                  '16th August 2024'),
-                                              loanDetailRow('Principal Amount:',
-                                                  'CDF 60,000'),
-                                              loanDetailRow('Interest Paid:',
-                                                  'CDF 1,864'),
-                                              const SizedBox(height: 10),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      Center(
-                                        child: ElevatedButton(
-                                          onPressed: () {},
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                                const Color(0xFF7FC1E4),
-                                          ),
-                                          child: const Text('Repay Loan',
-                                              style: TextStyle(
-                                                  color: Colors.white)),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                            SizedBox(height: 8),
+                            Text(
+                              "+243 123 456 789",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ],
                         ),
-                      ),
+
+                        const SizedBox(height: 30),
+
+                        // Final loan conditions card
+                        const Card(
+                          color: Color(0xFF4C6DB2),
+                          margin: EdgeInsets.only(top: 16),
+                          child: Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Text(
+                              "Final loan conditions will be specified when the application is approved.",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
+            const Footer(), // Footer widget
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Function to build the loan amount and due date slider section
+  Widget _buildSliderSection(
+      String title, String rightLabel, String leftValue, String rightValue) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Row with title and right label
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+              ),
+            ),
+            Text(
+              rightLabel,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        // Slider with - and + buttons
+        Row(
+          children: [
+            _buildCircleIcon(Icons.remove),
+            Expanded(
+              child: Slider(
+                value: 0.5,
+                onChanged: (value) {
+                  // Handle slider value change
+                },
+                activeColor: Colors.white,
+                inactiveColor: Colors.white.withOpacity(0.3),
+              ),
+            ),
+            _buildCircleIcon(Icons.add),
+          ],
+        ),
+        // Min and max value labels
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              leftValue,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+              ),
+            ),
+            Text(
+              rightValue,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // Function to build the card details row
+  Widget _buildDetailsRow(String leftTitle, String leftValue, String rightTitle,
+      String rightValue) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              leftTitle,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              leftValue,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              rightTitle,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              rightValue,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // Function to build the circle icon for add/remove buttons
+  Widget _buildCircleIcon(IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white),
+      ),
+      child: Icon(
+        icon,
+        color: Colors.white,
+        size: 20,
+      ),
+    );
+  }
+
+  // Build individual tab for the card tab bar
+  Widget _buildCardTab(String title, int index) {
+    final isSelected =
+        _selectedTabIndex == index; // Check if the tab is selected
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedTabIndex = index; // Update the selected tab index
+        });
+      },
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Text widget with conditional styling
+          Text(
+            title,
+            style: TextStyle(
+              color: isSelected
+                  ? const Color(0xFF3C4B9D)
+                  : Colors.white, // Change color if selected
+              fontWeight: isSelected
+                  ? FontWeight.bold
+                  : FontWeight.normal, // Bold if selected
+              decoration: TextDecoration.none, // Remove underline
+            ),
           ),
+          // Line below the text if the tab is selected
+          if (isSelected)
+            Container(
+              height: 2, // Height of the line
+              width: 40, // Width of the line
+              color: const Color(0xFF3C4B9D), // Color of the line
+              margin: const EdgeInsets.only(top: 4), // Margin above the line
+            ),
         ],
       ),
     );
   }
 
-  Widget loanDetailRow(String title, String amount) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(title, style: const TextStyle(color: Colors.white)),
-        Text(amount, style: const TextStyle(color: Colors.white)),
-      ],
+  // Build card tab bar for navigation
+  Widget _buildCardTabBar() {
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        color: Colors.lightBlue,
+        borderRadius:
+            BorderRadius.circular(12.0), // Rounded corners for the tab bar
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween, // Spread tabs evenly
+        children: [
+          _buildCardTab('Apply Loan', 0),
+          _buildCardTab('My Loans', 1),
+          _buildCardTab('Credit History', 2),
+        ],
+      ),
     );
   }
 }

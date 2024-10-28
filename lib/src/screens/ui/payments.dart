@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:kitokopay/src/customs/appbar.dart';
 import 'package:kitokopay/src/customs/atmcarditem.dart';
-import 'package:kitokopay/src/customs/sidemenubar.dart';
+import 'package:kitokopay/src/customs/footer.dart';
 
 class PaymentPage extends StatefulWidget {
   const PaymentPage({super.key});
@@ -11,6 +12,7 @@ class PaymentPage extends StatefulWidget {
 
 class _PaymentPageState extends State<PaymentPage> {
   int? selectedCardIndex;
+  int _selectedTabIndex = 0;
 
   void onCardSelect(int index) {
     setState(() {
@@ -21,65 +23,12 @@ class _PaymentPageState extends State<PaymentPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: const CustomAppBar(), // Using the custom app bar
       backgroundColor: const Color(0xFF3C4B9D),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF4564A8),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 20),
-            child: Row(
-              children: [
-                Text(
-                  'Hi Jeff',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(width: 10),
-                CircleAvatar(
-                  radius: 18,
-                  backgroundColor: Colors.white,
-                  child: Icon(Icons.person, color: Color(0xFF3C4B9D)),
-                ),
-                SizedBox(width: 10),
-                Icon(Icons.notifications, color: Colors.white),
-              ],
-            ),
-          ),
-        ],
-      ),
-      body: Row(
+      body: Column(
         children: [
-          // Sidebar Menu
-          Container(
-            width: 250,
-            color: const Color(0xFF3C4B9D),
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back, color: Colors.white),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                      const SizedBox(width: 10),
-                      const Text(
-                        'Payments',
-                        style: TextStyle(color: Colors.white, fontSize: 20),
-                      ),
-                    ],
-                  ),
-                ),
-                const Expanded(child: SidebarMenu()),
-              ],
-            ),
-          ),
+          // Custom Tab Bar
+          _buildCardTabBar(),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -142,7 +91,6 @@ class _PaymentPageState extends State<PaymentPage> {
                       ],
                     ),
                     const SizedBox(height: 30),
-
                     // Payment and Business Search Columns
                     Row(
                       children: [
@@ -237,97 +185,16 @@ class _PaymentPageState extends State<PaymentPage> {
                               // Business Cards Row
                               Row(
                                 children: [
-                                  Expanded(
-                                    child: Column(
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.all(16),
-                                          decoration: BoxDecoration(
-                                            color: Colors.lightBlue,
-                                            borderRadius:
-                                                BorderRadius.circular(8.0),
-                                          ),
-                                          child: const Icon(Icons.shopping_cart,
-                                              color: Colors.white),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        const Text(
-                                          'Spotify',
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                                  _buildBusinessCard(
+                                      'Spotify', Icons.shopping_cart),
                                   const SizedBox(width: 10),
-                                  Expanded(
-                                    child: Column(
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.all(16),
-                                          decoration: BoxDecoration(
-                                            color: Colors.lightBlue,
-                                            borderRadius:
-                                                BorderRadius.circular(8.0),
-                                          ),
-                                          child: const Icon(Icons.shopping_cart,
-                                              color: Colors.white),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        const Text(
-                                          'Netflix',
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                                  _buildBusinessCard(
+                                      'Netflix', Icons.shopping_cart),
                                   const SizedBox(width: 10),
-                                   Expanded(
-                                    child: Column(
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.all(16),
-                                          decoration: BoxDecoration(
-                                            color: Colors.lightBlue,
-                                            borderRadius:
-                                                BorderRadius.circular(8.0),
-                                          ),
-                                          child: const Icon(Icons.shopping_cart,
-                                              color: Colors.white),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        const Text(
-                                          'Hulu',
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                                  _buildBusinessCard(
+                                      'Hulu', Icons.shopping_cart),
                                   const SizedBox(width: 10),
-                                  Expanded(
-                                    child: Column(
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.all(16),
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(8.0),
-                                            border: Border.all(
-                                              color: Colors.white,
-                                              style: BorderStyle.solid,
-                                              width: 1.0,
-                                            ),
-                                          ),
-                                          child: const Icon(Icons.add,
-                                              color: Colors.white),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        const Text(
-                                          'Add Business',
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                                  _buildAddBusinessCard(),
                                 ],
                               ),
                               const SizedBox(height: 20),
@@ -376,24 +243,108 @@ class _PaymentPageState extends State<PaymentPage> {
               ),
             ),
           ),
+          const Footer(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCardTabBar() {
+    return Card(
+      color: Colors.lightBlue,
+      margin: const EdgeInsets.all(16),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildCardTab('Initiate Payments', 0),
+            _buildCardTab('Payments', 1),
+            _buildCardTab('Manage Favourites', 2),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCardTab(String title, int index) {
+    final isSelected =
+        _selectedTabIndex == index; // Check if this tab is selected
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedTabIndex = index; // Update the selected tab index
+        });
+      },
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              color: isSelected ? const Color(0xFF3C4B9D) : Colors.white,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+          if (isSelected)
+            Container(
+              height: 2,
+              width: 40,
+              color: const Color(0xFF3C4B9D),
+              margin: const EdgeInsets.only(top: 4),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBusinessCard(String name, IconData icon) {
+    return Expanded(
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.lightBlue,
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Icon(icon, color: Colors.white),
+          ),
+          const SizedBox(height: 8),
+          Text(name, style: const TextStyle(color: Colors.white)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAddBusinessCard() {
+    return Expanded(
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8.0),
+              border: Border.all(
+                  color: Colors.white, style: BorderStyle.solid, width: 1.0),
+            ),
+            child: const Icon(Icons.add, color: Colors.white),
+          ),
+          const SizedBox(height: 8),
+          const Text('Add', style: TextStyle(color: Colors.white)),
         ],
       ),
     );
   }
 
   Widget businessListItem(
-      IconData icon, String businessName, String accountNumber) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.white),
-          const SizedBox(width: 10),
-          Text(businessName, style: const TextStyle(color: Colors.white)),
-          const Spacer(),
+      IconData icon, String business, String accountNumber) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.white),
+      title: Text(business, style: const TextStyle(color: Colors.white)),
+      subtitle:
           Text(accountNumber, style: const TextStyle(color: Colors.white)),
-        ],
-      ),
     );
   }
 }
