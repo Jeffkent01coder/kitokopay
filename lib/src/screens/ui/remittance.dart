@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:kitokopay/src/customs/appbar.dart';
 import 'package:kitokopay/src/customs/atmcarditem.dart';
-import 'package:kitokopay/src/customs/footer.dart'; // Adjust the import as necessary
+import 'package:kitokopay/src/customs/footer.dart';
+import 'package:kitokopay/src/screens/ui/remittance/remittance_page.dart'; // Adjust the import as necessary
 
 class RemittancePage extends StatefulWidget {
   const RemittancePage({super.key});
@@ -43,6 +44,8 @@ class _RemittancePageState extends State<RemittancePage> {
       );
     } else {
       // Handle the continue action
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (context) => const RemittancePageDetails()));
     }
   }
 
