@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kitokopay/src/customs/footer.dart';
+import 'package:kitokopay/src/screens/ui/loans/applyloan/loanConfrimation.dart';
+import 'package:kitokopay/src/screens/ui/loans/myloans/myloans.dart';
 import '../../customs/appbar.dart'; // Ensure this is still necessary
 
 class LoansPage extends StatefulWidget {
@@ -63,7 +65,13 @@ class _LoansPageState extends State<LoansPage> {
                           width: double.infinity,
                           child: ElevatedButton(
                             onPressed: () {
-                              // Handle continue action
+                              // Navigate to the LoanConfirmationPage
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        LoanConfirmationPage()), // Ensure LoanConfirmationPage is imported
+                              );
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor:
@@ -78,6 +86,7 @@ class _LoansPageState extends State<LoansPage> {
                               ),
                             ),
                           ),
+
                         ),
                       ],
                     ),
@@ -243,7 +252,7 @@ class _LoansPageState extends State<LoansPage> {
   }
 
   // Function to build the card details row
-  Widget _buildDetailsRow(String leftTitle, String leftValue, String rightTitle,
+ Widget _buildDetailsRow(String leftTitle, String leftValue, String rightTitle,
       String rightValue) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -253,19 +262,12 @@ class _LoansPageState extends State<LoansPage> {
           children: [
             Text(
               leftTitle,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
+              style: const TextStyle(color: Colors.white),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             Text(
               leftValue,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(color: Colors.white),
             ),
           ],
         ),
@@ -274,19 +276,12 @@ class _LoansPageState extends State<LoansPage> {
           children: [
             Text(
               rightTitle,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
+              style: const TextStyle(color: Colors.white),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             Text(
               rightValue,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(color: Colors.white),
             ),
           ],
         ),
@@ -320,11 +315,25 @@ class _LoansPageState extends State<LoansPage> {
         setState(() {
           _selectedTabIndex = index; // Update the selected tab index
         });
+
+        // Navigate to the appropriate screen when the tab is clicked
+        if (index == 0) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const LoansPage()),
+          );
+        } else if (index == 1) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const MyLoansPage()),
+          );
+        } else {
+          print("hello jeff");
+        }
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Text widget with conditional styling
           Text(
             title,
             style: TextStyle(
@@ -349,18 +358,16 @@ class _LoansPageState extends State<LoansPage> {
       ),
     );
   }
-
   // Build card tab bar for navigation
   Widget _buildCardTabBar() {
     return Container(
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
         color: Colors.lightBlue,
-        borderRadius:
-            BorderRadius.circular(12.0), // Rounded corners for the tab bar
+        borderRadius: BorderRadius.circular(12.0),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween, // Spread tabs evenly
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           _buildCardTab('Apply Loan', 0),
           _buildCardTab('My Loans', 1),
