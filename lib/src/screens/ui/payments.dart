@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kitokopay/src/customs/appbar.dart';
 import 'package:kitokopay/src/customs/atmcarditem.dart';
 import 'package:kitokopay/src/customs/footer.dart';
+import 'package:kitokopay/src/screens/ui/payments/initiatepayments/paymentconfirmation.dart';
 
 class PaymentPage extends StatefulWidget {
   const PaymentPage({super.key});
@@ -153,16 +154,27 @@ class _PaymentPageState extends State<PaymentPage> {
                               ),
                               const SizedBox(height: 20),
                               ElevatedButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const PaymentConfirmationPage(), // Ensure this matches your class
+                                    ),
+                                  );
+                                },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.lightBlue,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
-                                child: const Text('Continue',
-                                    style: TextStyle(color: Colors.white)),
+                                child: const Text(
+                                  'Continue',
+                                  style: TextStyle(color: Colors.white),
+                                ),
                               ),
+
                             ],
                           ),
                         ),
