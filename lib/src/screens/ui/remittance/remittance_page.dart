@@ -3,6 +3,9 @@ import 'package:kitokopay/src/customs/appbar.dart';
 import 'package:kitokopay/src/customs/atmcarditem.dart';
 import 'package:kitokopay/src/customs/footer.dart';
 import 'package:kitokopay/src/customs/t-shaped.dart';
+import 'package:kitokopay/src/screens/ui/remittance.dart';
+import 'package:kitokopay/src/screens/ui/remittance/remittanceConfirmation.dart';
+import 'package:kitokopay/src/screens/ui/remittance/transactions/transactions.dart';
 
 class RemittancePageDetails extends StatefulWidget {
   const RemittancePageDetails({super.key});
@@ -111,26 +114,54 @@ class _RemittancePageDetailsState extends State<RemittancePageDetails> {
     );
   }
 
+   // Build individual tab for the card tab bar
   Widget _buildTab(String title, int index) {
-    final isSelected = _selectedTabIndex == index;
+    final isSelected =
+        _selectedTabIndex == index; // Check if the tab is selected
+
     return GestureDetector(
-      onTap: () => setState(() => _selectedTabIndex = index),
+      onTap: () {
+        setState(() {
+          _selectedTabIndex = index; // Update the selected tab index
+        });
+
+        // Navigate to the appropriate screen when the tab is clicked
+        if (index == 0) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const RemittancePage()),
+          );
+        } else if (index == 1) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const TransactionsPage()),
+          );
+        } else {
+          print("hello jeff");
+        }
+      },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
             title,
             style: TextStyle(
-              color: isSelected ? _primaryColor : Colors.white,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              color: isSelected
+                  ? const Color(0xFF3C4B9D)
+                  : Colors.white, // Change color if selected
+              fontWeight: isSelected
+                  ? FontWeight.bold
+                  : FontWeight.normal, // Bold if selected
+              decoration: TextDecoration.none, // Remove underline
             ),
           ),
+          // Line below the text if the tab is selected
           if (isSelected)
             Container(
-              height: 2,
-              width: 40,
-              margin: const EdgeInsets.only(top: 4),
-              color: _primaryColor,
+              height: 2, // Height of the line
+              width: 40, // Width of the line
+              color: const Color(0xFF3C4B9D), // Color of the line
+              margin: const EdgeInsets.only(top: 4), // Margin above the line
             ),
         ],
       ),
@@ -210,7 +241,15 @@ class _RemittancePageDetailsState extends State<RemittancePageDetails> {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  const RemittanceConfirmationPage(), // Ensure this matches your class
+            ),
+          );
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: _secondaryColor,
           padding: const EdgeInsets.symmetric(vertical: 16),

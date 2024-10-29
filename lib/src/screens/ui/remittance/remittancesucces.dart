@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:kitokopay/src/customs/appbar.dart';
 import 'package:kitokopay/src/customs/footer.dart';
-import 'package:kitokopay/src/screens/ui/payments.dart';
+import 'package:kitokopay/src/screens/ui/home.dart';
+import 'package:kitokopay/src/screens/ui/remittance.dart';
+import 'package:kitokopay/src/screens/ui/remittance/transactions/transactions.dart';
 
-class PaymentScreen extends StatefulWidget {
-  const PaymentScreen({super.key});
+class RemittanceSuccessPage extends StatefulWidget {
+  const RemittanceSuccessPage({super.key});
 
   @override
-  State<PaymentScreen> createState() => _PaymentScreenState();
+  State<RemittanceSuccessPage> createState() => _RemittanceSuccessPageState();
 }
 
-class _PaymentScreenState extends State<PaymentScreen> {
+class _RemittanceSuccessPageState extends State<RemittanceSuccessPage> {
   int _selectedTabIndex = 0;
-  int _selectedCardIndex = -1; // For tracking the selected card
 
   @override
   Widget build(BuildContext context) {
@@ -30,45 +31,75 @@ class _PaymentScreenState extends State<PaymentScreen> {
             Expanded(
               child: Row(
                 children: [
-                  // Left Column (Payments Title and Cards)
+                  // Left Column (Remittance Success)
                   Expanded(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        Container(
+                          width: 250,
+                          height: 250,
+                          alignment: Alignment.center,
+                          decoration: const BoxDecoration(
+                            image: DecorationImage(
+                              image: AssetImage('assets/images/succes.png'),
+                              fit: BoxFit.fitHeight,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 25),
                         const Text(
-                          "Payments",
+                          "Remittance Successful!",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        _buildPaymentCard(0, 'CDF 64,000', '1 June 2024'),
-                        const SizedBox(height: 10),
-                        _buildPaymentCard(1, 'CDF 75,000', '5 July 2024'),
-                        const SizedBox(height: 10),
-                        _buildPaymentCard(2, 'CDF 55,000', '10 August 2024'),
+                        const SizedBox(height: 8),
+                        const Text(
+                          "Your remittance has been processed successfully.",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const HomeScreen()),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.lightBlue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: const Text(
+                            'Done',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
                       ],
                     ),
                   ),
-
-                  // Vertical Divider
                   Container(
                     width: 1,
                     height: double.infinity,
                     color: Colors.white.withOpacity(0.4),
                     margin: const EdgeInsets.symmetric(horizontal: 16),
                   ),
-
-                  // Right Column (Payment Details)
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Payment Details title
                         const Text(
-                          "Payment Details",
+                          "Remittance Details",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 20,
@@ -77,24 +108,24 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         ),
                         const SizedBox(height: 16),
                         _buildDetailsRow(
-                          "Business Name",
-                          "Apple Store",
-                          "Account Number",
-                          "987654",
+                          "Recipient Name",
+                          "John Doe",
+                          "Reference Number",
+                          "87654321",
                         ),
                         const SizedBox(height: 16),
                         _buildDetailsRow(
-                          "Amount",
-                          "CDF 30,000",
-                          "Transaction Fee",
-                          "CDF 500",
+                          "Amount Sent",
+                          "USD 500",
+                          "Service Fee",
+                          "USD 10",
                         ),
                         const SizedBox(height: 16),
                         const Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Virtual Card Account",
+                              "Destination Account",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -102,7 +133,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             ),
                             SizedBox(height: 8),
                             Text(
-                              "123 456 5789",
+                              "456 789 1234",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
@@ -118,7 +149,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           child: Padding(
                             padding: EdgeInsets.all(16.0),
                             child: Text(
-                              "All payments must strictly adhere to the established payment Terms and Conditions.",
+                              "All remittances must comply with the established Terms and Conditions.",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontStyle: FontStyle.italic,
@@ -181,92 +212,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ],
               ),
             ),
-            const Footer(), // Footer widget
+            const Footer(),
           ],
         ),
       ),
     );
   }
 
-  // Build payment card with selectable functionality
-  Widget _buildPaymentCard(int index, String amount, String date) {
-    final isSelected = _selectedCardIndex == index;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedCardIndex = index;
-        });
-      },
-      child: Card(
-        color: const Color(0xFF4564A8),
-        shape: isSelected
-            ? RoundedRectangleBorder(
-                side: const BorderSide(color: Colors.lightBlue, width: 2.0),
-                borderRadius: BorderRadius.circular(10),
-              )
-            : RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Amount Borrowed',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    amount,
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF7FC1E4),
-                    ),
-                    child: const Text(
-                      'Success',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Application Date:',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        date,
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                      const SizedBox(width: 8),
-                      const Icon(Icons.arrow_forward, color: Colors.white),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Build individual tab for the card tab bar
+   // Build individual tab for the card tab bar
   Widget _buildCardTab(String title, int index) {
     final isSelected =
         _selectedTabIndex == index; // Check if the tab is selected
@@ -281,12 +234,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
         if (index == 0) {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const PaymentPage()),
+            MaterialPageRoute(builder: (context) => const RemittancePage()),
           );
         } else if (index == 1) {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const PaymentScreen()),
+            MaterialPageRoute(builder: (context) => const TransactionsPage()),
           );
         } else {
           print("hello jeff");
@@ -320,7 +273,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-// Build card tab bar for navigation
   Widget _buildCardTabBar() {
     return Container(
       padding: const EdgeInsets.all(8.0),
@@ -331,15 +283,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildCardTab('Initiate Payments', 0),
-          _buildCardTab('Payments', 1),
-          _buildCardTab('Manage Favourites', 2),
+          _buildCardTab('Send Money', 0),
+          _buildCardTab('Remittance History', 1),
+          _buildCardTab('Manage Recipients', 2),
         ],
       ),
     );
   }
 
-// Build a row for displaying payment details
   Widget _buildDetailsRow(String leftTitle, String leftValue, String rightTitle,
       String rightValue) {
     return Row(
@@ -355,7 +306,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
             const SizedBox(height: 4),
             Text(
               leftValue,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -369,12 +321,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
             const SizedBox(height: 4),
             Text(
               rightValue,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ],
         ),
       ],
     );
   }
-
 }

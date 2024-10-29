@@ -134,7 +134,7 @@ class _SuccessPaymentPageState extends State<SuccessPaymentPage> {
                         // Row 2: Amount and Transaction Fee
                         _buildDetailsRow(
                           "Amount",
-                          "CDF 30,000",
+                           "CDF 500000",
                           "Transaction Fee",
                           "CDF 500",
                         ),
@@ -344,7 +344,7 @@ class _SuccessPaymentPageState extends State<SuccessPaymentPage> {
             const SizedBox(height: 4),
             Text(
               leftValue,
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -358,7 +358,7 @@ class _SuccessPaymentPageState extends State<SuccessPaymentPage> {
             const SizedBox(height: 4),
             Text(
               rightValue,
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ],
         ),

@@ -3,7 +3,8 @@ import 'package:country_picker/country_picker.dart';
 import 'package:kitokopay/src/customs/appbar.dart';
 import 'package:kitokopay/src/customs/atmcarditem.dart';
 import 'package:kitokopay/src/customs/footer.dart';
-import 'package:kitokopay/src/screens/ui/remittance/remittance_page.dart'; // Adjust the import as necessary
+import 'package:kitokopay/src/screens/ui/remittance/remittance_page.dart';
+import 'package:kitokopay/src/screens/ui/remittance/transactions/transactions.dart'; // Adjust the import as necessary
 
 class RemittancePage extends StatefulWidget {
   const RemittancePage({super.key});
@@ -95,20 +96,35 @@ class _RemittancePageState extends State<RemittancePage> {
   }
 
 
+  // Build individual tab for the card tab bar
   Widget _buildCardTab(String title, int index) {
     final isSelected =
-        _selectedTabIndex == index; // Check if this tab is selected
+        _selectedTabIndex == index; // Check if the tab is selected
 
     return GestureDetector(
       onTap: () {
         setState(() {
           _selectedTabIndex = index; // Update the selected tab index
         });
+
+        // Navigate to the appropriate screen when the tab is clicked
+        if (index == 0) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const RemittancePage()),
+          );
+        } else if (index == 1) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const TransactionsPage()),
+          );
+        } else {
+          print("hello jeff");
+        }
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Text widget with conditional styling
           Text(
             title,
             style: TextStyle(
@@ -122,7 +138,7 @@ class _RemittancePageState extends State<RemittancePage> {
             ),
           ),
           // Line below the text if the tab is selected
-          if (isSelected) // Show line only if selected
+          if (isSelected)
             Container(
               height: 2, // Height of the line
               width: 40, // Width of the line

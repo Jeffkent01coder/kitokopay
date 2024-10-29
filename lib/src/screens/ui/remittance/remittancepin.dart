@@ -1,74 +1,149 @@
 import 'package:flutter/material.dart';
 import 'package:kitokopay/src/customs/appbar.dart';
 import 'package:kitokopay/src/customs/footer.dart';
-import 'package:kitokopay/src/screens/ui/loans.dart';
+import 'package:kitokopay/src/screens/ui/payments/initiatepayments/successpayment.dart';
+import 'package:kitokopay/src/screens/ui/remittance.dart';
+import 'package:kitokopay/src/screens/ui/remittance/transactions/transactions.dart';
 
-class MyLoansPage extends StatefulWidget {
-  const MyLoansPage({super.key});
+class RemittancePinPage extends StatefulWidget {
+  const RemittancePinPage({super.key});
 
   @override
-  State<MyLoansPage> createState() => _MyLoansPageState();
+  _RemittancePinPageState createState() => _RemittancePinPageState();
 }
 
-class _MyLoansPageState extends State<MyLoansPage> {
+class _RemittancePinPageState extends State<RemittancePinPage> {
   int _selectedTabIndex = 0;
-  int _selectedCardIndex = -1; // For tracking the selected loan card
+  final TextEditingController _pinController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF3C4B9D),
       appBar: const CustomAppBar(), // Custom app bar
+
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 20),
-            _buildCardTabBar(), // Tab bar for navigation
-            const SizedBox(height: 20),
+            _buildCardTabBar(),
+            const SizedBox(height: 30),
             Expanded(
               child: Row(
                 children: [
-                  // Left Column (Loans Title and Cards)
                   Expanded(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        Container(
+                          width: 250,
+                          height: 250,
+                          alignment: Alignment.center,
+                          decoration: const BoxDecoration(
+                            image: DecorationImage(
+                              image: AssetImage('assets/images/pin.png'),
+                              fit: BoxFit.fitHeight,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 25),
                         const Text(
-                          "My Loans",
+                          "Enter PIN",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        _buildLoanCard(0, 'CDF 64,000', '1 June 2024'),
-                        const SizedBox(height: 10),
-                        _buildLoanCard(1, 'CDF 75,000', '5 July 2024'),
-                        const SizedBox(height: 10),
-                        _buildLoanCard(2, 'CDF 55,000', '10 August 2024'),
+                        const SizedBox(height: 8),
+                        const Text(
+                          "Please enter your PIN to complete the transaction.",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          width: 150,
+                          child: TextField(
+                            controller: _pinController,
+                            keyboardType: TextInputType.number,
+                            maxLength: 4,
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              counterText: '',
+                              hintText: '----',
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                side: const BorderSide(color: Colors.white),
+                              ),
+                              child: const Text(
+                                "Back",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const SuccessPaymentPage(),
+                                  ),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.lightBlue,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              child: const Text(
+                                'Pay Now',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
-
-                  // Vertical Divider
                   Container(
                     width: 1,
                     height: double.infinity,
                     color: Colors.white.withOpacity(0.4),
                     margin: const EdgeInsets.symmetric(horizontal: 16),
                   ),
-
-                  // Right Column (Loan Details)
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Loan Details title
                         const Text(
-                          "Loan Details",
+                          "Payment Details",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 20,
@@ -76,25 +151,17 @@ class _MyLoansPageState extends State<MyLoansPage> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        _buildDetailsRow(
-                          "Loan Amount",
-                          "CDF 27,000",
-                          "Repayment Date",
-                          "18.08.2024",
-                        ),
+                        _buildDetailsRow("Business Name", "Apple Store",
+                            "Account Number", "987654"),
                         const SizedBox(height: 16),
-                        _buildDetailsRow(
-                          "Interest Rate",
-                          "10 %",
-                          "Repayment Amount",
-                          "CDF  28,500",
-                        ),
+                        _buildDetailsRow("Amount", "CDF 30,000",
+                            "Transaction Fee", "CDF 500"),
                         const SizedBox(height: 16),
                         const Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Loan Recipient Account",
+                              "Virtual Card Account",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -118,7 +185,7 @@ class _MyLoansPageState extends State<MyLoansPage> {
                           child: Padding(
                             padding: EdgeInsets.all(16.0),
                             child: Text(
-                              "Loan conditions have been set \n based on your credit rating. \n Terms & Conditions",
+                              "All payments must strictly adhere to the established payment Terms and Conditions.",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontStyle: FontStyle.italic,
@@ -132,92 +199,14 @@ class _MyLoansPageState extends State<MyLoansPage> {
                 ],
               ),
             ),
-            const Footer(), // Footer widget
+            const Footer(),
           ],
         ),
       ),
     );
   }
 
-  // Build loan card with selectable functionality
-  Widget _buildLoanCard(int index, String amount, String date) {
-    final isSelected = _selectedCardIndex == index;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedCardIndex = index;
-        });
-      },
-      child: Card(
-        color: const Color(0xFF4564A8),
-        shape: isSelected
-            ? RoundedRectangleBorder(
-                side: const BorderSide(color: Colors.lightBlue, width: 2.0),
-                borderRadius: BorderRadius.circular(10),
-              )
-            : RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Amount Borrowed',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    amount,
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF7FC1E4),
-                    ),
-                    child: const Text(
-                      'View Details',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Application Date:',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        date,
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                      const SizedBox(width: 8),
-                      const Icon(Icons.arrow_forward, color: Colors.white),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
- // Build individual tab for the card tab bar
+   // Build individual tab for the card tab bar
   Widget _buildCardTab(String title, int index) {
     final isSelected =
         _selectedTabIndex == index; // Check if the tab is selected
@@ -232,12 +221,12 @@ class _MyLoansPageState extends State<MyLoansPage> {
         if (index == 0) {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const LoansPage()),
+            MaterialPageRoute(builder: (context) => const RemittancePage()),
           );
         } else if (index == 1) {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const MyLoansPage()),
+            MaterialPageRoute(builder: (context) => const TransactionsPage()),
           );
         } else {
           print("hello jeff");
@@ -271,7 +260,6 @@ class _MyLoansPageState extends State<MyLoansPage> {
     );
   }
 
-  // Build card tab bar for navigation
   Widget _buildCardTabBar() {
     return Container(
       padding: const EdgeInsets.all(8.0),
@@ -282,15 +270,14 @@ class _MyLoansPageState extends State<MyLoansPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildCardTab('Apply Loan', 0),
-          _buildCardTab('My Loans', 1),
-          _buildCardTab('Credit History', 2),
+          _buildCardTab('Send Money', 0),
+          _buildCardTab('Transactions', 1),
+          _buildCardTab('Manage Recipients', 2),
         ],
       ),
     );
   }
 
-  // Build a row for displaying loan details
   Widget _buildDetailsRow(String leftTitle, String leftValue, String rightTitle,
       String rightValue) {
     return Row(
@@ -306,7 +293,8 @@ class _MyLoansPageState extends State<MyLoansPage> {
             const SizedBox(height: 4),
             Text(
               leftValue,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -320,7 +308,8 @@ class _MyLoansPageState extends State<MyLoansPage> {
             const SizedBox(height: 4),
             Text(
               rightValue,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ],
         ),

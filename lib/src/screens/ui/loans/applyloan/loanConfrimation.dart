@@ -304,7 +304,7 @@ class _LoanConfirmationPageState extends State<LoanConfirmationPage> {
             const SizedBox(height: 4),
             Text(
               leftValue,
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -318,7 +318,7 @@ class _LoanConfirmationPageState extends State<LoanConfirmationPage> {
             const SizedBox(height: 4),
             Text(
               rightValue,
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ],
         ),

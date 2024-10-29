@@ -3,14 +3,14 @@ import 'package:kitokopay/src/customs/appbar.dart';
 import 'package:kitokopay/src/customs/footer.dart';
 import 'package:kitokopay/src/screens/ui/payments.dart';
 
-class PaymentScreen extends StatefulWidget {
-  const PaymentScreen({super.key});
+class TransactionsPage extends StatefulWidget {
+  const TransactionsPage({super.key});
 
   @override
-  State<PaymentScreen> createState() => _PaymentScreenState();
+  State<TransactionsPage> createState() => _TransactionsPageState();
 }
 
-class _PaymentScreenState extends State<PaymentScreen> {
+class _TransactionsPageState extends State<TransactionsPage> {
   int _selectedTabIndex = 0;
   int _selectedCardIndex = -1; // For tracking the selected card
 
@@ -268,13 +268,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   // Build individual tab for the card tab bar
   Widget _buildCardTab(String title, int index) {
-    final isSelected =
-        _selectedTabIndex == index; // Check if the tab is selected
+    final isSelected = _selectedTabIndex == index;
 
     return GestureDetector(
       onTap: () {
         setState(() {
-          _selectedTabIndex = index; // Update the selected tab index
+          _selectedTabIndex = index;
         });
 
         // Navigate to the appropriate screen when the tab is clicked
@@ -286,7 +285,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         } else if (index == 1) {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const PaymentScreen()),
+            MaterialPageRoute(builder: (context) => const TransactionsPage()),
           );
         } else {
           print("hello jeff");
@@ -298,29 +297,24 @@ class _PaymentScreenState extends State<PaymentScreen> {
           Text(
             title,
             style: TextStyle(
-              color: isSelected
-                  ? const Color(0xFF3C4B9D)
-                  : Colors.white, // Change color if selected
-              fontWeight: isSelected
-                  ? FontWeight.bold
-                  : FontWeight.normal, // Bold if selected
-              decoration: TextDecoration.none, // Remove underline
+              color: isSelected ? const Color(0xFF3C4B9D) : Colors.white,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              decoration: TextDecoration.none,
             ),
           ),
-          // Line below the text if the tab is selected
           if (isSelected)
             Container(
-              height: 2, // Height of the line
-              width: 40, // Width of the line
-              color: const Color(0xFF3C4B9D), // Color of the line
-              margin: const EdgeInsets.only(top: 4), // Margin above the line
+              height: 2,
+              width: 40,
+              color: const Color(0xFF3C4B9D),
+              margin: const EdgeInsets.only(top: 4),
             ),
         ],
       ),
     );
   }
 
-// Build card tab bar for navigation
+  // Build card tab bar for navigation
   Widget _buildCardTabBar() {
     return Container(
       padding: const EdgeInsets.all(8.0),
@@ -339,7 +333,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-// Build a row for displaying payment details
+  // Build a row for displaying payment details
   Widget _buildDetailsRow(String leftTitle, String leftValue, String rightTitle,
       String rightValue) {
     return Row(
@@ -350,12 +344,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
           children: [
             Text(
               leftTitle,
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.white, fontSize: 16),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
             Text(
               leftValue,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -364,17 +361,19 @@ class _PaymentScreenState extends State<PaymentScreen> {
           children: [
             Text(
               rightTitle,
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.white, fontSize: 16),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
             Text(
               rightValue,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold),
             ),
           ],
         ),
       ],
     );
   }
-
 }

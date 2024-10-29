@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kitokopay/src/customs/footer.dart';
 import 'package:kitokopay/src/screens/ui/loans/applyloan/loanConfrimation.dart';
 import 'package:kitokopay/src/screens/ui/loans/myloans/myloans.dart';
-import '../../customs/appbar.dart'; // Ensure this is still necessary
+import '../../customs/appbar.dart'; 
 
 class LoansPage extends StatefulWidget {
   const LoansPage({super.key});
@@ -70,7 +70,7 @@ class _LoansPageState extends State<LoansPage> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
-                                        LoanConfirmationPage()), // Ensure LoanConfirmationPage is imported
+                                        const LoanConfirmationPage()), // Ensure LoanConfirmationPage is imported
                               );
                             },
                             style: ElevatedButton.styleFrom(
@@ -267,7 +267,7 @@ class _LoansPageState extends State<LoansPage> {
             const SizedBox(height: 4),
             Text(
               leftValue,
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -281,7 +281,7 @@ class _LoansPageState extends State<LoansPage> {
             const SizedBox(height: 4),
             Text(
               rightValue,
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ],
         ),
