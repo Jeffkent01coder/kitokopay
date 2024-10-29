@@ -99,7 +99,7 @@ class _RemittanceSuccessPageState extends State<RemittanceSuccessPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          "Remittance Details",
+                          "Transaction Details",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 20,
@@ -107,25 +107,19 @@ class _RemittanceSuccessPageState extends State<RemittanceSuccessPage> {
                           ),
                         ),
                         const SizedBox(height: 16),
+
+                        // Row 1: Amount and Date
                         _buildDetailsRow(
-                          "Recipient Name",
-                          "John Doe",
-                          "Reference Number",
-                          "87654321",
-                        ),
+                            "Recipient", "Mike Madilu", "Country", "DRC"),
+
                         const SizedBox(height: 16),
-                        _buildDetailsRow(
-                          "Amount Sent",
-                          "USD 500",
-                          "Service Fee",
-                          "USD 10",
-                        ),
-                        const SizedBox(height: 16),
+
+                        // Row 3: Recipient Account
                         const Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Destination Account",
+                              "Recipient Operator",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -133,7 +127,38 @@ class _RemittanceSuccessPageState extends State<RemittanceSuccessPage> {
                             ),
                             SizedBox(height: 8),
                             Text(
-                              "456 789 1234",
+                              "Airtel Mobile Money",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Row 2: Interest and Fee
+                        _buildDetailsRow(
+                            "Amount", "CDF 30,000", "Transfer Fee", "CDF 500"),
+
+                        const SizedBox(height: 16),
+
+                        // Row 3: Recipient Account
+                        const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Virtual Card Account",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              "123 456 5789",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
@@ -143,20 +168,20 @@ class _RemittanceSuccessPageState extends State<RemittanceSuccessPage> {
                           ],
                         ),
                         const SizedBox(height: 30),
-                        const Card(
-                          color: Color(0xFF4C6DB2),
-                          margin: EdgeInsets.only(top: 16),
-                          child: Padding(
-                            padding: EdgeInsets.all(16.0),
-                            child: Text(
-                              "All remittances must comply with the established Terms and Conditions.",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
-                          ),
-                        ),
+                        // const Card(
+                        //   color: Color(0xFF4C6DB2),
+                        //   margin: EdgeInsets.only(top: 16),
+                        //   child: Padding(
+                        //     padding: EdgeInsets.all(16.0),
+                        //     child: Text(
+                        //       "All remittances must comply with the established Terms and Conditions.",
+                        //       style: TextStyle(
+                        //         color: Colors.white,
+                        //         fontStyle: FontStyle.italic,
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
                         const Divider(color: Colors.white, thickness: 1),
                         const SizedBox(height: 16),
                         Row(

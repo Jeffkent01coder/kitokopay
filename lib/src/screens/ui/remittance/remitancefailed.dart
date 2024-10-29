@@ -63,7 +63,7 @@ class _RemittanceFailedPageState extends State<RemittanceFailedPage> {
 
                         // Failure Message
                         const Text(
-                          "Your remittance could not be processed.",
+                          "Your transaction could not be completed.",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.white,
@@ -89,7 +89,7 @@ class _RemittanceFailedPageState extends State<RemittanceFailedPage> {
                           child: Padding(
                             padding: EdgeInsets.all(16.0),
                             child: Text(
-                              "There were insufficient funds to complete this remittance.",
+                              "You do not have sufficient balance to complete this transaction.",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -139,7 +139,7 @@ class _RemittanceFailedPageState extends State<RemittanceFailedPage> {
                       children: [
                         // Remittance Details title
                         const Text(
-                          "Remittance Details",
+                          "Transaction Details",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 20,
@@ -148,27 +148,44 @@ class _RemittanceFailedPageState extends State<RemittanceFailedPage> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Row 1: Sender and Receiver Account
+                        // Row 1: Amount and Date
                         _buildDetailsRow(
-                          "Sender Account",
-                          "123456789",
-                          "Receiver Account",
-                          "987654321",
+                            "Recipient", "Mike Madilu", "Country", "DRC"),
+
+                        const SizedBox(height: 16),
+
+                        // Row 3: Recipient Account
+                        const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Recipient Operator",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              "Airtel Mobile Money",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
 
                         const SizedBox(height: 16),
 
-                        // Row 2: Amount and Remittance Fee
+                        // Row 2: Interest and Fee
                         _buildDetailsRow(
-                          "Amount",
-                          "CDF 50,000",
-                          "Remittance Fee",
-                          "CDF 1,000",
-                        ),
+                            "Amount", "CDF 30,000", "Transfer Fee", "CDF 500"),
 
                         const SizedBox(height: 16),
 
-                        // Virtual Card Account
+                        // Row 3: Recipient Account
                         const Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -194,20 +211,20 @@ class _RemittanceFailedPageState extends State<RemittanceFailedPage> {
                         const SizedBox(height: 30),
 
                         // Final card with payment conditions
-                        const Card(
-                          color: Color(0xFF4C6DB2),
-                          margin: EdgeInsets.only(top: 16),
-                          child: Padding(
-                            padding: EdgeInsets.all(16.0),
-                            child: Text(
-                              "All remittances must adhere to the established Terms and Conditions.",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
-                          ),
-                        ),
+                        // const Card(
+                        //   color: Color(0xFF4C6DB2),
+                        //   margin: EdgeInsets.only(top: 16),
+                        //   child: Padding(
+                        //     padding: EdgeInsets.all(16.0),
+                        //     child: Text(
+                        //       "All remittances must adhere to the established Terms and Conditions.",
+                        //       style: TextStyle(
+                        //         color: Colors.white,
+                        //         fontStyle: FontStyle.italic,
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),

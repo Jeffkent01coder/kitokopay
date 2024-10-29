@@ -67,7 +67,7 @@ class _RemittanceConfirmationPageState
 
                         // Remittance Message
                         const Text(
-                          "Please confirm your remittance \n application.",
+                          "Please confirm your transfer \n request.",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.white,
@@ -143,7 +143,7 @@ class _RemittanceConfirmationPageState
                       children: [
                         // Remittance Details title
                         const Text(
-                          "Remittance Details",
+                          "Transaction Details",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 20,
@@ -153,14 +153,8 @@ class _RemittanceConfirmationPageState
                         const SizedBox(height: 16),
 
                         // Row 1: Amount and Date
-                        _buildDetailsRow("Remittance Amount", "CDF 30,000",
-                            "Transfer Date", "18.08.2024"),
-
-                        const SizedBox(height: 16),
-
-                        // Row 2: Interest and Fee
-                        _buildDetailsRow(
-                            "Interest", "10 %", "Transfer Fee", "CDF 500"),
+                        _buildDetailsRow("Recipient", "Mike Madilu",
+                            "Country", "DRC"),
 
                         const SizedBox(height: 16),
 
@@ -169,7 +163,38 @@ class _RemittanceConfirmationPageState
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Recipient Account Number",
+                              "Recipient Operator",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              "Airtel Mobile Money",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Row 2: Interest and Fee
+                        _buildDetailsRow(
+                            "Amount", "CDF 30,000", "Transfer Fee", "CDF 500"),
+
+                        const SizedBox(height: 16),
+
+                        // Row 3: Recipient Account
+                        const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Virtual Card Account",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -190,20 +215,20 @@ class _RemittanceConfirmationPageState
                         const SizedBox(height: 30),
 
                         // Final conditions card
-                        const Card(
-                          color: Color(0xFF4C6DB2),
-                          margin: EdgeInsets.only(top: 16),
-                          child: Padding(
-                            padding: EdgeInsets.all(16.0),
-                            child: Text(
-                              "Final remittance conditions will be specified upon confirmation.",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
-                          ),
-                        ),
+                        // const Card(
+                        //   color: Color(0xFF4C6DB2),
+                        //   margin: EdgeInsets.only(top: 16),
+                        //   child: Padding(
+                        //     padding: EdgeInsets.all(16.0),
+                        //     child: Text(
+                        //       "Final remittance conditions will be specified upon confirmation.",
+                        //       style: TextStyle(
+                        //         color: Colors.white,
+                        //         fontStyle: FontStyle.italic,
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),

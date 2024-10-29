@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:kitokopay/src/customs/appbar.dart';
 import 'package:kitokopay/src/customs/footer.dart';
-import 'package:kitokopay/src/screens/ui/payments/initiatepayments/successpayment.dart';
 import 'package:kitokopay/src/screens/ui/remittance.dart';
+import 'package:kitokopay/src/screens/ui/remittance/remittancesucces.dart';
 import 'package:kitokopay/src/screens/ui/remittance/transactions/transactions.dart';
 
 class RemittancePinPage extends StatefulWidget {
@@ -112,7 +112,7 @@ class _RemittancePinPageState extends State<RemittancePinPage> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
-                                        const SuccessPaymentPage(),
+                                        const RemittanceSuccessPage(),
                                   ),
                                 );
                               },
@@ -142,8 +142,8 @@ class _RemittancePinPageState extends State<RemittancePinPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          "Payment Details",
+                         const Text(
+                          "Transaction Details",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 20,
@@ -151,12 +151,45 @@ class _RemittancePinPageState extends State<RemittancePinPage> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        _buildDetailsRow("Business Name", "Apple Store",
-                            "Account Number", "987654"),
+
+                        // Row 1: Amount and Date
+                        _buildDetailsRow(
+                            "Recipient", "Mike Madilu", "Country", "DRC"),
+
                         const SizedBox(height: 16),
-                        _buildDetailsRow("Amount", "CDF 30,000",
-                            "Transaction Fee", "CDF 500"),
+
+                        // Row 3: Recipient Account
+                        const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Recipient Operator",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              "Airtel Mobile Money",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+
                         const SizedBox(height: 16),
+
+                        // Row 2: Interest and Fee
+                        _buildDetailsRow(
+                            "Amount", "CDF 30,000", "Transfer Fee", "CDF 500"),
+
+                        const SizedBox(height: 16),
+
+                        // Row 3: Recipient Account
                         const Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -185,7 +218,7 @@ class _RemittancePinPageState extends State<RemittancePinPage> {
                           child: Padding(
                             padding: EdgeInsets.all(16.0),
                             child: Text(
-                              "All payments must strictly adhere to the established payment Terms and Conditions.",
+                              "By clicking  ‘Pay Now,' you confirm that you have read and agree to our Remittance Terms and Conditions.",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontStyle: FontStyle.italic,

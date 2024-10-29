@@ -68,7 +68,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                       children: [
                         // Payment Details title
                         const Text(
-                          "Payment Details",
+                          "Transaction Details",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 20,
@@ -76,20 +76,45 @@ class _TransactionsPageState extends State<TransactionsPage> {
                           ),
                         ),
                         const SizedBox(height: 16),
+
+                        // Row 1: Amount and Date
                         _buildDetailsRow(
-                          "Business Name",
-                          "Apple Store",
-                          "Account Number",
-                          "987654",
-                        ),
+                            "Recipient", "Mike Madilu", "Country", "DRC"),
+
                         const SizedBox(height: 16),
+
+                        // Row 3: Recipient Account
+                        const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Recipient Operator",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              "Airtel Mobile Money",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Row 2: Interest and Fee
                         _buildDetailsRow(
-                          "Amount",
-                          "CDF 30,000",
-                          "Transaction Fee",
-                          "CDF 500",
-                        ),
+                            "Amount", "CDF 30,000", "Transfer Fee", "CDF 500"),
+
                         const SizedBox(height: 16),
+
+                        // Row 3: Recipient Account
                         const Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -112,69 +137,69 @@ class _TransactionsPageState extends State<TransactionsPage> {
                           ],
                         ),
                         const SizedBox(height: 30),
-                        const Card(
-                          color: Color(0xFF4C6DB2),
-                          margin: EdgeInsets.only(top: 16),
-                          child: Padding(
-                            padding: EdgeInsets.all(16.0),
-                            child: Text(
-                              "All payments must strictly adhere to the established payment Terms and Conditions.",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const Divider(color: Colors.white, thickness: 1),
-                        const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            const Text(
-                              "Share",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Card(
-                              color: Colors.lightBlue,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5)),
-                              child: const Padding(
-                                padding: EdgeInsets.all(4.0),
-                                child: Icon(
-                                  Icons.share_outlined,
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 20),
-                            const Text(
-                              "Download",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Card(
-                              color: Colors.lightBlue,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5)),
-                              child: const Padding(
-                                padding: EdgeInsets.all(4.0),
-                                child: Icon(
-                                  Icons.download_outlined,
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                        // const Card(
+                        //   color: Color(0xFF4C6DB2),
+                        //   margin: EdgeInsets.only(top: 16),
+                        //   child: Padding(
+                        //     padding: EdgeInsets.all(16.0),
+                        //     child: Text(
+                        //       "All payments must strictly adhere to the established payment Terms and Conditions.",
+                        //       style: TextStyle(
+                        //         color: Colors.white,
+                        //         fontStyle: FontStyle.italic,
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
+                        // const Divider(color: Colors.white, thickness: 1),
+                        // const SizedBox(height: 16),
+                        // Row(
+                        //   children: [
+                        //     const Text(
+                        //       "Share",
+                        //       style: TextStyle(
+                        //         color: Colors.white,
+                        //         fontSize: 16,
+                        //       ),
+                        //     ),
+                        //     const SizedBox(width: 8),
+                        //     Card(
+                        //       color: Colors.lightBlue,
+                        //       shape: RoundedRectangleBorder(
+                        //           borderRadius: BorderRadius.circular(5)),
+                        //       child: const Padding(
+                        //         padding: EdgeInsets.all(4.0),
+                        //         child: Icon(
+                        //           Icons.share_outlined,
+                        //           color: Colors.white,
+                        //           size: 20,
+                        //         ),
+                        //       ),
+                        //     ),
+                        //     const SizedBox(width: 20),
+                        //     const Text(
+                        //       "Download",
+                        //       style: TextStyle(
+                        //         color: Colors.white,
+                        //         fontSize: 16,
+                        //       ),
+                        //     ),
+                        //     const SizedBox(width: 8),
+                        //     Card(
+                        //       color: Colors.lightBlue,
+                        //       shape: RoundedRectangleBorder(
+                        //           borderRadius: BorderRadius.circular(5)),
+                        //       child: const Padding(
+                        //         padding: EdgeInsets.all(4.0),
+                        //         child: Icon(
+                        //           Icons.download_outlined,
+                        //           color: Colors.white,
+                        //           size: 20,
+                        //         ),
+                        //       ),
+                        //     ),
+                        //   ],
+                        // ),
                       ],
                     ),
                   ),
@@ -212,14 +237,14 @@ class _TransactionsPageState extends State<TransactionsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Amount Borrowed',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 10),
+              // const Text(
+              //   'Amount Borrowed',
+              //   style: TextStyle(
+              //     fontWeight: FontWeight.w600,
+              //     color: Colors.white,
+              //   ),
+              // ),
+              // const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -244,7 +269,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Application Date:',
+                    'Transaction Date:',
                     style: TextStyle(color: Colors.white),
                   ),
                   Row(
