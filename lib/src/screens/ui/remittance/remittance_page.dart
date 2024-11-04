@@ -84,7 +84,7 @@ class _RemittancePageDetailsState extends State<RemittancePageDetails> {
                     Expanded(child: _buildTransactionDetailsColumn()),
                     const TSeparator(),
                     const SizedBox(width: 16),
-                    Expanded(child: _buildSearchRecipientColumn()),
+                    // Expanded(child: _buildSearchRecipientColumn()),
                   ],
                 ),
               ),
@@ -114,18 +114,15 @@ class _RemittancePageDetailsState extends State<RemittancePageDetails> {
     );
   }
 
-   // Build individual tab for the card tab bar
   Widget _buildTab(String title, int index) {
-    final isSelected =
-        _selectedTabIndex == index; // Check if the tab is selected
+    final isSelected = _selectedTabIndex == index;
 
     return GestureDetector(
       onTap: () {
         setState(() {
-          _selectedTabIndex = index; // Update the selected tab index
+          _selectedTabIndex = index;
         });
 
-        // Navigate to the appropriate screen when the tab is clicked
         if (index == 0) {
           Navigator.push(
             context,
@@ -146,22 +143,17 @@ class _RemittancePageDetailsState extends State<RemittancePageDetails> {
           Text(
             title,
             style: TextStyle(
-              color: isSelected
-                  ? const Color(0xFF3C4B9D)
-                  : Colors.white, // Change color if selected
-              fontWeight: isSelected
-                  ? FontWeight.bold
-                  : FontWeight.normal, // Bold if selected
-              decoration: TextDecoration.none, // Remove underline
+              color: isSelected ? const Color(0xFF3C4B9D) : Colors.white,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              decoration: TextDecoration.none,
             ),
           ),
-          // Line below the text if the tab is selected
           if (isSelected)
             Container(
-              height: 2, // Height of the line
-              width: 40, // Width of the line
-              color: const Color(0xFF3C4B9D), // Color of the line
-              margin: const EdgeInsets.only(top: 4), // Margin above the line
+              height: 2,
+              width: 40,
+              color: const Color(0xFF3C4B9D),
+              margin: const EdgeInsets.only(top: 4),
             ),
         ],
       ),
@@ -245,8 +237,7 @@ class _RemittancePageDetailsState extends State<RemittancePageDetails> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  const RemittanceConfirmationPage(), // Ensure this matches your class
+              builder: (context) => const RemittanceConfirmationPage(),
             ),
           );
         },
@@ -299,19 +290,16 @@ class _RemittancePageDetailsState extends State<RemittancePageDetails> {
               return DropdownMenuItem<String>(
                 value: currency['code'],
                 child: Text(
-                  '${currency['code']} - ${currency['name']}',
+                  currency['name']!,
                   style: const TextStyle(color: Colors.white),
                 ),
               );
-            }),
+            }).toList(),
           ],
-          onChanged: (String? newValue) {
-            if (newValue != null) {
-              setState(() {
-                _selectedCurrency = newValue;
-                _selectedOption = 'Select Payment Method';
-              });
-            }
+          onChanged: (value) {
+            setState(() {
+              _selectedCurrency = value!;
+            });
           },
         ),
       ],
@@ -323,12 +311,12 @@ class _RemittancePageDetailsState extends State<RemittancePageDetails> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "Recipient Operator",
+          "Select Payment Method",
           style: TextStyle(color: Colors.white),
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: _selectedOption,
+          value: _selectedOption ?? 'Select Payment Method', // Provide default
           dropdownColor: _primaryColor,
           decoration: InputDecoration(
             enabledBorder: OutlineInputBorder(
@@ -340,53 +328,69 @@ class _RemittancePageDetailsState extends State<RemittancePageDetails> {
               borderSide: const BorderSide(color: Colors.white, width: 2),
             ),
           ),
-          items: _getPaymentOptions()
-              .map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
+          items: (_paymentOptions[_selectedCurrency] ?? []).map((method) {
+            return DropdownMenuItem(
+              value: method,
               child: Text(
-                value,
+                method,
                 style: const TextStyle(color: Colors.white),
               ),
             );
           }).toList(),
-          onChanged: (String? newValue) {
-            if (newValue != null) {
-              setState(() => _selectedOption = newValue);
-            }
+          onChanged: (value) {
+            setState(() {
+              _selectedOption = value ?? ''; // Handle null case
+            });
           },
         ),
       ],
     );
   }
 
-  List<String> _getPaymentOptions() {
-    if (_selectedCurrency == 'Select Currency') {
-      return ['Select Payment Method'];
-    }
-    return _paymentOptions[_selectedCurrency] ?? ['Select Payment Method'];
-  }
+  // Widget _buildSearchRecipientColumn() {
+  //   return SingleChildScrollView(
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         const Text(
+  //           "Search Recipient",
+  //           style: TextStyle(
+  //             fontWeight: FontWeight.bold,
+  //             color: Colors.white,
+  //             fontSize: 18,
+  //           ),
+  //         ),
+  //         const SizedBox(height: 16),
+  //         TextField(
+  //           controller: _recipientTransactionController,
+  //           style: const TextStyle(color: Colors.white),
+  //           decoration: InputDecoration(
+  //             hintText: "Enter recipient",
+  //             hintStyle: const TextStyle(color: Colors.white),
+  //             filled: true,
+  //             fillColor: Colors.transparent,
+  //             enabledBorder: OutlineInputBorder(
+  //               borderRadius: BorderRadius.circular(8.0),
+  //               borderSide: const BorderSide(color: Colors.white),
+  //             ),
+  //             focusedBorder: OutlineInputBorder(
+  //               borderRadius: BorderRadius.circular(8.0),
+  //               borderSide: const BorderSide(color: Colors.white, width: 2),
+  //             ),
+  //           ),
+  //         ),
+  //         const SizedBox(height: 16),
+  //         _buildTransferRateSection(),
+  //       ],
+  //     ),
+  //   );
+  // }
 
-  Widget _buildSearchRecipientColumn() {
+ Widget _buildTransferRateSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildTransferRateSection(),
-        const SizedBox(height: 20),
-        _buildRecipientsGrid(),
-        const SizedBox(height: 20),
-        _buildSearchField(),
-        const SizedBox(height: 20),
-        _buildRecipientsList(),
-      ],
-    );
-  }
-
-  Widget _buildTransferRateSection() {
-    return const Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
+        const Text(
           'Transfer Rate',
           style: TextStyle(
             fontWeight: FontWeight.bold,
@@ -394,134 +398,109 @@ class _RemittancePageDetailsState extends State<RemittancePageDetails> {
             fontSize: 18,
           ),
         ),
-        SizedBox(height: 10),
-        Text(
-          'You send - 270',
+        const SizedBox(height: 10),
+        const Text(
+          'You send - €270',
           style: TextStyle(
             color: Colors.white,
             fontSize: 22,
             fontWeight: FontWeight.bold,
           ),
         ),
-        SizedBox(height: 10),
-        Chip(
-          label: Text(
-            "GBP",
-            style: TextStyle(color: Colors.white, fontSize: 20),
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRecipientsGrid() {
-    final recipients = [
-      {'name': 'Jeff dev', 'isAdd': false},
-      {'name': 'Kim dev', 'isAdd': false},
-      {'name': 'Hilda dev', 'isAdd': false},
-      {'name': 'Add Recipient', 'isAdd': true},
-    ];
-
-    return Row(
-      children: recipients.map((recipient) {
-        return Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5),
-            child: _buildRecipientItem(
-              name: recipient['name'] as String,
-              isAdd: recipient['isAdd'] as bool,
+        const SizedBox(height: 20),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // First column with GBP, dots, and CDF
+            Column(
+              children: [
+                // GBP Chip at the top
+                Chip(
+                  label: const Text(
+                    "GBP",
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                  backgroundColor: Colors.grey.shade300,
+                ),
+                const SizedBox(height: 20),
+                // Dots with vertical line
+                Column(
+                  children: [
+                    Container(
+                      width: 2, // Vertical line width
+                      height: 160, // Total height of dots and spacing
+                      color: Colors.white, // Line color
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: List.generate(4, (index) {
+                          return Container(
+                            width: 8,
+                            height: 8,
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                // CDF Chip at the bottom
+                Chip(
+                  label: const Text(
+                    "CDF",
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                  backgroundColor: Colors.grey.shade300,
+                ),
+              ],
             ),
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildRecipientItem({required String name, required bool isAdd}) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: isAdd ? Colors.transparent : _secondaryColor,
-            borderRadius: BorderRadius.circular(8.0),
-            border: isAdd ? Border.all(color: Colors.white, width: 1.0) : null,
-          ),
-          child: Icon(
-            isAdd ? Icons.add : Icons.person_2_outlined,
-            color: Colors.white,
-          ),
+            const SizedBox(width: 20),
+            // Cards beside dots
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSmallCard("jeff"),
+                  const SizedBox(height: 20),
+                  _buildSmallCard("kim"),
+                  const SizedBox(height: 20),
+                  _buildSmallCard("hilda"),
+                  const SizedBox(height: 20),
+                  _buildSmallCard("Kings"),
+                ],
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 8),
-        Text(
-          name,
-          style: const TextStyle(color: Colors.white),
-          textAlign: TextAlign.center,
+        const SizedBox(height: 20),
+        const Text(
+          'Jeff is a text that is white bold',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            fontSize: 18,
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildSearchField() {
-    return TextField(
-      style: const TextStyle(color: Colors.white),
-      decoration: InputDecoration(
-        hintText: 'Search Recipient',
-        hintStyle: const TextStyle(color: Colors.white),
-        filled: true,
-        fillColor: Colors.transparent,
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: const BorderSide(color: Colors.white),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: const BorderSide(color: Colors.white, width: 2),
-        ),
-        suffixIcon: const Icon(Icons.search, color: Colors.white),
+
+  // Small cards beside progress dots
+  Widget _buildSmallCard(String label) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade300,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(color: Colors.black),
       ),
     );
-  }
-
-  Widget _buildRecipientsList() {
-    final recipients = [
-      {'name': 'Jeff dev', 'account': '456878'},
-      {'name': 'Kim dev', 'account': '8080808'},
-      {'name': 'Kings Dev', 'account': '0038383'},
-    ];
-
-    return Card(
-      color: const Color(0xFF4564A8),
-      child: Column(
-        children: recipients.asMap().entries.map((entry) {
-          final isLast = entry.key == recipients.length - 1;
-          return Column(
-            children: [
-              _buildRecipientListItem(
-                entry.value['name'] ?? '',
-                entry.value['account'] ?? '',
-              ),
-              if (!isLast) const Divider(color: Colors.white),
-            ],
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _buildRecipientListItem(String name, String account) {
-    return Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(children: [
-          const Icon(Icons.person_2_outlined, color: Colors.white),
-          const SizedBox(width: 10),
-          Text(
-            name,
-            style: const TextStyle(color: Colors.white),
-          ),
-        ]));
   }
 }

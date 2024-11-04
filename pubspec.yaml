@@ -37,6 +37,8 @@ dependencies:
   cupertino_icons: ^1.0.8
   country_picker: ^2.0.26
   font_awesome_flutter: ^10.7.0
+  flutter_screenutil: ^5.9.3
+  country_code_picker: ^3.1.0
 
 dev_dependencies:
   flutter_test:
