@@ -3,6 +3,7 @@ import 'package:kitokopay/src/customs/atmcarditem.dart';
 import 'package:kitokopay/src/customs/footer.dart';
 import 'package:kitokopay/src/screens/ui/payments.dart';
 import 'package:kitokopay/src/customs/appbar.dart';
+import 'package:kitokopay/src/screens/utils/resposive_layout.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -68,36 +69,97 @@ class HomeScreen extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: CardItem(
+                      ResponsiveLayout(
+                        tiny: Column(
+                          children: [
+                            CardItem(
                               accountNumber: '1234 5678 9101 1121',
                               amount: 'CDF 10,000',
                               isSelected: false,
                               onSelect: () {},
                             ),
-                          ),
-                          const SizedBox(width: 10),
-                          Flexible(
-                            child: CardItem(
+                            const SizedBox(height: 10),
+                            CardItem(
                               accountNumber: '1234 5678 9101 1122',
                               amount: 'CDF 8,500',
                               isSelected: false,
                               onSelect: () {},
                             ),
-                          ),
-                          const SizedBox(width: 10),
-                          Flexible(
-                            child: CardItem(
+                            const SizedBox(height: 10),
+                            CardItem(
                               accountNumber: '1234 5678 9101 1123',
                               amount: 'CDF 5,000',
                               isSelected: false,
                               onSelect: () {},
                             ),
-                          ),
-                        ],
+                          ],
+                        ),             
+                        tablet: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              fit: FlexFit.tight,
+                              child: CardItem(
+                                accountNumber: '1234 5678 9101 1121',
+                                amount: 'CDF 10,000',
+                                isSelected: false,
+                                onSelect: () {},
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Flexible(
+                              fit: FlexFit.tight,
+                              child: CardItem(
+                                accountNumber: '1234 5678 9101 1122',
+                                amount: 'CDF 8,500',
+                                isSelected: false,
+                                onSelect: () {},
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Flexible(
+                              fit: FlexFit.tight,
+                              child: CardItem(
+                                accountNumber: '1234 5678 9101 1123',
+                                amount: 'CDF 5,000',
+                                isSelected: false,
+                                onSelect: () {},
+                              ),
+                            ),
+                          ],
+                        ),
+                        
+                        computer: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: CardItem(
+                                accountNumber: '1234 5678 9101 1121',
+                                amount: 'CDF 10,000',
+                                isSelected: false,
+                                onSelect: () {},
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Flexible(
+                              child: CardItem(
+                                accountNumber: '1234 5678 9101 1122',
+                                amount: 'CDF 8,500',
+                                isSelected: false,
+                                onSelect: () {},
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Flexible(
+                              child: CardItem(
+                                accountNumber: '1234 5678 9101 1123',
+                                amount: 'CDF 5,000',
+                                isSelected: false,
+                                onSelect: () {},
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 30),
                       const Text(

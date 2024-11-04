@@ -82,17 +82,20 @@ class _CardItemState extends State<CardItem> {
 
             // Account number and hide/unhide row
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 // Account number (show/hide based on _isHidden state)
                 Text(
                   _isHidden ? '•••• •••• •••• ••••' : widget.accountNumber,
+                  
                   style: const TextStyle(
                     fontSize: 16,
                     color: Colors.white,
+                    overflow: TextOverflow.ellipsis
                   ),
                 ),
-
+                Spacer(),
                 // Hide/Unhide icon with text
                 GestureDetector(
                   onTap: () {
