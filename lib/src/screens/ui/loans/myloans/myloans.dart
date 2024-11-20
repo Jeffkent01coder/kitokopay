@@ -21,119 +21,195 @@ class _MyLoansPageState extends State<MyLoansPage> {
       appBar: const CustomAppBar(), // Custom app bar
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 20),
-            _buildCardTabBar(), // Tab bar for navigation
-            const SizedBox(height: 20),
-            Expanded(
-              child: Row(
-                children: [
-                  // Left Column (Loans Title and Cards)
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "My Loans",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        _buildLoanCard(0, 'CDF 64,000', '1 June 2024'),
-                        const SizedBox(height: 10),
-                        _buildLoanCard(1, 'CDF 75,000', '5 July 2024'),
-                        const SizedBox(height: 10),
-                        _buildLoanCard(2, 'CDF 55,000', '10 August 2024'),
-                      ],
-                    ),
-                  ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            bool isWeb = constraints.maxWidth > 600;
 
-                  // Vertical Divider
-                  Container(
-                    width: 1,
-                    height: double.infinity,
-                    color: Colors.white.withOpacity(0.4),
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                  ),
-
-                  // Right Column (Loan Details)
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Loan Details title
-                        const Text(
-                          "Loan Details",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        _buildDetailsRow(
-                          "Loan Amount",
-                          "CDF 27,000",
-                          "Repayment Date",
-                          "18.08.2024",
-                        ),
-                        const SizedBox(height: 16),
-                        _buildDetailsRow(
-                          "Interest Rate",
-                          "10 %",
-                          "Repayment Amount",
-                          "CDF  28,500",
-                        ),
-                        const SizedBox(height: 16),
-                        const Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 20),
+                _buildCardTabBar(), // Tab bar for navigation
+                const SizedBox(height: 20),
+                Expanded(
+                  child: isWeb
+                      ? Row(
                           children: [
-                            Text(
-                              "Loan Recipient Account",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
+                            // Left Column (Loans Title and Cards)
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    "My Loans",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  _buildLoanCard(
+                                      0, 'CDF 64,000', '1 June 2024'),
+                                  const SizedBox(height: 10),
+                                  _buildLoanCard(
+                                      1, 'CDF 75,000', '5 July 2024'),
+                                  const SizedBox(height: 10),
+                                  _buildLoanCard(
+                                      2, 'CDF 55,000', '10 August 2024'),
+                                ],
                               ),
                             ),
-                            SizedBox(height: 8),
-                            Text(
-                              "123 456 5789",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+
+                            // Vertical Divider
+                            Container(
+                              width: 1,
+                              height: double.infinity,
+                              color: Colors.white.withOpacity(0.4),
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 16),
+                            ),
+
+                            // Right Column (Loan Details)
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Loan Details title
+                                  const Text(
+                                    "Loan Details",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  _buildDetailsRow(
+                                    "Loan Amount",
+                                    "CDF 27,000",
+                                    "Repayment Date",
+                                    "18.08.2024",
+                                  ),
+                                  const SizedBox(height: 16),
+                                  _buildDetailsRow(
+                                    "Interest Rate",
+                                    "10 %",
+                                    "Repayment Amount",
+                                    "CDF  28,500",
+                                  ),
+                                  const SizedBox(height: 16),
+                                  const Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Loan Recipient Account",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        "123 456 5789",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 30),
+                                  const Card(
+                                    color: Color(0xFF4C6DB2),
+                                    margin: EdgeInsets.only(top: 16),
+                                    child: Padding(
+                                      padding: EdgeInsets.all(16.0),
+                                      child: Text(
+                                        "Loan conditions have been set \n based on your credit rating. \n Terms & Conditions",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
-                        ),
-                        const SizedBox(height: 30),
-                        const Card(
-                          color: Color(0xFF4C6DB2),
-                          margin: EdgeInsets.only(top: 16),
-                          child: Padding(
-                            padding: EdgeInsets.all(16.0),
-                            child: Text(
-                              "Loan conditions have been set \n based on your credit rating. \n Terms & Conditions",
+                        )
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "My Loans",
                               style: TextStyle(
                                 color: Colors.white,
-                                fontStyle: FontStyle.italic,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                          ),
+                            const SizedBox(height: 16),
+                            _buildLoanCard(0, 'CDF 64,000', '1 June 2024'),
+                            const SizedBox(height: 10),
+                            _buildLoanCard(1, 'CDF 75,000', '5 July 2024'),
+                            const SizedBox(height: 10),
+                            _buildLoanCard(2, 'CDF 55,000', '10 August 2024'),
+                            const SizedBox(height: 20),
+                            const Text(
+                              "Loan Details",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            _buildDetailsRow(
+                              "Loan Amount",
+                              "CDF 27,000",
+                              "Repayment Date",
+                              "18.08.2024",
+                            ),
+                            const SizedBox(height: 16),
+                            _buildDetailsRow(
+                              "Interest Rate",
+                              "10 %",
+                              "Repayment Amount",
+                              "CDF  28,500",
+                            ),
+                            const SizedBox(height: 16),
+                            const Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Loan Recipient Account",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  "123 456 5789",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Footer(), // Footer widget
-          ],
+                ),
+                const Footer(), // Footer widget
+              ],
+            );
+          },
         ),
       ),
     );
@@ -217,7 +293,7 @@ class _MyLoansPageState extends State<MyLoansPage> {
     );
   }
 
- // Build individual tab for the card tab bar
+  // Build individual tab for the card tab bar
   Widget _buildCardTab(String title, int index) {
     final isSelected =
         _selectedTabIndex == index; // Check if the tab is selected
@@ -234,65 +310,42 @@ class _MyLoansPageState extends State<MyLoansPage> {
             context,
             MaterialPageRoute(builder: (context) => const LoansPage()),
           );
-        } else if (index == 1) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const MyLoansPage()),
-          );
-        } else {
-          print("hello jeff");
         }
       },
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              color: isSelected
-                  ? const Color(0xFF3C4B9D)
-                  : Colors.white, // Change color if selected
-              fontWeight: isSelected
-                  ? FontWeight.bold
-                  : FontWeight.normal, // Bold if selected
-              decoration: TextDecoration.none, // Remove underline
-            ),
+      child: Container(
+        margin: const EdgeInsets.only(right: 12.0),
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Colors.white
+              : const Color(0xFF3C4B9D), // Blue for selected tab
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          title,
+          style: TextStyle(
+            color: isSelected ? const Color(0xFF3C4B9D) : Colors.white,
+            fontSize: 18,
           ),
-          // Line below the text if the tab is selected
-          if (isSelected)
-            Container(
-              height: 2, // Height of the line
-              width: 40, // Width of the line
-              color: const Color(0xFF3C4B9D), // Color of the line
-              margin: const EdgeInsets.only(top: 4), // Margin above the line
-            ),
-        ],
+        ),
       ),
     );
   }
 
-  // Build card tab bar for navigation
+  // Tab bar containing loan and repayments
   Widget _buildCardTabBar() {
-    return Container(
-      padding: const EdgeInsets.all(8.0),
-      decoration: BoxDecoration(
-        color: Colors.lightBlue,
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _buildCardTab('Apply Loan', 0),
-          _buildCardTab('My Loans', 1),
-          _buildCardTab('Credit History', 2),
-        ],
-      ),
+    return Row(
+      children: [
+        _buildCardTab('Loans', 0),
+        _buildCardTab('Repayments', 1),
+        _buildCardTab('New Loan', 2),
+      ],
     );
   }
 
-  // Build a row for displaying loan details
-  Widget _buildDetailsRow(String leftTitle, String leftValue, String rightTitle,
-      String rightValue) {
+  // Helper to build loan detail rows
+  Widget _buildDetailsRow(
+      String leftText, String leftValue, String rightText, String rightValue) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -300,13 +353,13 @@ class _MyLoansPageState extends State<MyLoansPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              leftTitle,
+              leftText,
               style: const TextStyle(color: Colors.white),
             ),
-            const SizedBox(height: 4),
             Text(
               leftValue,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -314,13 +367,13 @@ class _MyLoansPageState extends State<MyLoansPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              rightTitle,
+              rightText,
               style: const TextStyle(color: Colors.white),
             ),
-            const SizedBox(height: 4),
             Text(
               rightValue,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ],
         ),

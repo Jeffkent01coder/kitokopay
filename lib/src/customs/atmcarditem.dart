@@ -95,7 +95,7 @@ class _CardItemState extends State<CardItem> {
                     overflow: TextOverflow.ellipsis
                   ),
                 ),
-                Spacer(),
+                const Spacer(),
                 // Hide/Unhide icon with text
                 GestureDetector(
                   onTap: () {
