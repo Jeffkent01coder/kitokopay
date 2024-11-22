@@ -1,12 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:kitokopay/service/api_client_helper_utils.dart';
 import 'package:kitokopay/src/customs/atmcarditem.dart';
 import 'package:kitokopay/src/customs/footer.dart';
 import 'package:kitokopay/src/screens/ui/payments.dart';
 import 'package:kitokopay/src/customs/appbar.dart';
 import 'package:kitokopay/src/screens/utils/resposive_layout.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
+
+  Future<Map<String, dynamic>> _getTransactionsAndCurrency() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? loanDetailsStr = prefs.getString('loanDetails');
+    String? loginDetails = prefs.getString('loginDetails');
+
+    ElmsSSL elmsSSL = ElmsSSL();
+
+    // Clean the response and parse to JSON
+    final parsedResult = elmsSSL.cleanResponse(loanDetailsStr as String);
+    final parsedLogin = elmsSSL.cleanResponse(loginDetails as String);
+
+    // Extract currency from parsedLogin
+    String currency = parsedLogin['Data']['Currency'];
+
+    // Decode the Transactions field to a List of Maps
+    String transactionsStr = parsedResult['Data']['Transactions'];
+    List<Map<String, dynamic>> transactionsList =
+        List<Map<String, dynamic>>.from(jsonDecode(transactionsStr));
+
+    print("Loan Details In Home: $transactionsList");
+    print("Currency: $currency");
+
+    // Return both transactions and currency in a map
+    return {
+      "transactions": transactionsList,
+      "currency": currency,
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +125,7 @@ class HomeScreen extends StatelessWidget {
                               onSelect: () {},
                             ),
                           ],
-                        ),             
+                        ),
                         tablet: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -128,7 +160,6 @@ class HomeScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-                        
                         computer: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -343,38 +374,85 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildTransactionList() {
-    return ListView.separated(
-      padding: const EdgeInsets.all(16.0),
-      itemCount: 5,
-      separatorBuilder: (context, index) => const Divider(color: Colors.white),
-      itemBuilder: (context, index) {
-        return const ListTile(
-          leading: Icon(Icons.arrow_downward, color: Colors.white),
-          title: Text(
-            'Airtel Money',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-          subtitle: Text(
-            '14th August 2024',
-            style: TextStyle(color: Colors.white),
-          ),
-          trailing: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                'CDF 3,000',
-                style: TextStyle(
+    return FutureBuilder<Map<String, dynamic>>(
+      future: _getTransactionsAndCurrency(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(
+            child: Text(
+              'No transactions available',
+              style: TextStyle(color: Colors.white),
+            ),
+          );
+        }
+
+        final transactions =
+            snapshot.data!['transactions'] as List<Map<String, dynamic>>;
+        final currency = snapshot.data!['currency'] as String;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'Currency: $currency',
+                style: const TextStyle(
                   color: Colors.white,
-                  fontWeight: FontWeight.bold,
                   fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              Text(
-                'Mike Madilu',
-                style: TextStyle(color: Colors.white),
+            ),
+            Expanded(
+              child: ListView.separated(
+                padding: const EdgeInsets.all(16.0),
+                itemCount: transactions.length,
+                separatorBuilder: (context, index) =>
+                    const Divider(color: Colors.white),
+                itemBuilder: (context, index) {
+                  final transaction = transactions[index];
+                  return ListTile(
+                    leading: Icon(
+                      transaction['type'] == 'Disbursement'
+                          ? Icons.arrow_downward
+                          : Icons.arrow_upward,
+                      color: Colors.white,
+                    ),
+                    title: Text(
+                      transaction['type'] ?? 'Transaction',
+                      style: const TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(
+                      transaction['date'] ?? '',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    trailing: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          '$currency ${transaction['amount']?.toStringAsFixed(2) ?? '0.00'}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          transaction['receiptnumber'] ?? '',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         );
       },
     );

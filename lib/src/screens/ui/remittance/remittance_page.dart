@@ -294,7 +294,7 @@ class _RemittancePageDetailsState extends State<RemittancePageDetails> {
                   style: const TextStyle(color: Colors.white),
                 ),
               );
-            }).toList(),
+            }),
           ],
           onChanged: (value) {
             setState(() {
