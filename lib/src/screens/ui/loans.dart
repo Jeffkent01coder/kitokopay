@@ -23,8 +23,11 @@ class _LoansPageState extends State<LoansPage> {
   double _limitAmount = 0.0;
   String _leftPanelStage = "slider";
   final TextEditingController _pinController = TextEditingController();
+  String loanAmount = '';
+  String loanStatus = '';
+  String dueDate = '';
+
   // Variables to hold loan details
-  String _loanId = "N/A";
   String _loanStatus = "N/A";
   String _principalAmount = "0.0";
   String _currentBalance = "0.0";
@@ -34,7 +37,6 @@ class _LoansPageState extends State<LoansPage> {
   String _requestType = "N/A";
   String _mobileNumber = "N/A";
   String _names = "N/A";
-  String _customerId = "N/A";
 
   @override
   void initState() {
@@ -47,19 +49,32 @@ class _LoansPageState extends State<LoansPage> {
     String? loginDetails = prefs.getString('loginDetails');
     if (loginDetails != null) {
       final parsedLogin = jsonDecode(loginDetails);
-      final loans = parsedLogin['Data']['Loans'][0]; // Assuming first loan
       setState(() {
-        _loanId = loans['LoanId'] ?? "N/A";
-        _loanStatus = loans['LoanStatus'] ?? "N/A";
-        _principalAmount = loans['PrincipalAmount'] ?? "0.0";
-        _currentBalance = loans['CurrentBalance'] ?? "0.0";
-        _date = loans['Date'] ?? "N/A";
-        _referenceId = loans['ReferenceId'] ?? "N/A";
-        _repaymentDate = loans['RepaymentDate'] ?? "N/A";
-        _requestType = loans['RequestType'] ?? "N/A";
-        _mobileNumber = loans['MobileNumber'] ?? "N/A";
-        _names = loans['Names'] ?? "N/A";
-        _customerId = loans['Id'] ?? "N/A";
+        _limitAmount =
+            double.tryParse(parsedLogin['Data']['LimitAmount'].toString()) ??
+                0.0;
+        _selectedAmount = _limitAmount / 2;
+        _loanStatus = parsedLogin['Data']['LoanStatus'] ?? "N/A";
+        _principalAmount = parsedLogin['Data']['PrincipalAmount'] ?? "0.0";
+        _currentBalance = parsedLogin['Data']['CurrentBalance'] ?? "0.0";
+        _date = parsedLogin['Data']['Date'] ?? "N/A";
+        _referenceId = parsedLogin['Data']['ReferenceId'] ?? "N/A";
+        _repaymentDate = parsedLogin['Data']['RepaymentDate'] ?? "N/A";
+        _requestType = parsedLogin['Data']['RequestType'] ?? "N/A";
+        _mobileNumber = parsedLogin['Data']['MobileNumber'] ?? "N/A";
+      });
+    }
+  }
+
+  Future<void> _loadLoanDetails() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? loanDetails = prefs.getString('applyLoanDetails');
+    if (loanDetails != null) {
+      final parsedResponse = jsonDecode(loanDetails);
+      setState(() {
+        loanAmount = parsedResponse['Data']['LoanAmount'] ?? '';
+        loanStatus = parsedResponse['Data']['LoanStatus'] ?? '';
+        dueDate = parsedResponse['Data']['DueDate'] ?? '';
       });
     }
   }
@@ -134,6 +149,8 @@ class _LoansPageState extends State<LoansPage> {
         return _buildConfirmationScreen();
       case "pin":
         return _buildPinScreen();
+      case "success":
+        return _buildSuccessScreen();
       case "failure":
         return _buildFailureScreen();
       default:
@@ -279,206 +296,19 @@ class _LoansPageState extends State<LoansPage> {
   }
 
   Widget _buildConfirmationScreen() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text(
-          "Confirmation",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 8),
-        const Text(
-          "Please confirm your loan application.",
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-          ),
-        ),
-        const SizedBox(height: 30),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _leftPanelStage = "slider";
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                side: const BorderSide(color: Colors.white),
-              ),
-              child: const Text(
-                "Back",
-                style: TextStyle(color: Colors.white, fontSize: 16),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _leftPanelStage = "pin";
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.lightBlue,
-              ),
-              child: const Text(
-                'Confirm Loan',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
+    return const LoanConfirmationPage();
   }
 
-  Widget _buildPinScreen() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text(
-          "Enter PIN",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 8),
-        const Text(
-          "Please enter your PIN to \n complete loan request.",
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-          ),
-        ),
-        const SizedBox(height: 20),
-
-        // PIN Input Field styled according to requirements
-        SizedBox(
-          width: 150,
-          child: TextField(
-            controller: _pinController,
-            keyboardType: TextInputType.number,
-            maxLength: 4,
-            obscureText: true,
-            decoration: InputDecoration(
-              counterText: '',
-              hintText: '----',
-              filled: true,
-              fillColor: Colors.white,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide.none,
-              ),
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 30),
-
-        // Submit Button
-        ElevatedButton(
-          onPressed: () {
-            _processLoan();
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.lightBlue,
-          ),
-          child: const Text(
-            'Submit PIN',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-      ],
-    );
+  Widget _buildSuccessScreen() {
+    return const LoanSuccessPage();
   }
 
   Widget _buildFailureScreen() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          width: 250,
-          height: 250,
-          alignment: Alignment.center,
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/images/failed.png'),
-              fit: BoxFit.fitHeight,
-            ),
-          ),
-        ),
-        const SizedBox(height: 25),
-        const Text(
-          "Failed!",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 8),
-        const Text(
-          "Your loan request has been rejected.",
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-          ),
-        ),
-        const SizedBox(height: 30),
-        ElevatedButton(
-          onPressed: () {
-            setState(() {
-              _leftPanelStage = "slider";
-            });
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.lightBlue,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          child: const Text(
-            'Done',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-      ],
-    );
+    return const LoanFailedPage();
   }
 
-  Future<void> _processLoan() async {
-    final enteredPin = _pinController.text;
-
-    if (enteredPin.isEmpty) return;
-
-    // Call applyLoan function from ElmsSSL class
-    final response = await ElmsSSL().applyLoan(
-      _selectedAmount.toString(),
-      enteredPin,
-    );
-
-    final responseJson = jsonDecode(response);
-
-    if (responseJson['status'] == 'success') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const LoanSuccessPage()),
-      );
-    } else {
-      setState(() {
-        _leftPanelStage = "failure";
-      });
-    }
+  Widget _buildPinScreen() {
+    return const LoanPinPage();
   }
 
   Widget _buildDetailsRow(String leftTitle, String leftValue, String rightTitle,
@@ -499,6 +329,24 @@ class _LoansPageState extends State<LoansPage> {
                   color: Colors.white, fontWeight: FontWeight.bold)),
         ]),
       ],
+    );
+  }
+
+  Widget _buildCardTabBar() {
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        color: Colors.lightBlue,
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _buildCardTab('Apply Loan', 0),
+          _buildCardTab('My Loans', 1),
+          _buildCardTab('Credit History', 2),
+        ],
+      ),
     );
   }
 
@@ -534,24 +382,6 @@ class _LoansPageState extends State<LoansPage> {
               color: const Color(0xFF3C4B9D),
               margin: const EdgeInsets.only(top: 4),
             ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCardTabBar() {
-    return Container(
-      padding: const EdgeInsets.all(8.0),
-      decoration: BoxDecoration(
-        color: Colors.lightBlue,
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _buildCardTab('Apply Loan', 0),
-          _buildCardTab('My Loans', 1),
-          _buildCardTab('Credit History', 2),
         ],
       ),
     );

@@ -75,12 +75,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) {
+          bool isWideScreen = constraints.maxWidth > 600;
+
           return Row(
             children: [
-              // Left column with image - only visible on wider screens
-              if (constraints.maxWidth > 600)
+              // Left column with image - larger on wider screens
+              if (isWideScreen)
                 Expanded(
-                  flex: 1,
+                  flex: 3, // Increased flex for the image
                   child: Container(
                     color: Colors.grey[200],
                     child: Image.asset(
@@ -94,192 +96,175 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
               // Right column with form
               Expanded(
-                flex: 1,
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Logo Image
-                      Center(
-                        child: Image.asset(
-                          'assets/images/Kitokopaylogo.png', // Replace with your logo asset
-                          width: 120,
-                          height: 120,
-                        ),
+                flex: 2, // Adjusted flex for the form
+                child: Center(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(24.0),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: isWideScreen ? 400 : double.infinity,
                       ),
-                      const SizedBox(height: 16),
-
-                      // Welcome Text
-                      const Text(
-                        "Sign Up",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-
-                      // Subtitle Text
-                      const Text(
-                        "Enter your phone number to create an account and \n get started",
-                        style: TextStyle(
-                          fontSize: 14,
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-
-                      // Country Label
-                      const Text(
-                        "Country",
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      const SizedBox(height: 8),
-
-                      // Custom Text Field with Country Picker
-                      GestureDetector(
-                        onTap: () {
-                          showCountryPicker(
-                            context: context,
-                            showPhoneCode: true,
-                            onSelect: (Country country) {
-                              setState(() {
-                                _selectedCountry = country;
-                              });
-
-                              // Prepend the country code to the phone number if not already included
-                              String currentPhone = _phoneController.text;
-                              if (currentPhone.isNotEmpty &&
-                                  !currentPhone
-                                      .startsWith("+${country.phoneCode}")) {
-                                _phoneController.text =
-                                    "+${country.phoneCode}$currentPhone";
-                              }
-                            },
-                            countryListTheme: CountryListThemeData(
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(40.0),
-                                topRight: Radius.circular(40.0),
-                              ),
-                              inputDecoration: InputDecoration(
-                                labelText: 'Search',
-                                hintText: 'Start typing to search',
-                                prefixIcon: const Icon(Icons.search),
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: const Color(0xFF8C98A8)
-                                          .withOpacity(0.2)),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: _selectedCountry != null
-                              ? Row(
-                                  children: [
-                                    Text(_selectedCountry!.flagEmoji), // Flag
-                                    Text(
-                                        "+${_selectedCountry!.phoneCode}"), // Phone Code
-                                  ],
-                                )
-                              : const Icon(Icons.flag),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Phone Number Text Field
-                      TextField(
-                        controller: _phoneController,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          hintText: "Enter your phone number",
-                          hintStyle: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12),
-                        ),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Register Now Button
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _isLoading
-                              ? null // Disable button while loading
-                              : _register,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            padding: const EdgeInsets.all(16),
-                          ),
-                          child: _isLoading
-                              ? const CircularProgressIndicator(
-                                  color: Colors.white,
-                                ) // Show loading spinner
-                              : const Text(
-                                  "Register Now",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                        ),
-                      ),
-
-                      if (_errorMessage.isNotEmpty) ...[
-                        const SizedBox(height: 16),
-                        Text(
-                          _errorMessage,
-                          style: const TextStyle(
-                            color: Colors.red,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-
-                      const SizedBox(height: 16),
-
-                      // Already have an account? Login link
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            "Already have an account?",
-                            style: TextStyle(color: Colors.black, fontSize: 18),
+                          // Logo Image
+                          Center(
+                            child: Image.asset(
+                              'assets/images/Kitokopaylogo.png', // Replace with your logo asset
+                              width: 120,
+                              height: 120,
+                            ),
                           ),
+                          const SizedBox(height: 16),
+
+                          // Welcome Text
+                          const Text(
+                            "Sign Up",
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Subtitle Text
+                          const Text(
+                            "Enter your phone number to create an account and \nget started",
+                            style: TextStyle(
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+
+                          // Country Label
+                          const Text(
+                            "Country",
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          const SizedBox(height: 8),
+
+                          // Country Picker
                           GestureDetector(
                             onTap: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const LoginScreen(),
-                                ),
+                              showCountryPicker(
+                                context: context,
+                                showPhoneCode: true,
+                                onSelect: (Country country) {
+                                  setState(() {
+                                    _selectedCountry = country;
+                                  });
+
+                                  // Prepend the country code to the phone number if not already included
+                                  String currentPhone = _phoneController.text;
+                                  if (currentPhone.isNotEmpty &&
+                                      !currentPhone.startsWith(
+                                          "+${country.phoneCode}")) {
+                                    _phoneController.text =
+                                        "+${country.phoneCode}$currentPhone";
+                                  }
+                                },
                               );
                             },
-                            child: const Text(
-                              " Log In",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 12),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: [
+                                  Text(_selectedCountry?.flagEmoji ?? '🌍'),
+                                  const SizedBox(width: 8),
+                                  Text("+${_selectedCountry?.phoneCode ?? ''}"),
+                                ],
                               ),
                             ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Phone Number Text Field
+                          TextField(
+                            controller: _phoneController,
+                            keyboardType: TextInputType.phone,
+                            decoration: InputDecoration(
+                              hintText: "Enter your phone number",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 12),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Register Now Button
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: _isLoading ? null : _register,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                                padding: const EdgeInsets.all(16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: _isLoading
+                                  ? const CircularProgressIndicator(
+                                      color: Colors.white)
+                                  : const Text(
+                                      "Register Now",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                            ),
+                          ),
+                          if (_errorMessage.isNotEmpty) ...[
+                            const SizedBox(height: 16),
+                            Text(
+                              _errorMessage,
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 16),
+
+                          // Already have an account? Login link
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                "Already have an account?",
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 16),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const LoginScreen(),
+                                    ),
+                                  );
+                                },
+                                child: const Text(
+                                  " Log In",
+                                  style: TextStyle(
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),

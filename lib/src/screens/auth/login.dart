@@ -30,11 +30,14 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) {
+          bool isWideScreen = constraints.maxWidth > 600;
+
           return Row(
             children: [
-              if (constraints.maxWidth > 600)
+              // Left-side image takes more space
+              if (isWideScreen)
                 Expanded(
-                  flex: 1,
+                  flex: 3, // Adjusted flex value to make the image wider
                   child: Container(
                     color: Colors.grey[200],
                     child: Image.asset(
@@ -45,225 +48,226 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
+              // Main content takes less space
               Expanded(
-                flex: 1,
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Center(
-                        child: Image.asset(
-                          'assets/images/Kitokopaylogo.-png',
-                          width: 120,
-                          height: 120,
-                        ),
+                flex: 2, // Adjusted flex value to make the form narrower
+                child: Center(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(24.0),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: isWideScreen ? 400 : double.infinity,
                       ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        "Welcome Back",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      const Text("Phone Number",
-                          style: TextStyle(fontSize: 16)),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              showCountryPicker(
-                                context: context,
-                                showPhoneCode: true,
-                                onSelect: (Country country) {
-                                  setState(() {
-                                    _selectedCountry = country;
-                                  });
-                                  String currentPhone = _phoneController.text;
-                                  if (currentPhone.isNotEmpty &&
-                                      !currentPhone.startsWith(
-                                          "+${country.phoneCode}")) {
-                                    _phoneController.text =
-                                        "+${country.phoneCode}$currentPhone";
-                                  }
-                                },
-                                countryListTheme: CountryListThemeData(
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(40.0),
-                                    topRight: Radius.circular(40.0),
-                                  ),
-                                  inputDecoration: InputDecoration(
-                                    labelText: 'Search',
-                                    hintText: 'Start typing to search',
-                                    prefixIcon: const Icon(Icons.search),
-                                    border: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: const Color(0xFF8C98A8)
-                                              .withOpacity(0.2)),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: _selectedCountry != null
-                                  ? Row(
-                                      children: [
-                                        Text(_selectedCountry!.flagEmoji),
-                                        Text("+${_selectedCountry!.phoneCode}"),
-                                      ],
-                                    )
-                                  : const Icon(Icons.flag),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: TextField(
-                              controller: _phoneController,
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                hintText: "Enter your phone number",
-                                hintStyle: const TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12.0),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 12),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-                      const Text("PIN", style: TextStyle(fontSize: 16)),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _pinController,
-                        obscureText: true,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          hintText: "Enter your PIN",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      if (_isLoading) const CircularProgressIndicator(),
-                      if (_errorMessage != null)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Text(
-                            _errorMessage!,
-                            style: const TextStyle(color: Colors.red),
-                          ),
-                        ),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _isLoading
-                              ? null
-                              : () async {
-                                  setState(() {
-                                    _isLoading = true;
-                                    _errorMessage = null;
-                                  });
-                                  String phoneNumber = _phoneController.text;
-                                  String pin = _pinController.text;
-                                  String fullPhoneNumber =
-                                      '${_selectedCountry?.phoneCode ?? '254'}${getFormattedPhoneNumber(phoneNumber)}';
-
-                                  print("Full Phone Number: $fullPhoneNumber");
-                                  print("Entered PIN: $pin");
-
-                                  try {
-                                    ElmsSSL elmsSSL = ElmsSSL();
-                                    String result = await elmsSSL.login(
-                                        pin, fullPhoneNumber);
-                                    Map<String, dynamic> resultMap =
-                                        jsonDecode(result);
-
-                                    if (resultMap['status'] == 'success') {
-                                      Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const HomeScreen()),
-                                      );
-                                    } else {
-                                      setState(() {
-                                        _errorMessage = resultMap['message'] ??
-                                            'Invalid details!';
-                                      });
-                                    }
-                                  } catch (e) {
-                                    setState(() {
-                                      _errorMessage = 'An error occurred: $e';
-                                    });
-                                  } finally {
-                                    setState(() => _isLoading = false);
-                                  }
-                                },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            padding: const EdgeInsets.all(16),
-                          ),
-                          child: const Text(
-                            "Log In",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Flexible(
-                            child: Text(
-                              "Don't have an account?",
-                              style:
-                                  TextStyle(color: Colors.black, fontSize: 18),
+                          // Logo
+                          Center(
+                            child: Image.asset(
+                              'assets/images/Kitokopaylogo.png',
+                              width: 120,
+                              height: 120,
                             ),
                           ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const RegistrationScreen(),
+                          const SizedBox(height: 16),
+                          // Welcome Text
+                          const Text(
+                            "Welcome Back",
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 32),
+                          // Phone Number Input
+                          const Text("Phone Number",
+                              style: TextStyle(fontSize: 16)),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  showCountryPicker(
+                                    context: context,
+                                    showPhoneCode: true,
+                                    onSelect: (Country country) {
+                                      setState(() {
+                                        _selectedCountry = country;
+                                      });
+                                      String currentPhone =
+                                          _phoneController.text;
+                                      if (currentPhone.isNotEmpty &&
+                                          !currentPhone.startsWith(
+                                              "+${country.phoneCode}")) {
+                                        _phoneController.text =
+                                            "+${country.phoneCode}$currentPhone";
+                                      }
+                                    },
+                                  );
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 12),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Text(_selectedCountry?.flagEmoji ?? '🌍'),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        "+${_selectedCountry?.phoneCode ?? ''}",
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              );
-                            },
-                            child: const Text(
-                              " Register Now",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: TextField(
+                                  controller: _phoneController,
+                                  keyboardType: TextInputType.number,
+                                  decoration: InputDecoration(
+                                    hintText: "Enter your phone number",
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 12),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          // PIN Input
+                          const Text("PIN", style: TextStyle(fontSize: 16)),
+                          const SizedBox(height: 8),
+                          TextField(
+                            controller: _pinController,
+                            obscureText: true,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              hintText: "Enter your PIN",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 12),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          // Error Message
+                          if (_errorMessage != null)
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Text(
+                                _errorMessage!,
+                                style: const TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          // Loading Indicator
+                          if (_isLoading)
+                            const Center(child: CircularProgressIndicator()),
+                          // Login Button
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: _isLoading
+                                  ? null
+                                  : () async {
+                                      setState(() {
+                                        _isLoading = true;
+                                        _errorMessage = null;
+                                      });
+                                      String phoneNumber =
+                                          _phoneController.text;
+                                      String pin = _pinController.text;
+                                      String fullPhoneNumber =
+                                          '${_selectedCountry?.phoneCode ?? '254'}${getFormattedPhoneNumber(phoneNumber)}';
+
+                                      try {
+                                        ElmsSSL elmsSSL = ElmsSSL();
+                                        String result = await elmsSSL.login(
+                                            pin, fullPhoneNumber);
+                                        Map<String, dynamic> resultMap =
+                                            jsonDecode(result);
+
+                                        if (resultMap['status'] == 'success') {
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const HomeScreen()),
+                                          );
+                                        } else {
+                                          setState(() {
+                                            _errorMessage =
+                                                resultMap['message'] ??
+                                                    'Invalid details!';
+                                          });
+                                        }
+                                      } catch (e) {
+                                        setState(() {
+                                          _errorMessage =
+                                              'An error occurred: $e';
+                                        });
+                                      } finally {
+                                        setState(() => _isLoading = false);
+                                      }
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.all(16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: const Text(
+                                "Log In",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
+                          const SizedBox(height: 16),
+                          // Register Link
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                "Don't have an account?",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const RegistrationScreen(),
+                                    ),
+                                  );
+                                },
+                                child: const Text(
+                                  " Register Now",
+                                  style: TextStyle(
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
