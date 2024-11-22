@@ -114,11 +114,14 @@ class _CustomAppBarState extends State<CustomAppBar> {
             break;
           case 2:
             Navigator.pushNamed(context, '/settings');
-            break;
+            break;  
           case 3:
-            Navigator.pushNamed(context, '/about');
+            Navigator.pushNamed(context, '/reset-pin');
             break;
           case 4:
+            Navigator.pushNamed(context, '/about');
+            break;
+          case 5:
             Navigator.pushNamed(context, '/logout');
             break;
         }
@@ -145,16 +148,24 @@ class _CustomAppBarState extends State<CustomAppBar> {
             title: Text('Account Settings'),
           ),
         ),
-        const PopupMenuDivider(),
+        
         const PopupMenuItem<int>(
           value: 3,
+          child: ListTile(
+            leading: Icon(Icons.settings),
+            title: Text('Reset Pin'),
+          ),
+        ),
+        const PopupMenuDivider(),
+        const PopupMenuItem<int>(
+          value: 4,
           child: ListTile(
             leading: Icon(Icons.info_outline),
             title: Text('About'),
           ),
         ),
         const PopupMenuItem<int>(
-          value: 4,
+          value: 5,
           child: ListTile(
             leading: Icon(Icons.logout),
             title: Text('Log Out'),

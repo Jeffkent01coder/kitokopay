@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 import 'package:kitokopay/src/screens/auth/login.dart';
+import 'package:kitokopay/src/screens/auth/otp.dart';
 import 'package:kitokopay/src/screens/ui/home.dart';
 import 'package:kitokopay/src/screens/ui/loans.dart';
 import 'package:kitokopay/src/screens/ui/payments.dart';
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
           initialRoute: '/',
           routes: {
             '/': (context) => const LoginScreen(), // Initial screen
+            '/otp': (context) => const OtpPage(), //otp
             '/home': (context) => const HomeScreen(), // Home screen
             '/payments': (context) => const PaymentPage(), // Payments screen
             '/loans': (context) => const LoansPage(), // Loans screen

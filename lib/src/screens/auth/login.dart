@@ -223,6 +223,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     },
                               style: ElevatedButton.styleFrom(
                                 padding: const EdgeInsets.all(16),
+                                backgroundColor: Colors.lightBlue,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -231,6 +232,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 "Log In",
                                 style: TextStyle(
                                   fontSize: 16,
+                                  color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
