@@ -172,8 +172,8 @@ class _RemittancePageDetailsState extends State<RemittancePageDetails> {
                 right: index == 2 ? 0 : 10,
               ),
               child: CardItem(
-                accountNumber: '1234 5678 9101 112${index + 1}',
-                amount: 'CDF ${10000 - (index * 2500)}',
+                loanLimit: '${10000 - (index * 2500)}',
+                currency: 'CDF',
                 isSelected: _selectedCardIndex == index,
                 onSelect: () => _onCardSelect(index),
               ),
@@ -386,7 +386,7 @@ class _RemittancePageDetailsState extends State<RemittancePageDetails> {
   //   );
   // }
 
- Widget _buildTransferRateSection() {
+  Widget _buildTransferRateSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -487,7 +487,6 @@ class _RemittancePageDetailsState extends State<RemittancePageDetails> {
       ],
     );
   }
-
 
   // Small cards beside progress dots
   Widget _buildSmallCard(String label) {

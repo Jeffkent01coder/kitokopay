@@ -27,242 +27,247 @@ class _PaymentPageState extends State<PaymentPage> {
     return Scaffold(
       appBar: const CustomAppBar(), // Using the custom app bar
       backgroundColor: const Color(0xFF3C4B9D),
-      body: Column(
-        children: [
-          // Custom Tab Bar
-          _buildCardTabBar(),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Choose Card',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {},
-                          child: const Text(
-                            'View All',
+      body: LayoutBuilder(builder: (context, constraints) {
+        // Check screen width
+        bool isMobile = constraints.maxWidth <= 600;
+
+        return Column(
+          children: [
+            // Custom Tab Bar
+            _buildCardTabBar(),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Choose Card',
                             style: TextStyle(
+                              fontSize: 18,
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: CardItem(
-                            accountNumber: '1234 5678 9101 1121',
-                            amount: 'CDF 10,000',
-                            isSelected: selectedCardIndex == 0,
-                            onSelect: () => onCardSelect(0),
+                          TextButton(
+                            onPressed: () {},
+                            child: const Text(
+                              'View All',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: CardItem(
-                            accountNumber: '1234 5678 9101 1122',
-                            amount: 'CDF 8,500',
-                            isSelected: selectedCardIndex == 1,
-                            onSelect: () => onCardSelect(1),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: CardItem(
+                              loanLimit: '10,000',
+                              currency: 'CDF',
+                              isSelected: selectedCardIndex == 0,
+                              onSelect: () => onCardSelect(0),
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: CardItem(
-                            accountNumber: '1234 5678 9101 1123',
-                            amount: 'CDF 5,000',
-                            isSelected: selectedCardIndex == 2,
-                            onSelect: () => onCardSelect(2),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: CardItem(
+                              loanLimit: '8,500',
+                              currency: 'CDF',
+                              isSelected: selectedCardIndex == 1,
+                              onSelect: () => onCardSelect(1),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 30),
-                    // Payment and Business Search Columns
-                    Row(
-                      children: [
-                        // Payment Column
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Payment Merchant',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              const Text(
-                                'Pay to',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              const SizedBox(height: 8),
-                              TextField(
-                                decoration: InputDecoration(
-                                  hintText: 'Please enter account number',
-                                  hintStyle:
-                                      const TextStyle(color: Colors.white),
-                                  filled: true,
-                                  fillColor: Colors.transparent,
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    borderSide: const BorderSide(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  suffixIcon: const Icon(Icons.search,
-                                      color: Colors.white),
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              const Text(
-                                'Amount',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              const SizedBox(height: 8),
-                              TextField(
-                                decoration: InputDecoration(
-                                  hintText: 'Please enter amount',
-                                  hintStyle:
-                                      const TextStyle(color: Colors.white),
-                                  filled: true,
-                                  fillColor: Colors.transparent,
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    borderSide: const BorderSide(
-                                      color: Colors.white,
-                                    ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: CardItem(
+                              loanLimit: '5,000',
+                              currency: 'CDF',
+                              isSelected: selectedCardIndex == 2,
+                              onSelect: () => onCardSelect(2),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 30),
+                      // Payment and Business Search Columns
+                      Row(
+                        children: [
+                          // Payment Column
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Payment Merchant',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    fontSize: 18,
                                   ),
                                 ),
-                              ),
-                              const SizedBox(height: 20),
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const PaymentConfirmationPage(), // Ensure this matches your class
-                                    ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.lightBlue,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                child: const Text(
-                                  'Continue',
+                                const SizedBox(height: 10),
+                                const Text(
+                                  'Pay to',
                                   style: TextStyle(color: Colors.white),
                                 ),
-                              ),
-
-                            ],
-                          ),
-                        ),
-                        const VerticalDivider(
-                            color: Colors.white, thickness: 1),
-                        // Business Search Column
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Search Business',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  fontSize: 18,
+                                const SizedBox(height: 8),
+                                TextField(
+                                  decoration: InputDecoration(
+                                    hintText: 'Please enter account number',
+                                    hintStyle:
+                                        const TextStyle(color: Colors.white),
+                                    filled: true,
+                                    fillColor: Colors.transparent,
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      borderSide: const BorderSide(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    suffixIcon: const Icon(Icons.search,
+                                        color: Colors.white),
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 10),
-                              // Business Cards Row
-                              Row(
-                                children: [
-                                  _buildBusinessCard(
-                                      'Spotify', Icons.shopping_cart),
-                                  const SizedBox(width: 10),
-                                  _buildBusinessCard(
-                                      'Netflix', Icons.shopping_cart),
-                                  const SizedBox(width: 10),
-                                  _buildBusinessCard(
-                                      'Hulu', Icons.shopping_cart),
-                                  const SizedBox(width: 10),
-                                  _buildAddBusinessCard(),
-                                ],
-                              ),
-                              const SizedBox(height: 20),
-                              // Account Search Field
-                              TextField(
-                                decoration: InputDecoration(
-                                  hintText: 'Please enter account number',
-                                  hintStyle:
-                                      const TextStyle(color: Colors.white),
-                                  filled: true,
-                                  fillColor: Colors.transparent,
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    borderSide: const BorderSide(
-                                      color: Colors.white,
+                                const SizedBox(height: 20),
+                                const Text(
+                                  'Amount',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                const SizedBox(height: 8),
+                                TextField(
+                                  decoration: InputDecoration(
+                                    hintText: 'Please enter amount',
+                                    hintStyle:
+                                        const TextStyle(color: Colors.white),
+                                    filled: true,
+                                    fillColor: Colors.transparent,
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      borderSide: const BorderSide(
+                                        color: Colors.white,
+                                      ),
                                     ),
                                   ),
-                                  suffixIcon: const Icon(Icons.search,
-                                      color: Colors.white),
                                 ),
-                              ),
-                              const SizedBox(height: 20),
-                              // Business List
-                              Card(
-                                color: const Color(0xFF4564A8),
-                                child: Column(
+                                const SizedBox(height: 20),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const PaymentConfirmationPage(),
+                                      ),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.lightBlue,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Continue',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const VerticalDivider(
+                              color: Colors.white, thickness: 1),
+                          // Business Search Column
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Search Business',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                // Business Cards Row
+                                Row(
                                   children: [
-                                    businessListItem(
-                                        Icons.videocam, 'Netchill', '456878'),
-                                    const Divider(color: Colors.white),
-                                    businessListItem(
-                                        Icons.store, 'Apple Store', '8080808'),
-                                    const Divider(color: Colors.white),
-                                    businessListItem(
-                                        Icons.bike_scooter, 'Jumia', '0038383'),
+                                    _buildBusinessCard(
+                                        'Spotify', Icons.shopping_cart),
+                                    const SizedBox(width: 10),
+                                    _buildBusinessCard(
+                                        'Netflix', Icons.shopping_cart),
+                                    const SizedBox(width: 10),
+                                    _buildBusinessCard(
+                                        'Hulu', Icons.shopping_cart),
+                                    const SizedBox(width: 10),
+                                    _buildAddBusinessCard(),
                                   ],
                                 ),
-                              ),
-                            ],
+                                const SizedBox(height: 20),
+                                // Account Search Field
+                                TextField(
+                                  decoration: InputDecoration(
+                                    hintText: 'Please enter account number',
+                                    hintStyle:
+                                        const TextStyle(color: Colors.white),
+                                    filled: true,
+                                    fillColor: Colors.transparent,
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      borderSide: const BorderSide(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    suffixIcon: const Icon(Icons.search,
+                                        color: Colors.white),
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                // Business List
+                                Card(
+                                  color: const Color(0xFF4564A8),
+                                  child: Column(
+                                    children: [
+                                      businessListItem(
+                                          Icons.videocam, 'Netchill', '456878'),
+                                      const Divider(color: Colors.white),
+                                      businessListItem(Icons.store,
+                                          'Apple Store', '8080808'),
+                                      const Divider(color: Colors.white),
+                                      businessListItem(Icons.bike_scooter,
+                                          'Jumia', '0038383'),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          const Footer(),
-        ],
-      ),
+            if (!isMobile)
+              const Footer(), // Display footer only on larger screens
+          ],
+        );
+      }),
     );
   }
 
-   // Build individual tab for the card tab bar
+  // Build individual tab for the card tab bar
   Widget _buildCardTab(String title, int index) {
     final isSelected =
         _selectedTabIndex == index; // Check if the tab is selected
@@ -351,7 +356,8 @@ class _PaymentPageState extends State<PaymentPage> {
             const SizedBox(height: 4),
             Text(
               leftValue,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -365,14 +371,14 @@ class _PaymentPageState extends State<PaymentPage> {
             const SizedBox(height: 4),
             Text(
               rightValue,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ],
         ),
       ],
     );
   }
-
 
   Widget _buildBusinessCard(String name, IconData icon) {
     return Expanded(

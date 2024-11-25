@@ -31,10 +31,6 @@ class ApiClient extends GetConnect {
         'Content-Type': 'application/json',
       };
 
-      print("Auth Request -------------");
-
-      print(json.encode(authRequest));
-
       http.Response response = await http.post(
         Uri.parse(authApiEndPoint),
         headers: headers,
@@ -43,7 +39,6 @@ class ApiClient extends GetConnect {
 
       if (response.statusCode == 200) {
         TokenStorage().setToken(response.body);
-        print('Token Response : ${response.body}');
       }
     } catch (e) {
       print(e);
@@ -58,28 +53,26 @@ class ApiClient extends GetConnect {
     };
 
     try {
-      print('Sending request with command: $command');
-      print('Request body: $coreRequest');
-
-      http.Response response = await http.post(
+      // Make the POST request
+      final response = await http.post(
         Uri.parse(coreApiEndPoint),
         headers: headers,
         body: jsonEncode(coreRequest),
       );
 
-      print('Core RESPONSE: ${response.statusCode} for $command');
-      print('Core RESPONSE: Body ${response.body} for $command');
-
+      // Handle specific status codes
       if (response.statusCode == 200) {
-        return response.body;
+        return response.body; // Success case
+      } else if (response.statusCode == 401) {
+        return "${response.statusCode}";
       } else if (response.statusCode == 400) {
-        return "Invalid Details!";
+        return "Invalid Details!"; // Bad request case
       } else {
-        return "Unexpected Error: ${response.statusCode}";
+        return "Unexpected Error: ${response.statusCode}"; // Unexpected status codes
       }
     } catch (e) {
-      print('Error in coreRequest: $e');
-      return "Error: ${e.toString()}";
+      // Handle exceptions
+      return "Exception occurred: ${e.toString()}";
     }
   }
 }

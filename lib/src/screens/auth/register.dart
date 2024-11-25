@@ -36,8 +36,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     String fullPhoneNumber =
         '${_selectedCountry?.phoneCode ?? '254'}${getFormattedPhoneNumber(phoneNumber)}';
 
-    print("Full Phone Number: $fullPhoneNumber");
-
     try {
       // Call getCustomer function from ElmsSSL class
       ElmsSSL elmsSSL = ElmsSSL(); // Create an instance of ElmsSSL

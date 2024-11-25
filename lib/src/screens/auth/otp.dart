@@ -1,4 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:country_picker/country_picker.dart';
+import 'package:kitokopay/src/screens/auth/login.dart';
+import 'package:kitokopay/src/screens/auth/register.dart'; // Assuming a Register screen exists
+import 'package:kitokopay/service/api_client_helper_utils.dart'; // Import the ElmsSSL class
 
 class OtpPage extends StatefulWidget {
   const OtpPage({super.key});
@@ -8,15 +13,29 @@ class OtpPage extends StatefulWidget {
 }
 
 class _OtpPageState extends State<OtpPage> {
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _otpController = TextEditingController();
+  Country? _selectedCountry;
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  // Format phone number with country code
+  String formatPhoneNumber(String countryCode, String phoneNumber) {
+    String formattedPhoneNumber = phoneNumber.replaceAll(RegExp(r'\D'), '');
+    return '$countryCode$formattedPhoneNumber';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) {
+          bool isWideScreen = constraints.maxWidth > 600;
+
           return Row(
             children: [
               // Left Column (Image)
-              if (constraints.maxWidth > 600)
+              if (isWideScreen)
                 Expanded(
                   flex: 1,
                   child: Container(
@@ -47,61 +66,190 @@ class _OtpPageState extends State<OtpPage> {
                               height: 120,
                             ),
                           ),
-                          // OTP Text
+                          const SizedBox(height: 16),
+                          // Phone Number Input
                           const Text(
-                            "OTP",
+                            "Phone Number",
                             style: TextStyle(
-                              fontSize: 32,
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: Colors.black,
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          // Subtext
-                          Text(
-                            "Enter OTP sent to you",
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  showCountryPicker(
+                                    context: context,
+                                    showPhoneCode: true,
+                                    onSelect: (Country country) {
+                                      setState(() {
+                                        _selectedCountry = country;
+                                      });
+                                    },
+                                  );
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey),
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        _selectedCountry?.flagEmoji ?? '🌍',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        "+${_selectedCountry?.phoneCode ?? '254'}",
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: TextField(
+                                  controller: _phoneController,
+                                  keyboardType: TextInputType.phone,
+                                  decoration: InputDecoration(
+                                    hintText: "Enter phone number",
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 12,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          // OTP Input
+                          const Text(
+                            "OTP",
                             style: TextStyle(
                               fontSize: 16,
-                              color: Colors.grey[700],
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
                             ),
                           ),
-                          const SizedBox(height: 32),
-                          // Text Input Field
+                          const SizedBox(height: 8),
                           TextField(
+                            controller: _otpController,
+                            keyboardType: TextInputType.number,
                             decoration: InputDecoration(
                               hintText: "Enter OTP",
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8.0),
                               ),
                               contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 14, horizontal: 16),
+                                vertical: 14,
+                                horizontal: 16,
+                              ),
                             ),
-                            keyboardType: TextInputType.number,
                           ),
                           const SizedBox(height: 24),
-                          // Send Button
-                        Center(
+                          // Error Message
+                          if (_errorMessage != null)
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Text(
+                                _errorMessage!,
+                                style: const TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          // Loading Indicator
+                          if (_isLoading)
+                            const Center(child: CircularProgressIndicator()),
+                          // Verify Button
+                          Center(
                             child: ElevatedButton(
-                              onPressed: () {
-                                // Add your button action here
-                              },
+                              onPressed: _isLoading
+                                  ? null
+                                  : () async {
+                                      String phoneNumber =
+                                          _phoneController.text.trim();
+                                      String otp = _otpController.text.trim();
+
+                                      if (_selectedCountry == null ||
+                                          phoneNumber.isEmpty ||
+                                          otp.isEmpty) {
+                                        setState(() {
+                                          _errorMessage =
+                                              "All fields are required!";
+                                        });
+                                        return;
+                                      }
+
+                                      String formattedPhoneNumber =
+                                          formatPhoneNumber(
+                                              _selectedCountry?.phoneCode ??
+                                                  '254',
+                                              phoneNumber);
+
+                                      setState(() {
+                                        _isLoading = true;
+                                        _errorMessage = null;
+                                      });
+
+                                      try {
+                                        ElmsSSL elmsSSL = ElmsSSL();
+
+                                        String response =
+                                            await elmsSSL.activate(
+                                                formattedPhoneNumber, otp);
+
+                                        Map<String, dynamic> resultMap =
+                                            jsonDecode(response);
+
+                                        if (resultMap['status'] == 'success') {
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const LoginScreen(),
+                                            ),
+                                          );
+                                        } else {
+                                          setState(() {
+                                            _errorMessage =
+                                                resultMap['message'] ??
+                                                    'Invalid OTP!';
+                                          });
+                                        }
+                                      } catch (e) {
+                                        setState(() {
+                                          _errorMessage =
+                                              'An error occurred: $e';
+                                        });
+                                      } finally {
+                                        setState(() => _isLoading = false);
+                                      }
+                                    },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.lightBlue,
                                 padding: EdgeInsets.symmetric(
                                   vertical: 14,
-                                  horizontal: MediaQuery.of(context)
-                                              .size
-                                              .width >
-                                          600
-                                      ? 200 // Wider padding for larger screens
-                                      : 50, // Narrower padding for smaller screens
+                                  horizontal: isWideScreen ? 200 : 50,
                                 ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8.0),
                                 ),
                               ),
                               child: const Text(
-                                "Send",
+                                "Verify",
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -109,9 +257,52 @@ class _OtpPageState extends State<OtpPage> {
                                 ),
                               ),
                             ),
-                          )
-
-
+                          ),
+                          const SizedBox(height: 24),
+                          // Links for Login and Register
+                          Center(
+                            child: Column(
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const LoginScreen(),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text(
+                                    "Already have an account? Log in",
+                                    style: TextStyle(
+                                      color: Colors.lightBlue,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const RegistrationScreen(),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text(
+                                    "Don't have an account? Register",
+                                    style: TextStyle(
+                                      color: Colors.lightBlue,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),

@@ -3,10 +3,12 @@ import 'package:kitokopay/service/api_client_helper_utils.dart';
 import 'package:kitokopay/src/customs/atmcarditem.dart';
 import 'package:kitokopay/src/customs/footer.dart';
 import 'package:kitokopay/src/screens/ui/payments.dart';
+import 'package:kitokopay/src/screens/ui/loans.dart';
 import 'package:kitokopay/src/customs/appbar.dart';
 import 'package:kitokopay/src/screens/utils/resposive_layout.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -22,22 +24,31 @@ class HomeScreen extends StatelessWidget {
     final parsedResult = elmsSSL.cleanResponse(loanDetailsStr as String);
     final parsedLogin = elmsSSL.cleanResponse(loginDetails as String);
 
-    // Extract currency from parsedLogin
+    // Extract currency and limit from parsedLogin
     String currency = parsedLogin['Data']['Currency'];
+    String limit = parsedLogin['Data']['LimitAmount'].toString();
 
     // Decode the Transactions field to a List of Maps
     String transactionsStr = parsedResult['Data']['Transactions'];
     List<Map<String, dynamic>> transactionsList =
         List<Map<String, dynamic>>.from(jsonDecode(transactionsStr));
 
-    print("Loan Details In Home: $transactionsList");
-    print("Currency: $currency");
-
-    // Return both transactions and currency in a map
+    // Return both transactions, limit, and currency in a map
     return {
       "transactions": transactionsList,
       "currency": currency,
+      "limit": limit,
     };
+  }
+
+  // Format number with commas
+  String formatNumber(String number) {
+    try {
+      final value = int.parse(number);
+      return NumberFormat.decimalPattern().format(value);
+    } catch (e) {
+      return number;
+    }
   }
 
   @override
@@ -49,246 +60,274 @@ class HomeScreen extends StatelessWidget {
       ),
       body: Stack(
         children: [
-          // Gradient background with wavy lines
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Color(0xFF3C4B9D), // Top color (lighter blue)
-                  Color(0xFF151A37), // Bottom color (darker blue)
+                  Color(0xFF3C4B9D),
+                  Color(0xFF151A37),
                 ],
               ),
             ),
             child: CustomPaint(
               painter: WavyLinePainter(),
-              child:
-                  Container(), // This container is necessary for CustomPaint to fill the area
+              child: Container(),
             ),
           ),
-          // Foreground content
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          FutureBuilder<Map<String, dynamic>>(
+            future: _getTransactionsAndCurrency(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError ||
+                  !snapshot.hasData ||
+                  snapshot.data!.isEmpty) {
+                return const Center(
+                  child: Text(
+                    'Failed to load data',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                );
+              }
+
+              final currency = snapshot.data!['currency'] as String;
+              final limit = snapshot.data!['limit'] as String;
+              final formattedLimit = formatNumber(limit);
+
+              return SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          const SizedBox(height: 20),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Your Cards',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {},
+                                child: const Text(
+                                  'View All',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          ResponsiveLayout(
+                            tiny: Column(
+                              children: [
+                                CardItem(
+                                  loanLimit: formattedLimit,
+                                  currency: currency,
+                                  isSelected: false,
+                                  onSelect: () {},
+                                ),
+                              ],
+                            ),
+                            tablet: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Flexible(
+                                  fit: FlexFit.tight,
+                                  child: CardItem(
+                                    loanLimit: formattedLimit,
+                                    currency: currency,
+                                    isSelected: false,
+                                    onSelect: () {},
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Flexible(
+                                  fit: FlexFit.tight,
+                                  child: CardItem(
+                                    loanLimit: formattedLimit,
+                                    currency: currency,
+                                    isSelected: false,
+                                    onSelect: () {},
+                                  ),
+                                ),
+                              ],
+                            ),
+                            computer: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Flexible(
+                                  child: CardItem(
+                                    loanLimit: formattedLimit,
+                                    currency: currency,
+                                    isSelected: false,
+                                    onSelect: () {},
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Flexible(
+                                  child: CardItem(
+                                    loanLimit: formattedLimit,
+                                    currency: currency,
+                                    isSelected: false,
+                                    onSelect: () {},
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Flexible(
+                                  child: CardItem(
+                                    loanLimit: formattedLimit,
+                                    currency: currency,
+                                    isSelected: false,
+                                    onSelect: () {},
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 30),
                           const Text(
-                            'Your Cards',
+                            'Quick Services',
                             style: TextStyle(
                               fontSize: 18,
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          TextButton(
-                            onPressed: () {},
-                            child: const Text(
-                              'View All',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      ResponsiveLayout(
-                        tiny: Column(
-                          children: [
-                            CardItem(
-                              accountNumber: '1234 5678 9101 1121',
-                              amount: 'CDF 10,000',
-                              isSelected: false,
-                              onSelect: () {},
-                            ),
-                            const SizedBox(height: 10),
-                            CardItem(
-                              accountNumber: '1234 5678 9101 1122',
-                              amount: 'CDF 8,500',
-                              isSelected: false,
-                              onSelect: () {},
-                            ),
-                            const SizedBox(height: 10),
-                            CardItem(
-                              accountNumber: '1234 5678 9101 1123',
-                              amount: 'CDF 5,000',
-                              isSelected: false,
-                              onSelect: () {},
-                            ),
-                          ],
-                        ),
-                        tablet: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Flexible(
-                              fit: FlexFit.tight,
-                              child: CardItem(
-                                accountNumber: '1234 5678 9101 1121',
-                                amount: 'CDF 10,000',
-                                isSelected: false,
-                                onSelect: () {},
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Flexible(
-                              fit: FlexFit.tight,
-                              child: CardItem(
-                                accountNumber: '1234 5678 9101 1122',
-                                amount: 'CDF 8,500',
-                                isSelected: false,
-                                onSelect: () {},
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Flexible(
-                              fit: FlexFit.tight,
-                              child: CardItem(
-                                accountNumber: '1234 5678 9101 1123',
-                                amount: 'CDF 5,000',
-                                isSelected: false,
-                                onSelect: () {},
-                              ),
-                            ),
-                          ],
-                        ),
-                        computer: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Flexible(
-                              child: CardItem(
-                                accountNumber: '1234 5678 9101 1121',
-                                amount: 'CDF 10,000',
-                                isSelected: false,
-                                onSelect: () {},
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Flexible(
-                              child: CardItem(
-                                accountNumber: '1234 5678 9101 1122',
-                                amount: 'CDF 8,500',
-                                isSelected: false,
-                                onSelect: () {},
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Flexible(
-                              child: CardItem(
-                                accountNumber: '1234 5678 9101 1123',
-                                amount: 'CDF 5,000',
-                                isSelected: false,
-                                onSelect: () {},
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 30),
-                      const Text(
-                        'Quick Services',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      Row(
-                        children: [
-                          Flexible(
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const PaymentPage(),
+                          const SizedBox(height: 20),
+                          ResponsiveLayout(
+                            tiny: Row(
+                              children: [
+                                Flexible(
+                                  child: InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const LoansPage(), // Navigate to LoansPage
+                                        ),
+                                      );
+                                    },
+                                    child: _buildQuickServiceCard(
+                                      color: const Color(0xFF7FC1E4),
+                                      icon: Icons.money,
+                                      title: 'Get Loan',
+                                      description:
+                                          'Get unsecured personal loan',
+                                    ),
                                   ),
-                                );
-                              },
-                              child: _buildQuickServiceCard(
-                                color: const Color(0xFF7FC1E4),
-                                icon: Icons.payment,
-                                title: 'Payments',
-                                description: 'Pay for goods and services',
-                              ),
+                                ),
+                              ],
+                            ),
+                            tablet: Row(
+                              children: [
+                                Flexible(
+                                  child: InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const LoansPage(), // Navigate to LoansPage
+                                        ),
+                                      );
+                                    },
+                                    child: _buildQuickServiceCard(
+                                      color: const Color(0xFF7FC1E4),
+                                      icon: Icons.money,
+                                      title: 'Get Loan',
+                                      description:
+                                          'Get unsecured personal loan',
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Flexible(
+                                  child: _buildAddCardPlaceholder(),
+                                ),
+                              ],
+                            ),
+                            computer: Row(
+                              children: [
+                                Flexible(
+                                  child: InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const LoansPage(), // Navigate to LoansPage
+                                        ),
+                                      );
+                                    },
+                                    child: _buildQuickServiceCard(
+                                      color: const Color(0xFF7FC1E4),
+                                      icon: Icons.money,
+                                      title: 'Get Loan',
+                                      description:
+                                          'Get unsecured personal loan',
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Flexible(
+                                  child: _buildAddCardPlaceholder(),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(width: 10),
-                          Flexible(
-                            child: _buildQuickServiceCard(
-                              color: const Color(0xFF7FC1E4),
-                              icon: Icons.send,
-                              title: 'Remit',
-                              description: 'Send money anywhere',
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Flexible(
-                            child: _buildQuickServiceCard(
-                              color: const Color(0xFF7FC1E4),
-                              icon: Icons.money,
-                              title: 'Get Loan',
-                              description: 'Get unsecured personal loan',
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Flexible(child: _buildAddCardPlaceholder()),
-                        ],
-                      ),
-                      const SizedBox(height: 30),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF7FC1E4),
-                            ),
-                            onPressed: () {},
-                            child: const Text('Recent Transactions'),
-                          ),
+                          const SizedBox(height: 30),
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              TextButton(
-                                onPressed: () {},
-                                child: const Text(
-                                  'Spending',
-                                  style: TextStyle(color: Colors.white),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF7FC1E4),
                                 ),
+                                onPressed: () {},
+                                child: const Text('Recent Transactions'),
                               ),
-                              TextButton(
-                                onPressed: () {},
-                                child: const Text(
-                                  'Loans',
-                                  style: TextStyle(color: Colors.white),
-                                ),
+                              Row(
+                                children: [
+                                  TextButton(
+                                    onPressed: () {},
+                                    child: const Text(
+                                      'Loans',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
+                          const SizedBox(height: 20),
+                          Container(
+                            width: double.infinity,
+                            color: const Color(0xFF4564A8),
+                            height: 300,
+                            child: _buildTransactionList(),
+                          ),
                         ],
                       ),
-                      const SizedBox(height: 20),
-                      Container(
-                        width: double.infinity,
-                        color: const Color(0xFF4564A8),
-                        height:
-                            300, // Set a fixed height for the transaction list
-                        child: _buildTransactionList(),
-                      ),
-                    ],
-                  ),
+                    ),
+                    const Footer(),
+                  ],
                 ),
-                const Footer(),
-              ],
-            ),
+              );
+            },
           ),
         ],
       ),

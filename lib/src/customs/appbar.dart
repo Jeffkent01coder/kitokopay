@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:kitokopay/service/api_client_helper_utils.dart'; // Import the ElmsSSL class
 
 class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   const CustomAppBar({super.key});
@@ -12,6 +14,8 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
 
 class _CustomAppBarState extends State<CustomAppBar> {
   int _selectedIndex = -1; // No tab is selected initially
+  bool _isLoading = false; // Loading state for Reset Pin
+  String? _errorMessage; // Error message for Reset Pin
 
   void _onItemTapped(int index) {
     setState(() {
@@ -36,64 +40,87 @@ class _CustomAppBarState extends State<CustomAppBar> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: const BoxDecoration(color: Color(0XFF3C4B9D)),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          GestureDetector(
-            onTap: () {
-              // Navigate to HomeScreen when the logo is tapped
-              Navigator.pushReplacementNamed(context, '/home');
-            },
-            child: Image.asset(
-              'assets/images/Kitokopaylogo.png', // Replace with your logo asset path
-              height: 40, // Adjust height as needed
-            ),
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        // Responsive handling: use menu for narrow screens
+        bool isCompact = constraints.maxWidth < 600;
+
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: const BoxDecoration(color: Color(0XFF3C4B9D)),
+          child: Row(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushReplacementNamed(context, '/home');
+                },
+                child: Image.asset(
+                  'assets/images/Kitokopaylogo.png', // Replace with your logo asset path
+                  height: 40,
+                ),
+              ),
+              if (!isCompact)
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      _buildButton("Payments", 0),
+                      const SizedBox(width: 10),
+                      _buildButton("Loans", 1),
+                      const SizedBox(width: 10),
+                      _buildButton("Remittance", 2),
+                      const SizedBox(width: 20),
+                      _buildPopupMenuButton(),
+                    ],
+                  ),
+                )
+              else
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.menu, color: Colors.white),
+                        onPressed: () {
+                          _showMenuDialog(context);
+                        },
+                      ),
+                      _buildPopupMenuButton(),
+                    ],
+                  ),
+                ),
+            ],
           ),
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                _buildNavItem("Payments", 0),
-                const SizedBox(width: 20),
-                _buildNavItem("Loans", 1),
-                const SizedBox(width: 20),
-                _buildNavItem("Remittance", 2),
-                const SizedBox(width: 20),
-                _buildPopupMenuButton(),
-              ],
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildNavItem(String title, int index) {
+  Widget _buildButton(String title, int index) {
     bool isSelected = _selectedIndex == index;
 
     return GestureDetector(
-      onTap: () => _onItemTapped(index),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
+      onTap: title == "Loans" // Only enable tap for "Loans"
+          ? () => _onItemTapped(index)
+          : null,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          border: isSelected
+              ? Border.all(color: const Color(0xFF7FC1E4), width: 2)
+              : Border.all(color: Colors.white, width: 1.0),
+        ),
+        child: Text(
+          title,
+          style: TextStyle(
+            color: title == "Loans"
+                ? (isSelected ? const Color(0xFF3C4B9D) : Colors.white)
+                : Colors.grey, // Disabled buttons appear grey
+            fontWeight: FontWeight.bold,
           ),
-          if (isSelected)
-            Container(
-              height: 2,
-              width: 60,
-              color: const Color(0xFF7FC1E4),
-            ),
-          const SizedBox(height: 10),
-        ],
+        ),
       ),
     );
   }
@@ -114,9 +141,9 @@ class _CustomAppBarState extends State<CustomAppBar> {
             break;
           case 2:
             Navigator.pushNamed(context, '/settings');
-            break;  
+            break;
           case 3:
-            Navigator.pushNamed(context, '/reset-pin');
+            _handleResetPin(); // Handle Reset Pin action
             break;
           case 4:
             Navigator.pushNamed(context, '/about');
@@ -148,11 +175,10 @@ class _CustomAppBarState extends State<CustomAppBar> {
             title: Text('Account Settings'),
           ),
         ),
-        
         const PopupMenuItem<int>(
           value: 3,
           child: ListTile(
-            leading: Icon(Icons.settings),
+            leading: Icon(Icons.lock_reset),
             title: Text('Reset Pin'),
           ),
         ),
@@ -172,6 +198,98 @@ class _CustomAppBarState extends State<CustomAppBar> {
           ),
         ),
       ],
+    );
+  }
+
+  void _showMenuDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.monetization_on),
+                title: const Text("Loans"),
+                onTap: () {
+                  Navigator.pop(context);
+                  _onItemTapped(1); // Only "Loans" is functional
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.payment),
+                title: const Text(
+                  "Payments",
+                  style: TextStyle(color: Colors.grey), // Greyed out
+                ),
+                onTap: null, // Non-functional
+              ),
+              ListTile(
+                leading: const Icon(Icons.send),
+                title: const Text(
+                  "Remittance",
+                  style: TextStyle(color: Colors.grey), // Greyed out
+                ),
+                onTap: null, // Non-functional
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _handleResetPin() async {
+    // Show loading dialog
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      ElmsSSL elmsSSL = ElmsSSL();
+      String result = await elmsSSL.resetPin();
+      Map<String, dynamic> resultMap = jsonDecode(result);
+
+      if (resultMap['status'] == 'success') {
+        Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        setState(() {
+          _errorMessage = resultMap['message'] ?? 'Invalid details!';
+        });
+        _showErrorDialog(_errorMessage!);
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'An error occurred: $e';
+      });
+      _showErrorDialog(_errorMessage!);
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Error"),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Close"),
+            ),
+          ],
+        );
+      },
     );
   }
 }

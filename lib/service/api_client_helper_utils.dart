@@ -13,11 +13,6 @@ import 'package:kitokopay/service/token_storage.dart';
 import 'package:kitokopay/service/global_data.dart';
 import 'dart:html' as html; // Import html for localStorage
 import 'dart:async'; // Import for Timer
-// For localStorage
-// Import UUID package
-// Your API client class import
-// Import TokenStorage class
-import 'package:kitokopay/models/login_response.dart';
 
 class ElmsSSL {
   static String basic_username = "L@T0wU8eR";
@@ -124,16 +119,13 @@ class ElmsSSL {
         await apiClient.coreRequest(token as String, coreRequest, command);
 
     // Log coreResult as a string
-    print("Core result string: $coreResultStr");
 
     if (coreResultStr == "Invalid Details!") {
       // Return error json with the message
       return jsonEncode({"status": "error", "message": "Invalid Details!"});
     } else {
       var parsedResponse = cleanResponse(decrypt(coreResultStr, strKey, strIV));
-      print("Parsed Response: $parsedResponse");
-      print("Customer Id: ${parsedResponse['Data']['CustomerId']}");
-      print("App Id: ${parsedResponse['Data']['AppId']}");
+
       await prefs.setString('customerId', parsedResponse['Data']['CustomerId']);
       await prefs.setString('appId', parsedResponse['Data']['AppId']);
       return jsonEncode({"status": "success"});
@@ -155,140 +147,9 @@ class ElmsSSL {
     return false;
   }
 
-//   Future<String> activate(
-//       String customerId, String appId, String mobileNumber, String otp) async {
-//     SharedPreferences prefs = await SharedPreferences.getInstance();
-
-//     var uuid = new Uuid();
-//     String Uid = uuid.v4();
-
-//     final deviceInfo = DeviceInfoPlugin();
-//     String? iMEI;
-
-//     String AppId = appId;
-//     String platform = "WEB";
-
-//     if (Platform.isIOS) {
-//       IosDeviceInfo? iosInfo = await deviceInfo.iosInfo;
-//       iMEI = iosInfo.identifierForVendor; // Use null-aware access
-//     } else if (Platform.isAndroid) {
-//       AndroidDeviceInfo? androidInfo = await deviceInfo.androidInfo;
-//       iMEI = androidInfo.androidId; // Use null-aware access
-//     }
-
-//     String CustomerId =
-//         customerId; // returned by GETCUSTOMER call and saved in the app
-//     String MobileNumber = mobileNumber; // customer input
-//     String device =
-//         iMEI ?? ''; // returned by GETCUSTOMER call and saved in the app
-
-//     String Lat = "0.200";
-//     String Lon = "-1.01";
-
-//     ApiClient apiClient = ApiClient();
-
-//     String strKey = apiClient.generateRandomString(16);
-//     String strIV = apiClient.generateRandomString(16);
-
-//     Map<String, String> fValues = {
-//       "F000": "PROFILE",
-//       "F001": "BASE",
-//       "F002": "ACTIVATE",
-//       "F003": AppId,
-//       "F004": CustomerId,
-//       "F005": MobileNumber,
-//       "F006": "",
-//       "F007": "",
-//       "F008": "PIN",
-//       "F009": "WEB", // IMEI
-//       "F010": "WEB",
-//       "F013": otp, // OTP activation code received via email
-//       "F014": platform,
-//     };
-
-//     for (int i = 11; i <= 40; i++) {
-//       if (!fValues.containsKey("F${i.toString().padLeft(3, '0')}")) {
-//         fValues["F${i.toString().padLeft(3, '0')}"] = "";
-//       }
-//     }
-
-//     String trxData = jsonEncode(fValues);
-
-//     String appData = jsonEncode({
-//       "UniqueId": Uid,
-//       "AppId": AppId,
-//       "device": device,
-//       "platform": platform,
-//       "CustomerId": CustomerId,
-//       "MobileNumber": MobileNumber,
-//       "Lat": Lat,
-//       "Lon": Lon,
-//     });
-
-//     print(trxData);
-//     String hashedTrxData = hash(trxData, device);
-//     print("");
-//     print(hashedTrxData);
-//     print("");
-
-//     String Rsc = hashedTrxData;
-//     String Rrk = encrypt(strKey, publicKeyString);
-//     String Rrv = encrypt(strIV, publicKeyString);
-//     String Aad = encrypt1(appData, strKey, strIV);
-
-//     String coreData = encrypt1(trxData, strKey, strIV);
-
-//     Map<String, String> authRequest = {
-//       "H00": Uid,
-//       "H03": Rsc,
-//       "H01": Rrk,
-//       "H02": Rrv,
-//       "H04": Aad,
-//     };
-
-//     Map<String, String> coreRequest = {"Data": coreData};
-
-//     final authResultStr = await apiClient.authRequest(authRequest);
-
-//     final token = TokenStorage().getToken();
-
-//     final coreResultStr =
-//         await apiClient.coreRequest(token, coreRequest, "ACTIVATE");
-
-//     // final String coreDecryted =
-//     //     decrypt(GlobalData().getCoreDataResult(), strKey, strIV);
-
-//     // Map<String, dynamic> responseBody = jsonDecode(coreDecryted);
-
-//     // print("Activate Decrypted response: $responseBody");
-
-//     if (GlobalData().getIs401ActivationResponse() == 401 && otp != "") {
-//       final String coreDecryted =
-//           decrypt(GlobalData().getActivateCoreDataResult(), strKey, strIV);
-
-//       Map<String, dynamic> responseBody = jsonDecode(coreDecryted);
-
-//       if (responseBody.isNotEmpty) {
-//         ActivationResponse activationResponse =
-//             ActivationResponse.fromJson(responseBody);
-
-//         prefs.setString("deviceId", activationResponse.data.deviceId ?? "");
-
-//         GlobalData().setDeviceId(activationResponse.data.deviceId ?? "");
-//       }
-//     }
-
-//     return "";
-//   }
-
-  Future<String> login(String pin, String mobileNumber) async {
+  Future<String> activate(String mobileNumber, String otp) async {
     var uuid = const Uuid();
     String Uid = uuid.v4();
-
-    print("UUID: $Uid");
-    print("Pin: $pin");
-    print("Mobile Number: $mobileNumber");
-    print("Public Key: $publicKeyString");
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     ApiClient apiClient = ApiClient();
@@ -323,8 +184,128 @@ class ElmsSSL {
       }
     }
 
-    print(
-        "AppId: $AppId, CustomerId: $CustomerId, Mobile Number: $mobileNumber, Pin: $pin");
+    String Lat = "0.200";
+    String Lon = "-1.01";
+
+    String device = "WEB";
+    String strKey = apiClient.generateRandomString(16);
+    String strIV = apiClient.generateRandomString(16);
+
+    Map<String, String> fValues = {
+      "F000": "PROFILE",
+      "F001": "BASE",
+      "F002": "ACTIVATE",
+      "F003": AppId,
+      "F004": CustomerId,
+      "F005": mobileNumber,
+      "F006": "",
+      "F007": "",
+      "F008": "PIN",
+      "F009": "WEB", // IMEI
+      "F010": "WEB",
+      "F013": otp, // OTP activation code received via email
+      "F014": "WEB",
+    };
+
+    for (int i = 11; i <= 40; i++) {
+      if (!fValues.containsKey("F${i.toString().padLeft(3, '0')}")) {
+        fValues["F${i.toString().padLeft(3, '0')}"] = "";
+      }
+    }
+
+    String trxData = jsonEncode(fValues);
+
+    String appData = jsonEncode({
+      "UniqueId": Uid,
+      "AppId": AppId,
+      "device": "WEB",
+      "platform": "WEB",
+      "CustomerId": CustomerId,
+      "MobileNumber": mobileNumber,
+      "Lat": Lat,
+      "Lon": Lon,
+    });
+
+    String hashedTrxData = hash(trxData, device);
+
+    String Rsc = hashedTrxData;
+    String Rrk = encrypt(strKey, publicKeyString);
+    String Rrv = encrypt(strIV, publicKeyString);
+    String Aad = encrypt1(appData, strKey, strIV);
+
+    String coreData = encrypt1(trxData, strKey, strIV);
+
+    Map<String, String> authRequest = {
+      "H00": Uid,
+      "H03": Rsc,
+      "H01": Rrk,
+      "H02": Rrv,
+      "H04": Aad,
+    };
+
+    Map<String, String> coreRequest = {"Data": coreData};
+
+    final authResultStr = await apiClient.authRequest(authRequest);
+
+    final token = await TokenStorage().getToken();
+
+    final coreResultStr =
+        await apiClient.coreRequest(token as String, coreRequest, "ACTIVATE");
+
+    if (coreResultStr == "Invalid Details!") {
+      // Return error json with the message
+      return jsonEncode({"status": "error", "message": "Invalid Details!"});
+    } else if (coreResultStr == "401") {
+      return jsonEncode(
+          {"status": "success", "message": "Activation Successful!"});
+    } else {
+      var parsedResponse = cleanResponse(decrypt(coreResultStr, strKey, strIV));
+
+      // Store the parsed response in preferences
+      await prefs.setString('loginDetails', jsonEncode(parsedResponse));
+
+      final loadDetailsResponse = await loanDetails();
+
+      return loadDetailsResponse;
+    }
+  }
+
+  Future<String> login(String pin, String mobileNumber) async {
+    var uuid = const Uuid();
+    String Uid = uuid.v4();
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    ApiClient apiClient = ApiClient();
+
+    // Get AppId and CustomerId from SharedPreferences
+    String? AppId = prefs.getString("appId");
+    String? CustomerId = prefs.getString("customerId");
+
+    // Check if AppId or CustomerId is empty; if so, fetch using getCustomer
+    if (AppId == null ||
+        AppId.isEmpty ||
+        CustomerId == null ||
+        CustomerId.isEmpty) {
+      final result = await getCustomer(mobileNumber);
+      Map<String, dynamic> resultMap = jsonDecode(result);
+
+      if (resultMap['status'] == 'success') {
+        // Refetch AppId and CustomerId after a successful getCustomer call
+        AppId = prefs.getString("appId");
+        CustomerId = prefs.getString("customerId");
+
+        if (AppId == null ||
+            AppId.isEmpty ||
+            CustomerId == null ||
+            CustomerId.isEmpty) {
+          return 'Error fetching AppId or CustomerId';
+        }
+      } else {
+        // Handle error message from response
+        String errorMessage = resultMap['message'] ?? 'Invalid details!';
+        return errorMessage;
+      }
+    }
 
     String platform = "WEB";
     String device = "WEB";
@@ -350,7 +331,6 @@ class ElmsSSL {
     };
 
     String trxData = jsonEncode(fValues);
-    print("Trx Data: $trxData");
 
     String appData = jsonEncode({
       "UniqueId": Uid,
@@ -384,9 +364,6 @@ class ElmsSSL {
     final authResultStr = await apiClient.authRequest(authRequest);
     final token = await TokenStorage().getToken();
 
-    print("Token: $token");
-    print("Core Request: $coreRequest");
-
     final coreResultStr =
         await apiClient.coreRequest(token as String, coreRequest, "LOGIN");
 
@@ -395,7 +372,6 @@ class ElmsSSL {
       return jsonEncode({"status": "error", "message": "Invalid Details!"});
     } else {
       var parsedResponse = cleanResponse(decrypt(coreResultStr, strKey, strIV));
-      print("Parsed Response: $parsedResponse");
 
       // Store the parsed response in preferences
       await prefs.setString('loginDetails', jsonEncode(parsedResponse));
@@ -407,7 +383,7 @@ class ElmsSSL {
   }
 
   Future<String> applyLoan(String appliedAmount, String pin) async {
-    var uuid = Uuid();
+    var uuid = const Uuid();
     var Uid = uuid.v4();
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -439,9 +415,6 @@ class ElmsSSL {
       currency = loginResponse['Data']['Currency'] ?? '';
       limitAmount = loginResponse['Data']['LimitAmount'] ?? '';
     }
-
-    print(
-        "AppId: $AppId, CustomerId: $CustomerId, MobileNumber: $mobileNumber, Currency: $currency, LimitAmount: $limitAmount");
 
     var appDetails = {
       "AppId": AppId,
@@ -492,11 +465,6 @@ class ElmsSSL {
 
     var hashedTrxData = hash(trxData, appDetails["device"]!);
 
-    print(trxData);
-    print("");
-    print(hashedTrxData);
-    print("");
-
     var Rsc = hashedTrxData;
     var Rrk = encrypt(strKey, publicKeyString);
     var Rrv = encrypt(strIV, publicKeyString);
@@ -505,11 +473,11 @@ class ElmsSSL {
     var coreData = encrypt1(trxData, strKey, strIV);
 
     Map<String, String> authRequest = {
-      "H00": "$Uid",
-      "H03": "$Rsc",
-      "H01": "$Rrk",
-      "H02": "$Rrv",
-      "H04": "$Aad"
+      "H00": Uid,
+      "H03": Rsc,
+      "H01": Rrk,
+      "H02": Rrv,
+      "H04": Aad
     };
 
     Map<String, String> coreRequest = {"Data": coreData};
@@ -518,19 +486,14 @@ class ElmsSSL {
 
     final token = await TokenStorage().getToken();
 
-    print("Retrieved token: $token");
-
     final coreResultStr = await apiClient.coreRequest(
         token as String, coreRequest, "APPLICATION");
-
-    print("Apply Loan response: $coreResultStr");
 
     if (coreResultStr == "Invalid Details!") {
       // Return error json with the message
       return jsonEncode({"status": "error", "message": "Invalid Details!"});
     } else {
       var parsedResponse = cleanResponse(decrypt(coreResultStr, strKey, strIV));
-      print("Parsed Response: $parsedResponse");
 
       // Store the parsed response in preferences
       await prefs.setString('applyLoanDetails', jsonEncode(parsedResponse));
@@ -568,9 +531,6 @@ class ElmsSSL {
       mobileNumber = loginResponse['Data']['MobileNumber'] ?? '';
     }
 
-    print(
-        "AppId: $appId, CustomerId: $customerId, MobileNumber: $mobileNumber");
-
     String device = "WEB";
     String lat = "0.200";
     String lon = "-1.01";
@@ -604,8 +564,6 @@ class ElmsSSL {
     });
 
     String hashedTrxData = hash(trxData, device);
-    print("Transaction Data: $trxData");
-    print("Hashed Trx Data: $hashedTrxData");
 
     // Encryption setup
     String strKey = apiClient.generateRandomString(16);
@@ -638,14 +596,12 @@ class ElmsSSL {
 
     // Decrypt and parse the core result
     String coreDecrypted = decrypt(coreResultStr, strKey, strIV);
-    print("Decrypted Core Result: $coreDecrypted");
 
     if (coreResultStr == "Invalid Details!") {
       return jsonEncode(
           {"status": "error", "message": "Error fetching loan details!"});
     } else {
       var parsedResponse = cleanResponse(coreDecrypted);
-      print("Parsed loan details Response: $parsedResponse");
 
       // Store the parsed response in preferences
       await prefs.setString('loanDetails', jsonEncode(parsedResponse));
@@ -799,9 +755,7 @@ class ElmsSSL {
 //       'Lon': lon,
 //     });
 
-//     print(trxData);
 //     String hashedTrxData = hash(trxData, device);
-//     print(hashedTrxData);
 
 //     String strKey = "lbXDF0000yxrG24B";
 //     String strIV = "HlPGoH11117Pf5sv";
@@ -831,11 +785,8 @@ class ElmsSSL {
 //         await apiClient.coreRequest(token, coreRequest, "REACTIVATE");
 
 //     if (GlobalData().getIs401ReactivateResponse() == 401 && otp != "") {
-//       print("First check" + GlobalData().getReactivateCoreDataResult());
 //       final String coreDecryted =
 //           decrypt(GlobalData().getReactivateCoreDataResult(), strKey, strIV);
-
-//       print("Secondddddd check" + coreDecryted);
 
 //       Map<String, dynamic> responseBody = jsonDecode(coreDecryted);
 
@@ -852,203 +803,154 @@ class ElmsSSL {
 
 //     // Map<String, dynamic> responseBody = jsonDecode(coreDecryted);
 
-//     // print("Activate Decrypted response: $responseBody");
-
 //     return "";
 //   }
 
-//   Future<String> resetPin() async {
-//     var uuid = Uuid();
-//     String uid = uuid.v4();
+  Future<String> resetPin() async {
+    // Generate unique ID
+    var uuid = const Uuid();
+    String uid = uuid.v4();
 
-//     SharedPreferences prefs = await SharedPreferences.getInstance();
+    // Retrieve shared preferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    ApiClient apiClient = ApiClient();
 
-//     publicKeyString = publicKeyString != ""
-//         ? publicKeyString
-//         : prefs.getString('publicKey') ?? '';
+    // Retrieve appId and customerId from SharedPreferences
+    String appId = prefs.getString("appId") ?? '';
+    String customerId = prefs.getString("customerId") ?? '';
 
-//     ApiClient apiClient = ApiClient();
+    // Retrieve mobile number from login details
+    String mobileNumber = '';
+    String? loginResponseStr = prefs.getString('loginDetails');
 
-//     final deviceInfo = DeviceInfoPlugin();
-//     String? iMEI;
+    if (loginResponseStr != null) {
+      final loginResponse = jsonDecode(loginResponseStr);
+      mobileNumber = loginResponse['Data']['MobileNumber'] ?? '';
+    }
 
-//     if (GlobalData().getDeviceId() != "" ||
-//         prefs.getString("deviceId") != null ||
-//         prefs.getString("deviceId") != "") {
-//       iMEI = prefs.getString("deviceId") ?? GlobalData().getDeviceId();
-//     } else {
-//       if (Platform.isIOS) {
-//         IosDeviceInfo? iosInfo = await deviceInfo.iosInfo;
-//         iMEI = iosInfo.identifierForVendor; // Use null-aware access
-//       } else if (Platform.isAndroid) {
-//         AndroidDeviceInfo? androidInfo = await deviceInfo.androidInfo;
-//         iMEI = androidInfo.androidId; // Use null-aware access
-//       }
-//     }
+    // Constant fields
+    String service = "PROFILE";
+    String action = "BASE";
+    String command = "RESETPIN";
+    String device = "WEB";
+    String platform = "WEB";
+    String lat = "0.200";
+    String lon = "-1.01";
 
-//     String service = "PROFILE";
-//     String action = "BASE";
-//     String command = "RESETPIN";
+    // Encryption keys and vectors
+    String strKey = "lbXDF0000yxrG24B";
+    String strIV = "HlPGoH11117Pf5sv";
 
-//     String appId = GlobalData().getAppId() != ''
-//         ? GlobalData().getAppId()
-//         : prefs.getString("appId") ??
-//             ''; // returned by GETCUSTOMER call and saved in the app
-//     String platform = Platform.isIOS ? "ios" : "android";
+    // TrxData payload
+    Map<String, dynamic> trxData = {
+      'F000': service,
+      'F001': action,
+      'F002': command,
+      'F003': appId,
+      'F004': customerId,
+      'F005': mobileNumber,
+      'F006': "",
+      'F007': "",
+      'F008': "PIN",
+      'F009': device,
+      'F010': device,
+      'F011': "",
+      'F012': "",
+      'F013': "",
+      'F014': platform,
+      'F015': "",
+      'F016': "",
+      'F017': "",
+      'F018': "",
+      'F019': "",
+      'F020': "",
+      'F021': "",
+      'F022': "",
+      'F023': "",
+      'F024': "",
+      'F025': "",
+      'F026': "",
+      'F027': "",
+      'F028': "",
+      'F029': "",
+      'F030': "",
+      'F031': "",
+      'F032': "",
+      'F033': "",
+      'F034': "",
+      'F035': "",
+      'F036': "",
+      'F037': "",
+      'F038': "",
+      'F039': "",
+      'F040': "",
+    };
 
-//     String customerId = GlobalData().getCustomerId() != ''
-//         ? GlobalData().getCustomerId()
-//         : prefs.getString("customerId") ?? ''; // stored
-//     String mobileNumber = GlobalData().getMobileNumber() != ''
-//         ? GlobalData().getMobileNumber()
-//         : prefs.getString("mobileNumber") ?? ''; // stored
-//     String device = iMEI ?? ""; // stored or read
+    String trxDataJson = jsonEncode(trxData);
 
-//     String lat = "0.200";
-//     String lon = "-1.01";
+    // AppData payload
+    Map<String, dynamic> appData = {
+      'UniqueId': uid,
+      'AppId': appId,
+      'Device': device,
+      'Platform': platform,
+      'CustomerId': customerId,
+      'MobileNumber': mobileNumber,
+      'Lat': lat,
+      'Lon': lon,
+    };
 
-//     String rsc; // Rsa Somme de Control
-//     String rrk; // Rsa Random Key
-//     String rrv; // Rsa Random Vector
-//     String aad; // Aes App Data
+    String appDataJson = jsonEncode(appData);
 
-//     String f000 = service;
-//     String f001 = action;
-//     String f002 = command;
-//     String f003 = appId;
-//     String f004 = customerId;
-//     String f005 = mobileNumber;
-//     String f006 = "";
-//     String f007 = "";
-//     String f008 = "";
-//     String f009 = device; // IMEI
-//     String f010 = device;
-//     String f011 = "";
-//     String f012 = "";
-//     String f013 = "";
-//     String f014 = platform;
-//     String f015 = "";
-//     String f016 = "";
-//     String f017 = "";
-//     String f018 = "";
-//     String f019 = "";
-//     String f020 = "";
-//     String f021 = "";
-//     String f022 = "";
-//     String f023 = "";
-//     String f024 = "";
-//     String f025 = "";
-//     String f026 = "";
-//     String f027 = "";
-//     String f028 = "";
-//     String f029 = "";
-//     String f030 = "";
-//     String f031 = "";
-//     String f032 = "";
-//     String f033 = "";
-//     String f034 = "";
-//     String f035 = "";
-//     String f036 = "";
-//     String f037 = "";
-//     String f038 = "";
-//     String f039 = "";
-//     String f040 = "";
+    String hashedTrxData = hash(trxDataJson, device);
 
-//     String trxData = jsonEncode({
-//       'F000': f000,
-//       'F001': f001,
-//       'F002': f002,
-//       'F003': f003,
-//       'F004': f004,
-//       'F005': f005,
-//       'F006': f006,
-//       'F007': f007,
-//       'F008': f008,
-//       'F009': f009,
-//       'F010': f010,
-//       'F011': f011,
-//       'F012': f012,
-//       'F013': f013,
-//       'F014': f014,
-//       'F015': f015,
-//       'F016': f016,
-//       'F017': f017,
-//       'F018': f018,
-//       'F019': f019,
-//       'F020': f020,
-//       'F021': f021,
-//       'F022': f022,
-//       'F023': f023,
-//       'F024': f024,
-//       'F025': f025,
-//       'F026': f026,
-//       'F027': f027,
-//       'F028': f028,
-//       'F029': f029,
-//       'F030': f030,
-//       'F031': f031,
-//       'F032': f032,
-//       'F033': f033,
-//       'F034': f034,
-//       'F035': f035,
-//       'F036': f036,
-//       'F037': f037,
-//       'F038': f038,
-//       'F039': f039,
-//       'F040': f040,
-//     });
+    // Encrypt fields
+    String rsc = hashedTrxData;
+    String rrk = encrypt(strKey, publicKeyString); // RSA Encryption
+    String rrv = encrypt(strIV, publicKeyString); // RSA Encryption
+    String aad = encrypt1(appDataJson, strKey, strIV); // AES Encryption
+    String coreData = encrypt1(trxDataJson, strKey, strIV); // AES Encryption
 
-//     String appData = jsonEncode({
-//       'UniqueId': uid,
-//       'AppId': appId,
-//       'Device': device,
-//       'Platform': platform,
-//       'CustomerId': customerId,
-//       'MobileNumber': mobileNumber,
-//       'Lat': lat,
-//       'Lon': lon,
-//     });
+    // Construct requests
+    Map<String, String> authRequest = {
+      'H00': uid,
+      'H03': rsc,
+      'H01': rrk,
+      'H02': rrv,
+      'H04': aad,
+    };
 
-//     print(trxData);
-//     String hashedTrxData = hash(trxData, device);
-//     print(hashedTrxData);
+    Map<String, String> coreRequest = {'Data': coreData};
 
-//     String strKey = "lbXDF0000yxrG24B";
-//     String strIV = "HlPGoH11117Pf5sv";
+    try {
+      // Step 1: Perform auth request
+      final authResultStr = await apiClient.authRequest(authRequest);
 
-//     rsc = hashedTrxData;
-//     rrk = encrypt(strKey, publicKeyString);
-//     rrv = encrypt(strIV, publicKeyString);
-//     aad = encrypt1(appData, strKey, strIV);
+      // Step 2: Retrieve token
+      final token = await TokenStorage().getToken();
 
-//     String coreData = encrypt1(trxData, strKey, strIV);
+      // Step 3: Perform core request
+      final coreResultStr =
+          await apiClient.coreRequest(token as String, coreRequest, "RESETPIN");
 
-//     Map<String, String> authRequest = {
-//       'H00': uid,
-//       'H03': rsc,
-//       'H01': rrk,
-//       'H02': rrv,
-//       'H04': aad,
-//     };
+      // Step 4: Decrypt and parse core result
+      String coreDecrypted = decrypt(coreResultStr, strKey, strIV);
 
-//     Map<String, String> coreRequest = {'Data': coreData};
+      // Check response validity
+      if (coreResultStr == "Invalid Details!") {
+        return jsonEncode(
+            {"status": "error", "message": "Error fetching loan details!"});
+      } else {
+        // Parse and store loan details
+        var parsedResponse = cleanResponse(coreDecrypted);
 
-//     final authResultStr = await apiClient.authRequest(authRequest);
-
-//     final token = TokenStorage().getToken();
-
-//     final coreResultStr =
-//         await apiClient.coreRequest(token, coreRequest, "RESETPIN");
-
-//     // final String coreDecryted =
-//     //     decrypt(GlobalData().getCoreDataResult(), strKey, strIV);
-
-//     // Map<String, dynamic> responseBody = jsonDecode(coreDecryted);
-
-//     // print("Activate Decrypted response: $responseBody");
-
-//     return "";
-//   }
+        await prefs.setString('loanDetails', jsonEncode(parsedResponse));
+        return jsonEncode({"status": "success"});
+      }
+    } catch (e) {
+      return jsonEncode({"status": "error", "message": e.toString()});
+    }
+  }
 
   String encrypt(String textToEncrypt, String publicKeyString) {
     try {
@@ -1056,7 +958,6 @@ class ElmsSSL {
       final encryptedData = encryptData(textToEncrypt, publicKey);
       return base64.encode(encryptedData);
     } on Exception catch (ex) {
-      print(ex.toString());
       return "Encryption failed due to: ${ex.toString()}";
     }
   }
@@ -1067,8 +968,7 @@ class ElmsSSL {
         ..init(true, PublicKeyParameter<pointycastle.RSAPublicKey>(publicKey));
       final plaintextBytes = Uint8List.fromList(data.codeUnits);
       return cipher.process(plaintextBytes);
-    } on Exception catch (ex) {
-      print('Encryption failed due to: ${ex.toString()}');
+    } on Exception {
       return Uint8List(0);
     }
   }
@@ -1101,8 +1001,7 @@ class ElmsSSL {
 
       return RSAPublicKey(
           modulus.valueAsBigInteger, exponent.valueAsBigInteger);
-    } catch (ex, stackTrace) {
-      print('Exception: $ex\nStack trace: $stackTrace');
+    } catch (ex) {
       throw Exception("Failed to parse public key: ${ex.toString()}");
     }
   }

@@ -23,7 +23,7 @@ class _MyLoansPageState extends State<MyLoansPage> {
         padding: const EdgeInsets.all(16.0),
         child: LayoutBuilder(
           builder: (context, constraints) {
-            bool isWeb = constraints.maxWidth > 600;
+            bool isWideScreen = constraints.maxWidth > 600;
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -32,7 +32,7 @@ class _MyLoansPageState extends State<MyLoansPage> {
                 _buildCardTabBar(), // Tab bar for navigation
                 const SizedBox(height: 20),
                 Expanded(
-                  child: isWeb
+                  child: isWideScreen
                       ? Row(
                           children: [
                             // Left Column (Loans Title and Cards)
@@ -75,7 +75,6 @@ class _MyLoansPageState extends State<MyLoansPage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // Loan Details title
                                   const Text(
                                     "Loan Details",
                                     style: TextStyle(
@@ -206,7 +205,7 @@ class _MyLoansPageState extends State<MyLoansPage> {
                           ],
                         ),
                 ),
-                const Footer(), // Footer widget
+                if (isWideScreen) const Footer(), // Show footer only on desktop
               ],
             );
           },

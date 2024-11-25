@@ -45,8 +45,10 @@ class _RemittancePageState extends State<RemittancePage> {
       );
     } else {
       // Handle the continue action
-      Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (context) => const RemittancePageDetails()));
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const RemittancePageDetails()));
     }
   }
 
@@ -77,7 +79,7 @@ class _RemittancePageState extends State<RemittancePage> {
     );
   }
 
-   Widget _buildCardTabBar() {
+  Widget _buildCardTabBar() {
     return Card(
       color: Colors.lightBlue,
       margin: const EdgeInsets.all(16),
@@ -94,7 +96,6 @@ class _RemittancePageState extends State<RemittancePage> {
       ),
     );
   }
-
 
   // Build individual tab for the card tab bar
   Widget _buildCardTab(String title, int index) {
@@ -158,8 +159,8 @@ class _RemittancePageState extends State<RemittancePage> {
         children: [
           Expanded(
             child: CardItem(
-              accountNumber: '1234 5678 9101 1121',
-              amount: 'CDF 10,000',
+              loanLimit: '10,000',
+              currency: 'CDF',
               isSelected: selectedCardIndex == 0,
               onSelect: () => onCardSelect(0),
             ),
@@ -167,8 +168,8 @@ class _RemittancePageState extends State<RemittancePage> {
           const SizedBox(width: 10),
           Expanded(
             child: CardItem(
-              accountNumber: '1234 5678 9101 1122',
-              amount: 'CDF 8,500',
+              loanLimit: '8,500',
+              currency: 'CDF',
               isSelected: selectedCardIndex == 1,
               onSelect: () => onCardSelect(1),
             ),
@@ -176,8 +177,8 @@ class _RemittancePageState extends State<RemittancePage> {
           const SizedBox(width: 10),
           Expanded(
             child: CardItem(
-              accountNumber: '1234 5678 9101 1123',
-              amount: 'CDF 5,000',
+              loanLimit: '5,000',
+              currency: 'CDF',
               isSelected: selectedCardIndex == 2,
               onSelect: () => onCardSelect(2),
             ),
@@ -199,7 +200,7 @@ class _RemittancePageState extends State<RemittancePage> {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
-                 fontSize: 18,
+                fontSize: 18,
               ),
             ),
             const SizedBox(height: 10),
@@ -360,8 +361,8 @@ class _RemittancePageState extends State<RemittancePage> {
                         color: Colors.lightBlue,
                         borderRadius: BorderRadius.circular(8.0),
                       ),
-                      child:
-                          const Icon(Icons.person_2_outlined, color: Colors.white),
+                      child: const Icon(Icons.person_2_outlined,
+                          color: Colors.white),
                     ),
                     const SizedBox(height: 8),
                     const Text(
@@ -381,8 +382,8 @@ class _RemittancePageState extends State<RemittancePage> {
                         color: Colors.lightBlue,
                         borderRadius: BorderRadius.circular(8.0),
                       ),
-                      child:
-                          const Icon(Icons.person_2_outlined, color: Colors.white),
+                      child: const Icon(Icons.person_2_outlined,
+                          color: Colors.white),
                     ),
                     const SizedBox(height: 8),
                     const Text(
@@ -402,8 +403,8 @@ class _RemittancePageState extends State<RemittancePage> {
                         color: Colors.lightBlue,
                         borderRadius: BorderRadius.circular(8.0),
                       ),
-                      child:
-                          const Icon(Icons.person_2_outlined, color: Colors.white),
+                      child: const Icon(Icons.person_2_outlined,
+                          color: Colors.white),
                     ),
                     const SizedBox(height: 8),
                     const Text(
@@ -462,11 +463,14 @@ class _RemittancePageState extends State<RemittancePage> {
             color: const Color(0xFF4564A8),
             child: Column(
               children: [
-                businessListItem(Icons.person_2_outlined, 'Jeff dev', '456878'),
+                businessListItem(
+                    Icons.person_2_outlined, 'Jeff dev', '456878', 'USD'),
                 const Divider(color: Colors.white),
-                businessListItem(Icons.person_2_outlined, 'Kim dev', '8080808'),
+                businessListItem(
+                    Icons.person_2_outlined, 'Kim dev', '8080808', 'USD'),
                 const Divider(color: Colors.white),
-                businessListItem(Icons.person_2_outlined, 'Kings Dev', '0038383'),
+                businessListItem(
+                    Icons.person_2_outlined, 'Kings Dev', '0038383', 'USD'),
               ],
             ),
           ),
@@ -476,16 +480,22 @@ class _RemittancePageState extends State<RemittancePage> {
   }
 
   Widget businessListItem(
-      IconData icon, String businessName, String accountNumber) {
+      IconData icon, String businessName, String loanLimit, String currency) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
         children: [
           Icon(icon, color: Colors.white),
           const SizedBox(width: 10),
-          Text(businessName, style: const TextStyle(color: Colors.white)),
+          Text(
+            businessName,
+            style: const TextStyle(color: Colors.white),
+          ),
           const Spacer(),
-          Text(accountNumber, style: const TextStyle(color: Colors.white)),
+          Text(
+            '$currency $loanLimit',
+            style: const TextStyle(color: Colors.white),
+          ),
         ],
       ),
     );
