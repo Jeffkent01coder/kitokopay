@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:kitokopay/service/api_client_helper_utils.dart';
 import 'package:kitokopay/src/customs/atmcarditem.dart';
 import 'package:kitokopay/src/customs/footer.dart';
-import 'package:kitokopay/src/screens/ui/payments.dart';
 import 'package:kitokopay/src/screens/ui/loans.dart';
 import 'package:kitokopay/src/customs/appbar.dart';
 import 'package:kitokopay/src/screens/utils/resposive_layout.dart';
@@ -60,6 +59,7 @@ class HomeScreen extends StatelessWidget {
       ),
       body: Stack(
         children: [
+          // Background gradient without zigzag lines
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -70,10 +70,6 @@ class HomeScreen extends StatelessWidget {
                   Color(0xFF151A37),
                 ],
               ),
-            ),
-            child: CustomPaint(
-              painter: WavyLinePainter(),
-              child: Container(),
             ),
           ),
           FutureBuilder<Map<String, dynamic>>(
@@ -217,7 +213,7 @@ class HomeScreen extends StatelessWidget {
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) =>
-                                              const LoansPage(), // Navigate to LoansPage
+                                              const LoansPage(),
                                         ),
                                       );
                                     },
@@ -241,7 +237,7 @@ class HomeScreen extends StatelessWidget {
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) =>
-                                              const LoansPage(), // Navigate to LoansPage
+                                              const LoansPage(),
                                         ),
                                       );
                                     },
@@ -269,7 +265,7 @@ class HomeScreen extends StatelessWidget {
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) =>
-                                              const LoansPage(), // Navigate to LoansPage
+                                              const LoansPage(),
                                         ),
                                       );
                                     },

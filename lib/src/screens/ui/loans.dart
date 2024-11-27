@@ -106,9 +106,10 @@ class _LoansPageState extends State<LoansPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const CustomAppBar(),
+      backgroundColor: const Color(0xFF3C4B9D), // Match app's background color
       body: Stack(
         children: [
-          // Background gradient and wave
+          // Background gradient
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -120,10 +121,6 @@ class _LoansPageState extends State<LoansPage> {
                 ],
               ),
             ),
-            child: CustomPaint(
-              painter: WavyLinePainter(),
-              child: Container(),
-            ),
           ),
           SingleChildScrollView(
             child: Padding(
@@ -132,14 +129,12 @@ class _LoansPageState extends State<LoansPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
-                  _buildCardTabBar(), // Tab bar at the top
+                  _buildCardTabBar(),
                   const SizedBox(height: 30),
                   LayoutBuilder(
                     builder: (context, constraints) {
-                      // Check if the screen is wide
                       bool isWideScreen = constraints.maxWidth > 600;
                       if (isWideScreen) {
-                        // Horizontal layout for wide screens
                         return Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -160,13 +155,12 @@ class _LoansPageState extends State<LoansPage> {
                           ],
                         );
                       } else {
-                        // Stacked layout for narrow screens
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildLeftPanel(), // Left panel on top
+                            _buildLeftPanel(),
                             const SizedBox(height: 16),
-                            _buildRightPanel(), // Right panel below
+                            _buildRightPanel(),
                           ],
                         );
                       }
@@ -175,11 +169,10 @@ class _LoansPageState extends State<LoansPage> {
                   const SizedBox(height: 20),
                   LayoutBuilder(
                     builder: (context, constraints) {
-                      // Show footer only if screen width is greater than 600
                       if (constraints.maxWidth > 600) {
                         return const Footer();
                       } else {
-                        return const SizedBox.shrink(); // Empty widget
+                        return const SizedBox.shrink();
                       }
                     },
                   ),
@@ -298,18 +291,42 @@ class _LoansPageState extends State<LoansPage> {
           ),
         ),
         const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Min Label
+            Text(
+              "Min: $_currency 1000",
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            // Max Label
+            Text(
+              "Max: $_currency ${_limitAmount.toStringAsFixed(0)}",
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
         // Amount textview displayed above the slider
         Center(
           child: Text(
             "Selected Amount: $_currency ${_selectedAmount.toStringAsFixed(0)}",
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 14,
+              fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 16),
         Slider(
           value: _selectedAmount,
           min: 1000, // Set minimum amount to 1000
@@ -321,18 +338,6 @@ class _LoansPageState extends State<LoansPage> {
           },
           activeColor: Colors.white,
           inactiveColor: Colors.white.withOpacity(0.3),
-        ),
-
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(leftValue,
-                style: const TextStyle(color: Colors.white, fontSize: 12)),
-            Text(
-              "$_currency ${_selectedAmount.toStringAsFixed(0)}",
-              style: const TextStyle(color: Colors.white, fontSize: 12),
-            ),
-          ],
         ),
         const SizedBox(height: 30),
         SizedBox(
@@ -360,7 +365,7 @@ class _LoansPageState extends State<LoansPage> {
     );
   }
 
-// Confirmation Screen
+  // Confirmation Screen
   Widget _buildConfirmationScreen() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -601,149 +606,248 @@ class _LoansPageState extends State<LoansPage> {
     );
   }
 
-// PIN Entry Screen
+  // PIN Entry Screen
   Widget _buildPinScreen() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // Centered Image
-        Container(
-          width: 250,
-          height: 250,
-          alignment: Alignment.center,
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/images/pin.png'),
-              fit: BoxFit.fitHeight,
-            ),
-          ),
-        ),
-        const SizedBox(height: 25),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Determine the size of the image based on screen width
+        double imageSize = constraints.maxWidth > 600 ? 250 : 150;
 
-        // Confirmation Text
-        const Text(
-          "Enter PIN",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 8),
-
-        // Instruction Text
-        const Text(
-          "Please enter your PIN to \n complete loan request.",
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-          ),
-        ),
-        const SizedBox(height: 20),
-
-        // PIN Input Field
-        SizedBox(
-          width: 150,
-          child: TextField(
-            controller: _pinController,
-            keyboardType: TextInputType.number,
-            maxLength: 4,
-            obscureText: true,
-            decoration: InputDecoration(
-              counterText: '',
-              hintText: '----',
-              filled: true,
-              fillColor: Colors.white,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide.none,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 30),
-
-        // Buttons Row
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Back Button
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _leftPanelStage = "confirmation"; // Go back to confirmation
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                side: const BorderSide(color: Colors.white), // White border
-              ),
-              child: const Text(
-                "Back",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
+            // Responsive Centered Image
+            Container(
+              width: imageSize,
+              height: imageSize,
+              alignment: Alignment.center,
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/pin.png'),
+                  fit: BoxFit.fitHeight,
                 ),
               ),
             ),
+            const SizedBox(height: 25),
 
-            // Confirm Payment Button
-            ElevatedButton(
-              onPressed: () async {
-                String pin = _pinController.text.trim();
-
-                // Validate PIN
-                if (pin.isEmpty || pin.length != 4) {
-                  _showErrorDialog("Please enter a valid 4-digit PIN.");
-                  return;
-                }
-
-                setState(() => _isLoading = true); // Show loading spinner
-
-                try {
-                  // ElmsSSL Logic
-                  ElmsSSL elmsSSL = ElmsSSL();
-                  String result =
-                      await elmsSSL.applyLoan(pin, _selectedAmount.toString());
-                  Map<String, dynamic> resultMap = jsonDecode(result);
-
-                  // Navigate to Success or Failure based on result
-                  if (resultMap['status'] == 'success') {
-                    setState(() => _leftPanelStage = "success");
-                  } else {
-                    setState(() => _leftPanelStage = "failure");
-                  }
-                } catch (e) {
-                  _showErrorDialog('An error occurred: $e');
-                } finally {
-                  setState(() => _isLoading = false); // Hide loading spinner
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.lightBlue,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: const Text(
-                'Submit',
-                style: TextStyle(color: Colors.white),
+            // Confirmation Text
+            const Text(
+              "Enter PIN",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
               ),
             ),
+            const SizedBox(height: 8),
+
+            // Instruction Text
+            const Text(
+              "Please enter your PIN to \n complete loan request.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // PIN Circles
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                4,
+                (index) => Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                  width: 20,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: index < _pinController.text.length
+                        ? Colors.lightBlue
+                        : Colors.transparent,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.lightBlue),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 30),
+
+            // Dial Pad with Backspace
+            _buildDialPad(),
+
+            const SizedBox(height: 20),
+
+            // Buttons Row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                // Back Button
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _leftPanelStage =
+                          "confirmation"; // Go back to confirmation
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    side: const BorderSide(color: Colors.white), // White border
+                  ),
+                  child: const Text(
+                    "Back",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+
+                // Confirm Payment Button
+                ElevatedButton(
+                  onPressed: () async {
+                    String pin = _pinController.text.trim();
+
+                    // Validate PIN
+                    if (pin.isEmpty || pin.length != 4) {
+                      _showErrorDialog("Please enter a valid 4-digit PIN.");
+                      return;
+                    }
+
+                    setState(() => _isLoading = true); // Show loading spinner
+
+                    try {
+                      // ElmsSSL Logic
+                      ElmsSSL elmsSSL = ElmsSSL();
+                      String result = await elmsSSL.applyLoan(
+                          _selectedAmount.toString(), pin);
+                      Map<String, dynamic> resultMap = jsonDecode(result);
+
+                      // Navigate to Success or Failure based on result
+                      if (resultMap['status'] == 'success') {
+                        setState(() => _leftPanelStage = "success");
+                      } else {
+                        setState(() => _leftPanelStage = "failure");
+                      }
+                    } catch (e) {
+                      _showErrorDialog('An error occurred: $e');
+                    } finally {
+                      setState(
+                          () => _isLoading = false); // Hide loading spinner
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.lightBlue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text(
+                    'Submit',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+            if (_isLoading) const SizedBox(height: 20),
+            if (_isLoading) const CircularProgressIndicator(),
+            if (_errorMessage != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                child: Text(
+                  _errorMessage!,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildDialPad() {
+    List<int> numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    return Column(
+      children: [
+        for (int i = 0; i < 3; i++) // Rows for numbers 1-9
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+              3,
+              (j) => _buildDialButton(numbers[i * 3 + j]),
+            ),
+          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(width: 80), // Placeholder for alignment
+            _buildDialButton(0), // Zero in the middle
+            _buildBackspaceButton(), // Backspace on the right
           ],
         ),
-        if (_isLoading) const SizedBox(height: 20),
-        if (_isLoading) const CircularProgressIndicator(),
-        if (_errorMessage != null)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0),
-            child: Text(
-              _errorMessage!,
-              style: const TextStyle(color: Colors.red),
+      ],
+    );
+  }
+
+  Widget _buildDialButton(int number) {
+    return GestureDetector(
+      onTap: () {
+        if (_pinController.text.length < 4) {
+          setState(() {
+            _pinController.text += number.toString();
+          });
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.all(8),
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.lightBlue, width: 1.5),
+        ),
+        child: Center(
+          child: Text(
+            number.toString(),
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.lightBlue,
             ),
           ),
-      ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBackspaceButton() {
+    return GestureDetector(
+      onTap: () {
+        if (_pinController.text.isNotEmpty) {
+          setState(() {
+            _pinController.text = _pinController.text
+                .substring(0, _pinController.text.length - 1);
+          });
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.all(8),
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.lightBlue, width: 1.5),
+        ),
+        child: const Center(
+          child: Icon(
+            Icons.backspace,
+            color: Colors.lightBlue,
+            size: 24,
+          ),
+        ),
+      ),
     );
   }
 
@@ -780,68 +884,72 @@ class _LoansPageState extends State<LoansPage> {
         children: [
           _buildCardTab('Apply Loan', 0),
           _buildCardTab('My Loans', 1),
-          _buildCardTab('Credit History', 2),
+          _buildCardTab('Home', 2),
         ],
       ),
     );
   }
 
   Widget _buildCardTab(String title, int index) {
-    final isSelected = _selectedTabIndex == index;
-
     return GestureDetector(
       onTap: () {
         setState(() {
           _selectedTabIndex = index;
         });
         if (index == 0) {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const LoansPage()));
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const LoansPage(),
+            ),
+          ).then((_) {
+            // Reset selected index on returning to this page
+            setState(() {
+              _selectedTabIndex = -1;
+            });
+          });
         } else if (index == 1) {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const MyLoansPage()));
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const MyLoansPage(),
+            ),
+          ).then((_) {
+            // Reset selected index on returning to this page
+            setState(() {
+              _selectedTabIndex = -1;
+            });
+          });
+        } else if (index == 2) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const HomeScreen(),
+            ),
+          ).then((_) {
+            // Reset selected index on returning to this page
+            setState(() {
+              _selectedTabIndex = -1;
+            });
+          });
         }
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         margin: const EdgeInsets.symmetric(horizontal: 4),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.white : Colors.transparent,
+          color: Colors.white, // Always white background
           borderRadius: BorderRadius.circular(10),
-          border: isSelected
-              ? Border.all(color: const Color(0xFF3C4B9D), width: 2)
-              : null,
+          // No border or outline
         ),
         child: Text(
           title,
-          style: TextStyle(
-            color: isSelected ? const Color(0xFF3C4B9D) : Colors.white,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          style: const TextStyle(
+            color: Colors.black, // Black text for better readability on white
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
     );
-  }
-}
-
-class WavyLinePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white.withOpacity(0.1)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.5;
-    for (double y = 0; y < size.height; y += 20) {
-      final path = Path();
-      for (double x = 0; x < size.width; x += 10) {
-        path.lineTo(x, y + 5 * (x % 20 == 0 ? -1 : 1));
-      }
-      canvas.drawPath(path, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
   }
 }

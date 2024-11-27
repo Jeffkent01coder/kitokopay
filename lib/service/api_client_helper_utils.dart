@@ -120,9 +120,14 @@ class ElmsSSL {
 
     // Log coreResult as a string
 
-    if (coreResultStr == "Invalid Details!") {
+    if (coreResultStr ==
+        "Your request cannot be processed this time, please try again later") {
       // Return error json with the message
-      return jsonEncode({"status": "error", "message": "Invalid Details!"});
+      return jsonEncode({
+        "status": "error",
+        "message":
+            "Your request cannot be processed this time, please try again later!"
+      });
     } else {
       var parsedResponse = cleanResponse(decrypt(coreResultStr, strKey, strIV));
 
@@ -179,7 +184,8 @@ class ElmsSSL {
         }
       } else {
         // Handle error message from response
-        String errorMessage = resultMap['message'] ?? 'Invalid details!';
+        String errorMessage = resultMap['message'] ??
+            'Your request cannot be processed this time, please try again later!';
         return errorMessage;
       }
     }
@@ -252,9 +258,14 @@ class ElmsSSL {
     final coreResultStr =
         await apiClient.coreRequest(token as String, coreRequest, "ACTIVATE");
 
-    if (coreResultStr == "Invalid Details!") {
+    if (coreResultStr ==
+        "Your request cannot be processed this time, please try again later") {
       // Return error json with the message
-      return jsonEncode({"status": "error", "message": "Invalid Details!"});
+      return jsonEncode({
+        "status": "error",
+        "message":
+            "Your request cannot be processed this time, please try again later!"
+      });
     } else if (coreResultStr == "401") {
       return jsonEncode(
           {"status": "success", "message": "Activation Successful!"});
@@ -302,7 +313,8 @@ class ElmsSSL {
         }
       } else {
         // Handle error message from response
-        String errorMessage = resultMap['message'] ?? 'Invalid details!';
+        String errorMessage = resultMap['message'] ??
+            'Your request cannot be processed this time, please try again later';
         return errorMessage;
       }
     }
@@ -324,7 +336,7 @@ class ElmsSSL {
       "F005": mobileNumber,
       "F006": "",
       "F007": encrypt(pin, publicKeyString),
-      "F008": pin,
+      "F008": "PIN",
       "F009": device,
       "F010": device,
       "F014": platform,
@@ -367,9 +379,14 @@ class ElmsSSL {
     final coreResultStr =
         await apiClient.coreRequest(token as String, coreRequest, "LOGIN");
 
-    if (coreResultStr == "Invalid Details!") {
+    if (coreResultStr ==
+        "Your request cannot be processed this time, please try again later") {
       // Return error json with the message
-      return jsonEncode({"status": "error", "message": "Invalid Details!"});
+      return jsonEncode({
+        "status": "error",
+        "message":
+            "Your request cannot be processed this time, please try again later"
+      });
     } else {
       var parsedResponse = cleanResponse(decrypt(coreResultStr, strKey, strIV));
 
@@ -489,9 +506,14 @@ class ElmsSSL {
     final coreResultStr = await apiClient.coreRequest(
         token as String, coreRequest, "APPLICATION");
 
-    if (coreResultStr == "Invalid Details!") {
+    if (coreResultStr ==
+        "Your request cannot be processed this time, please try again later") {
       // Return error json with the message
-      return jsonEncode({"status": "error", "message": "Invalid Details!"});
+      return jsonEncode({
+        "status": "error",
+        "message":
+            "Your request cannot be processed this time, please try again later"
+      });
     } else {
       var parsedResponse = cleanResponse(decrypt(coreResultStr, strKey, strIV));
 
@@ -503,6 +525,245 @@ class ElmsSSL {
     }
 
     return "";
+  }
+
+  Future<String> repayLoan(String type, String amount, String pin) async {
+    var uuid = const Uuid();
+    var Uid = uuid.v4();
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    ApiClient apiClient = ApiClient();
+
+    String strKey = apiClient.generateRandomString(16);
+    String strIV = apiClient.generateRandomString(16);
+
+    var serviceDetails = {
+      "service": "LOAN",
+      "action": "BASE",
+      "command": "REPAYMENT",
+    };
+
+    // Retrieve loan details from prefs
+    String loanId = '';
+    String principalAmount = '';
+    String totalOutstanding = '';
+    String mobileNumber = '';
+    String currency = '';
+
+    String? loanDetailsStr = prefs.getString('loanDetails');
+    if (loanDetailsStr != null) {
+      final loanDetails = jsonDecode(loanDetailsStr);
+      loanId = loanDetails['Data']['Details']['id'].toString();
+      principalAmount =
+          loanDetails['Data']['Details']['TotalPrincipalExpected'].toString();
+      totalOutstanding =
+          loanDetails['Data']['Details']['TotalOutstanding'].toString();
+      currency = loanDetails['Data']['Details']['Currency'] ?? '';
+    }
+
+    // Retrieve login details to get mobileNumber
+    String? loginResponseStr = prefs.getString('loginDetails');
+    if (loginResponseStr != null) {
+      final loginResponse = jsonDecode(loginResponseStr);
+      mobileNumber = loginResponse['Data']['MobileNumber'] ?? '';
+    }
+
+    var appDetails = {
+      "AppId": prefs.getString("appId"),
+      "platform": "WEB",
+      "CustomerId": prefs.getString("customerId"),
+      "MobileNumber": mobileNumber, // saved
+      "device": "WEB", // saved or read
+      "Lat": "0.200",
+      "Lon": "-1.01",
+    };
+
+    var transactionDetails = {
+      "F000": serviceDetails["service"],
+      "F001": serviceDetails["action"],
+      "F002": serviceDetails["command"],
+      "F003": appDetails["AppId"],
+      "F004": appDetails["CustomerId"],
+      "F005": appDetails["MobileNumber"],
+      "F006": "",
+      "F007": encrypt(pin, publicKeyString), // request customer to enter PIN
+      "F008": "PIN",
+      "F009": "WEB", // IMEI
+      "F010": "WEB",
+      "F011": "YES", // PIN required, YES
+      "F012": "",
+      "F013": "",
+      "F014": "WEB",
+      "F015": "",
+      "F016": "",
+      "F017": "",
+      "F018": "",
+      "F019": "",
+      "F020": currency,
+      "F021": mobileNumber, // MobileNumber
+      "F022": type, // FULLPAY or PARTIALPAY
+      "F023": amount, // amountToPay (from input or totalOutstanding)
+      "F024": principalAmount, // Principal Amount
+      "F025": loanId, // Loan ID
+      "F026": totalOutstanding, // Total Outstanding
+    };
+
+    var trxData = jsonEncode(transactionDetails);
+    var appData = jsonEncode(appDetails);
+
+    var hashedTrxData = hash(trxData, appDetails["device"]!);
+
+    var Rsc = hashedTrxData;
+    var Rrk = encrypt(strKey, publicKeyString);
+    var Rrv = encrypt(strIV, publicKeyString);
+    var Aad = encrypt1(appData, strKey, strIV);
+
+    var coreData = encrypt1(trxData, strKey, strIV);
+
+    Map<String, String> authRequest = {
+      "H00": Uid,
+      "H03": Rsc,
+      "H01": Rrk,
+      "H02": Rrv,
+      "H04": Aad
+    };
+
+    Map<String, String> coreRequest = {"Data": coreData};
+
+    final authResultStr = await apiClient.authRequest(authRequest);
+
+    final token = await TokenStorage().getToken();
+
+    final coreResultStr = await apiClient.coreRequest(
+        token as String, coreRequest, serviceDetails["command"]!);
+
+    final decrypted = decrypt(coreResultStr, strKey, strIV);
+
+    if (coreResultStr ==
+        "Your request cannot be processed this time, please try again later") {
+      // Return error json with the message
+      return jsonEncode({
+        "status": "error",
+        "message":
+            "Your request cannot be processed this time, please try again later"
+      });
+    } else {
+      var parsedResponse = decrypt(coreResultStr, strKey, strIV);
+
+      final jsonResult = jsonDecode(decrypted);
+
+      return jsonEncode({"status": "success", "message": jsonResult['Data']});
+    }
+  }
+
+  Future<String> fetchLoanDetailsById(String loanId) async {
+    var uuid = const Uuid();
+    String uid = uuid.v4();
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    ApiClient apiClient = ApiClient();
+
+    String service = "LOAN";
+    String action = "BASE";
+    String command = "DETAILS";
+    String platform = "WEB";
+
+    // Retrieve appId and customerId from SharedPreferences
+    String appId = prefs.getString("appId") ?? '';
+    String customerId = prefs.getString("customerId") ?? '';
+
+    // Retrieve login details to get mobileNumber
+    String mobileNumber = '';
+    String? loginResponseStr = prefs.getString('loginDetails');
+
+    if (loginResponseStr != null) {
+      // Parse the login response to extract mobileNumber
+      final loginResponse = jsonDecode(loginResponseStr);
+      mobileNumber = loginResponse['Data']['MobileNumber'] ?? '';
+    }
+
+    String device = "WEB";
+    String lat = "0.200";
+    String lon = "-1.01";
+
+    // Prepare transaction data (trxData) fields
+    Map<String, String> trxDataMap = {
+      "F000": service,
+      "F001": action,
+      "F002": command,
+      "F003": appId,
+      "F004": customerId,
+      "F005": mobileNumber,
+      "F009": device,
+      "F010": device,
+      "F014": platform,
+      "F021": mobileNumber,
+      "F022": loanId,
+    };
+
+    String trxData = jsonEncode(trxDataMap);
+
+    String appData = jsonEncode({
+      "UniqueId": uid,
+      "AppId": appId,
+      "Device": device,
+      "Platform": platform,
+      "CustomerId": customerId,
+      "MobileNumber": mobileNumber,
+      "Lat": lat,
+      "Lon": lon,
+    });
+
+    String hashedTrxData = hash(trxData, device);
+
+    // Encryption setup
+    String strKey = apiClient.generateRandomString(16);
+    String strIV = apiClient.generateRandomString(16);
+
+    String rsc = hashedTrxData;
+    String rrk = encrypt(strKey, publicKeyString);
+    String rrv = encrypt(strIV, publicKeyString);
+    String aad = encrypt1(appData, strKey, strIV);
+
+    String coreData = encrypt1(trxData, strKey, strIV);
+
+    Map<String, String> authRequest = {
+      "H00": uid,
+      "H03": rsc,
+      "H01": rrk,
+      "H02": rrv,
+      "H04": aad,
+    };
+
+    Map<String, String> coreRequest = {"Data": coreData};
+
+    // Perform authentication request
+    await apiClient.authRequest(authRequest);
+
+    // Get the token and perform core request
+    final token = await TokenStorage().getToken();
+    final coreResultStr =
+        await apiClient.coreRequest(token as String, coreRequest, "DETAILS");
+
+    if (coreResultStr ==
+        "Your request cannot be processed this time, please try again later") {
+      return jsonEncode({
+        "status": "error",
+        "message":
+            "Your request cannot be processed this time, please try again later"
+      });
+    } else {
+      // Decrypt and parse the core result
+      String coreDecrypted = decrypt(coreResultStr, strKey, strIV);
+
+      var parsedResponse = cleanResponse(coreDecrypted);
+
+      // Store the parsed response in preferences
+      await prefs.setString('fetchedLoanDetails', jsonEncode(parsedResponse));
+      return jsonEncode(
+          {"status": "success", "message": "Loan details fetched!"});
+    }
   }
 
   Future<String> loanDetails() async {
@@ -597,9 +858,13 @@ class ElmsSSL {
     // Decrypt and parse the core result
     String coreDecrypted = decrypt(coreResultStr, strKey, strIV);
 
-    if (coreResultStr == "Invalid Details!") {
-      return jsonEncode(
-          {"status": "error", "message": "Error fetching loan details!"});
+    if (coreResultStr ==
+        "Your request cannot be processed this time, please try again later") {
+      return jsonEncode({
+        "status": "error",
+        "message":
+            "Your request cannot be processed this time, please try again later"
+      });
     } else {
       var parsedResponse = cleanResponse(coreDecrypted);
 
@@ -937,9 +1202,13 @@ class ElmsSSL {
       String coreDecrypted = decrypt(coreResultStr, strKey, strIV);
 
       // Check response validity
-      if (coreResultStr == "Invalid Details!") {
-        return jsonEncode(
-            {"status": "error", "message": "Error fetching loan details!"});
+      if (coreResultStr ==
+          "Your request cannot be processed this time, please try again later") {
+        return jsonEncode({
+          "status": "error",
+          "message":
+              "Your request cannot be processed this time, please try again later"
+        });
       } else {
         // Parse and store loan details
         var parsedResponse = cleanResponse(coreDecrypted);

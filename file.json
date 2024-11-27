@@ -6,9 +6,10 @@
       {
         "LoanId": "11",
         "LoanStatus": "PendingPayment",
+        "PrincipalAmount": "",
         "CurrentBalance": "",
         "Date": "21 October 2024 13:48:34",
-        "ReferenceId": "271156",
+        "ReferenceId": "570991",
         "RepaymentDate": "08 August 2024",
         "RequestType": "SELF",
         "MobileNumber": "250782000000",
@@ -25,19 +26,19 @@
     "Identification": "250782000000",
     "ProcessingFee": "",
     "LoanAmount": "",
-    "ReferenceId": "271156",
-    "Currency": "RWF", //
-    "LoanTermPeriod": "30 days", //
+    "ReferenceId": "570991",
+    "Currency": "RWF",
+    "LoanTermPeriod": "30 days",
     "DueDate": "08 August 2024",
-    "InterestRate": "10%", //
+    "InterestRate": "10%",
     "DateOfBirth": "",
     "LimitMessage": "Congratulations! you have qualified for maximum loan limit",
     "LimitStatus": "Success",
     "FirstName": "John",
-    "LimitAmount": "100000", //
+    "LimitAmount": 100000,
     "OtherName": null,
     "CustomerId": "2000000",
-    "LoanTermValue": "30",
+    "LoanTermValue": 30,
     "IdentificationType": "ID",
     "MobileNumber": "250782000000",
     "Customers": [
@@ -51,116 +52,9 @@
       }
     ],
     "DisplayLimit": "RWF 100000",
-    "ApplicationFee": "0.00",
+    "ApplicationFee": 0.0,
     "Country": "Africa",
     "PaymentMethod": null,
     "LastName": "Doe"
   }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-{
-    "Status":"000",
-    "Type":"object",
-    "Token":"",
-    "Data":"{\"LoanAmount\":\"\",\"LoanId\":\"11\",\"LoanStatus\":\"PendingPayment\",\"PaymentMethod\":\"\",\"DueDate\":\"08 October 2024\"}"
-}
-
-
-{"Status":"000","Type":"object","Token":"","Data":"{\"Schedules\":\"[{\\\"id\\\":1,\\\"daysinperiod\\\":31,\\\"totalcredits\\\":0,\\\"fromdate\\\":\\\"2024-07-08\\\",\\\"duedate\\\":\\\"2024-08-08\\\",\\\"principaldue\\\":16018.000000,\\\"amountdueforperiod\\\":18018.000000,\\\"balance\\\":33982.000000}, {\\\"id\\\":2,\\\"daysinperiod\\\":31,\\\"totalcredits\\\":0,\\\"fromdate\\\":\\\"2024-08-08\\\",\\\"duedate\\\":\\\"2024-09-08\\\",\\\"principaldue\\\":16658.720000,\\\"amountdueforperiod\\\":18018.000000,\\\"balance\\\":17323.280000}, {\\\"id\\\":3,\\\"daysinperiod\\\":30,\\\"totalcredits\\\":0,\\\"fromdate\\\":\\\"2024-09-08\\\",\\\"duedate\\\":\\\"2024-10-08\\\",\\\"principaldue\\\":17323.280000,\\\"amountdueforperiod\\\":18016.210000,\\\"balance\\\":0.000000}]\",\"Transactions\":\"[{\\\"id\\\":21,\\\"type\\\":\\\"Disbursement\\\",\\\"date\\\":\\\"2024-07-08\\\",\\\"amount\\\":50000.000000,\\\"disbursalamount\\\":50000.000000,\\\"balance\\\":50000.000000,\\\"receiptnumber\\\":\\\"N/A\\\"}, {\\\"id\\\":22,\\\"type\\\":\\\"Accrual\\\",\\\"date\\\":\\\"2024-07-08\\\",\\\"amount\\\":4052.210000,\\\"disbursalamount\\\":50000.000000,\\\"balance\\\":0,\\\"receiptnumber\\\":\\\"N/A\\\"}]\",\"Details\":{\"TotalRepaymentExpected\":\"54052.21\",\"TotalPrincipalDisbursed\":\"50000.00\",\"Currency\":\"RWF\",\"PastDueDays\":\"\",\"TotalPrincipalExpected\":\"50000.00\",\"LoanTermInDays\":\"92\",\"id\":\"11\",\"PaymentBeforeDate\":\"\",\"InterestRate\":\"48.000000\",\"Principal\":\"50000.00\",\"TotalOutstanding\":\"54052.21\"}}"}
-
-
-// Loan Details
-
-
-
-{
-  "Status": "000",
-  "Type": "object",
-  "Token": "",
-  "Data": {
-    "Schedules": [
-      {
-        "id": 1,
-        "daysinperiod": 31,
-        "totalcredits": 0,
-        "fromdate": "2024-07-08",
-        "duedate": "2024-08-08",
-        "principaldue": 16018.000000,
-        "amountdueforperiod": 18018.000000,
-        "balance": 33982.000000
-      },
-      {
-        "id": 2,
-        "daysinperiod": 31,
-        "totalcredits": 0,
-        "fromdate": "2024-08-08",
-        "duedate": "2024-09-08",
-        "principaldue": 16658.720000,
-        "amountdueforperiod": 18018.000000,
-        "balance": 17323.280000
-      },
-      {
-        "id": 3,
-        "daysinperiod": 30,
-        "totalcredits": 0,
-        "fromdate": "2024-09-08",
-        "duedate": "2024-10-08",
-        "principaldue": 17323.280000,
-        "amountdueforperiod": 18016.210000,
-        "balance": 0.000000
-      }
-    ],
-    "Transactions": [
-      {
-        "id": 21,
-        "type": "Disbursement",
-        "date": "2024-07-08",
-        "amount": 50000.000000,
-        "disbursalamount": 50000.000000,
-        "balance": 50000.000000,
-        "receiptnumber": "N/A"
-      },
-      {
-        "id": 22,
-        "type": "Accrual",
-        "date": "2024-07-08",
-        "amount": 4052.210000,
-        "disbursalamount": 50000.000000,
-        "balance": 0,
-        "receiptnumber": "N/A"
-      }
-    ],
-    "Details": {
-      "TotalRepaymentExpected": "54052.21", //
-      "TotalPrincipalDisbursed": "50000.00",
-      "Currency": "RWF",
-      "PastDueDays": "",
-      "TotalPrincipalExpected": "50000.00",
-      "LoanTermInDays": "92",
-      "id": "11",
-      "PaymentBeforeDate": "",
-      "InterestRate": "48.000000",
-      "Principal": "50000.00",
-      "TotalOutstanding": "54052.21" //
-    }
-  }
-}
-
-{
-  "H00":"679de326-6a40-44eb-9335-2298118e9a0e",
-  "H03":"d839dac7a3a00e0a925888f4d3716d6af20f081ea9206c67dad73694a2f704eb",
-  "H01":"",
-  "H02":"",
-  "H04":"ytsXagWXXJW+j0lnIF7K8KWcpEXAWLao7yuDoShJ/tyDJoIozkYW49WqlyTGgOeDufpg1jNMW1bKDRbPQNNAJbfCJxBRTFt1sv1MwpDrnvpP0UJQTd16haRCYWhws2By7ZB1LpZ4QQdrvDx6ynlgP87HvbJERx1aynCGLP8Y1qbyUPNruhQ80pmbyp3YKdID02mNqVEk1s7aI7bEuMvSCfLKAsUrlhHCiG8EE5eHO2odMmWqe8BnWJ8="
 }

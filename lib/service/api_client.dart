@@ -66,7 +66,7 @@ class ApiClient extends GetConnect {
       } else if (response.statusCode == 401) {
         return "${response.statusCode}";
       } else if (response.statusCode == 400) {
-        return "Invalid Details!"; // Bad request case
+        return response.body; // Bad request case
       } else {
         return "Unexpected Error: ${response.statusCode}"; // Unexpected status codes
       }

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:kitokopay/service/api_client_helper_utils.dart'; // Import the ElmsSSL class
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:kitokopay/src/screens/ui/repay.dart'; // Import RepayLoanScreen
+import 'package:kitokopay/src/screens/auth/login.dart';
 
 class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   const CustomAppBar({super.key});
@@ -25,7 +28,10 @@ class _CustomAppBarState extends State<CustomAppBar> {
     // Handle navigation here based on the index
     switch (index) {
       case 0:
-        Navigator.pushNamed(context, '/payments');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const RepayLoanScreen()),
+        ); // Navigate to RepayLoanScreen
         break;
       case 1:
         Navigator.pushNamed(context, '/loans');
@@ -64,7 +70,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      _buildButton("Payments", 0),
+                      _buildButton("Repayments", 0), // Updated text
                       const SizedBox(width: 10),
                       _buildButton("Loans", 1),
                       const SizedBox(width: 10),
@@ -98,11 +104,12 @@ class _CustomAppBarState extends State<CustomAppBar> {
 
   Widget _buildButton(String title, int index) {
     bool isSelected = _selectedIndex == index;
+    bool isDisabled = title == "Remittance"; // Disable "Remittance"
 
     return GestureDetector(
-      onTap: title == "Loans" // Only enable tap for "Loans"
-          ? () => _onItemTapped(index)
-          : null,
+      onTap: isDisabled
+          ? null
+          : () => _onItemTapped(index), // Disable click if "Remittance"
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
@@ -115,9 +122,9 @@ class _CustomAppBarState extends State<CustomAppBar> {
         child: Text(
           title,
           style: TextStyle(
-            color: title == "Loans"
-                ? (isSelected ? const Color(0xFF3C4B9D) : Colors.white)
-                : Colors.grey, // Disabled buttons appear grey
+            color: isDisabled
+                ? Colors.grey // Greyed-out text for disabled buttons
+                : (isSelected ? const Color(0xFF3C4B9D) : Colors.white),
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -149,7 +156,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
             Navigator.pushNamed(context, '/about');
             break;
           case 5:
-            Navigator.pushNamed(context, '/logout');
+            _handleLogout(); // Handle Logout action
             break;
         }
       },
@@ -201,6 +208,42 @@ class _CustomAppBarState extends State<CustomAppBar> {
     );
   }
 
+  Future<void> _handleLogout() async {
+    // Show confirmation dialog
+    bool confirmLogout = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Confirm Logout"),
+          content: const Text("Are you sure you want to log out?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false), // Cancel logout
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true), // Confirm logout
+              child: const Text("Logout"),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmLogout) {
+      // Clear all preferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+
+      // Navigate to Login screen
+      Navigator.pop(context);
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+    }
+  }
+
   void _showMenuDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -213,28 +256,32 @@ class _CustomAppBarState extends State<CustomAppBar> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
+                leading: const Icon(Icons.payment),
+                title: const Text("Repayments"), // Updated text
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const RepayLoanScreen()),
+                  ); // Navigate to RepayLoanScreen
+                },
+              ),
+              ListTile(
                 leading: const Icon(Icons.monetization_on),
                 title: const Text("Loans"),
                 onTap: () {
                   Navigator.pop(context);
-                  _onItemTapped(1); // Only "Loans" is functional
+                  Navigator.pushNamed(context, '/loans');
                 },
               ),
-              ListTile(
-                leading: const Icon(Icons.payment),
-                title: const Text(
-                  "Payments",
-                  style: TextStyle(color: Colors.grey), // Greyed out
-                ),
-                onTap: null, // Non-functional
-              ),
-              ListTile(
-                leading: const Icon(Icons.send),
-                title: const Text(
+              const ListTile(
+                leading: Icon(Icons.send),
+                title: Text(
                   "Remittance",
-                  style: TextStyle(color: Colors.grey), // Greyed out
+                  style: TextStyle(color: Colors.grey), // Greyed out text
                 ),
-                onTap: null, // Non-functional
+                onTap: null, // Disabled click
               ),
             ],
           ),
