@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:kitokopay/service/api_client_helper_utils.dart';
 import "package:kitokopay/src/screens/ui/repay.dart";
+import 'package:kitokopay/src/screens/utils/session_manager.dart';
 import "package:kitokopay/src/screens/ui/loans.dart";
 
 class MyLoansPage extends StatefulWidget {
@@ -25,6 +26,8 @@ class _MyLoansPageState extends State<MyLoansPage> {
   void initState() {
     super.initState();
     _fetchLoans();
+    SessionManager()
+        .startSessionTimeoutWatcher(context); // Start session timeout
   }
 
   Future<void> _fetchLoans() async {
@@ -147,60 +150,83 @@ class _MyLoansPageState extends State<MyLoansPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF3C4B9D),
-      appBar: AppBar(
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () => SessionManager()
+          .updateActivity(), // Reset session timer on user interaction
+      child: Scaffold(
         backgroundColor: const Color(0xFF3C4B9D),
-        elevation: 0,
-        title: Text(
-          _isDetailView ? "Loan Details" : "My Loans",
-          style: const TextStyle(color: Colors.white),
-        ),
-        leading: _isDetailView
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () => setState(() => _isDetailView = false),
-              )
-            : null,
-      ),
-      body: Column(
-        children: [
-          const SizedBox(height: 20),
-          _buildCardTabBar(), // Tabs
-          const SizedBox(height: 20),
-          Expanded(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                if (constraints.maxWidth > 600) {
-                  // Desktop or large screen
-                  return Row(
-                    children: [
-                      Expanded(
-                        flex: 1,
-                        child: _buildLoansList(),
-                      ),
-                      Container(
-                        width: 1,
-                        color: Colors.white.withOpacity(0.5),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: _isFetchingDetails
-                            ? const Center(child: CircularProgressIndicator())
-                            : _buildLoanDetails(),
-                      ),
-                    ],
-                  );
-                } else {
-                  // Mobile screen
-                  return _isDetailView
-                      ? _buildLoanDetails()
-                      : _buildLoansList();
-                }
-              },
-            ),
+        appBar: AppBar(
+          backgroundColor: const Color(0xFF3C4B9D),
+          elevation: 0,
+          title: Text(
+            _isDetailView ? "Loan Details" : "My Loans",
+            style: const TextStyle(color: Colors.white),
           ),
-        ],
+          leading: _isDetailView
+              ? IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () => setState(() => _isDetailView = false),
+                )
+              : null,
+        ),
+        body: Stack(
+          children: [
+            // Background gradient
+            Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFF3C4B9D),
+                    Color(0xFF151A37),
+                  ],
+                ),
+              ),
+            ),
+            Column(
+              children: [
+                const SizedBox(height: 20),
+                _buildCardTabBar(), // Tabs
+                const SizedBox(height: 20),
+                Expanded(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      if (constraints.maxWidth > 600) {
+                        // Desktop or large screen
+                        return Row(
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: _buildLoansList(),
+                            ),
+                            Container(
+                              width: 1,
+                              color: Colors.white.withOpacity(0.5),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: _isFetchingDetails
+                                  ? const Center(
+                                      child: CircularProgressIndicator())
+                                  : _buildLoanDetails(),
+                            ),
+                          ],
+                        );
+                      } else {
+                        // Mobile screen
+                        return _isDetailView
+                            ? _buildLoanDetails()
+                            : _buildLoansList();
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -5,7 +5,8 @@ import 'package:kitokopay/src/screens/ui/loans/myloans/myloans.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:kitokopay/service/api_client_helper_utils.dart'; // Import the ElmsSSL class
-import '../../customs/appbar.dart';
+import 'package:kitokopay/src/customs/appbar.dart';
+import 'package:kitokopay/src/screens/utils/session_manager.dart';
 
 class LoansPage extends StatefulWidget {
   const LoansPage({super.key});
@@ -42,6 +43,8 @@ class _LoansPageState extends State<LoansPage> {
   void initState() {
     super.initState();
     _fetchLimitAmount();
+    SessionManager()
+        .startSessionTimeoutWatcher(context); // Start session timeout
   }
 
   bool _isLoading = false; // Add to track loading state
@@ -104,83 +107,89 @@ class _LoansPageState extends State<LoansPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const CustomAppBar(),
-      backgroundColor: const Color(0xFF3C4B9D), // Match app's background color
-      body: Stack(
-        children: [
-          // Background gradient
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Color(0xFF3C4B9D),
-                  Color(0xFF151A37),
-                ],
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () => SessionManager()
+          .updateActivity(), // Reset session timer on user interaction
+      child: Scaffold(
+        appBar: const CustomAppBar(),
+        backgroundColor:
+            const Color(0xFF3C4B9D), // Match app's background color
+        body: Stack(
+          children: [
+            // Background gradient
+            Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFF3C4B9D),
+                    Color(0xFF151A37),
+                  ],
+                ),
               ),
             ),
-          ),
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 20),
-                  _buildCardTabBar(),
-                  const SizedBox(height: 30),
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      bool isWideScreen = constraints.maxWidth > 600;
-                      if (isWideScreen) {
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: _buildLeftPanel(),
-                            ),
-                            Container(
-                              width: 1,
-                              color: Colors.white.withOpacity(0.4),
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 16),
-                            ),
-                            Expanded(
-                              flex: 1,
-                              child: _buildRightPanel(),
-                            ),
-                          ],
-                        );
-                      } else {
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildLeftPanel(),
-                            const SizedBox(height: 16),
-                            _buildRightPanel(),
-                          ],
-                        );
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      if (constraints.maxWidth > 600) {
-                        return const Footer();
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    },
-                  ),
-                ],
+            SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 20),
+                    _buildCardTabBar(),
+                    const SizedBox(height: 30),
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        bool isWideScreen = constraints.maxWidth > 600;
+                        if (isWideScreen) {
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: _buildLeftPanel(),
+                              ),
+                              Container(
+                                width: 1,
+                                color: Colors.white.withOpacity(0.4),
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 16),
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: _buildRightPanel(),
+                              ),
+                            ],
+                          );
+                        } else {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildLeftPanel(),
+                              const SizedBox(height: 16),
+                              _buildRightPanel(),
+                            ],
+                          );
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        if (constraints.maxWidth > 600) {
+                          return const Footer();
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

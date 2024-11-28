@@ -300,16 +300,11 @@ class _CustomAppBarState extends State<CustomAppBar> {
     try {
       ElmsSSL elmsSSL = ElmsSSL();
       String result = await elmsSSL.resetPin();
-      Map<String, dynamic> resultMap = jsonDecode(result);
-
-      if (resultMap['status'] == 'success') {
-        Navigator.pushReplacementNamed(context, '/home');
-      } else {
-        setState(() {
-          _errorMessage = resultMap['message'] ?? 'Invalid details!';
-        });
-        _showErrorDialog(_errorMessage!);
-      }
+      // Navigate to Login
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
     } catch (e) {
       setState(() {
         _errorMessage = 'An error occurred: $e';

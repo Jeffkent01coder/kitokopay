@@ -3,7 +3,8 @@ import 'package:kitokopay/src/customs/appbar.dart';
 import "package:kitokopay/src/screens/ui/home.dart";
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'package:kitokopay/service/api_client_helper_utils.dart'; // Assuming the ElmsSSL class is defined here
+import 'package:kitokopay/service/api_client_helper_utils.dart';
+import 'package:kitokopay/src/screens/utils/session_manager.dart';
 
 class RepayLoanScreen extends StatefulWidget {
   const RepayLoanScreen({super.key});
@@ -30,6 +31,8 @@ class _RepayLoanScreenState extends State<RepayLoanScreen> {
   void initState() {
     super.initState();
     _loadDetailsFromPrefs();
+    SessionManager()
+        .startSessionTimeoutWatcher(context); // Start session timeout
   }
 
   Future<void> _loadDetailsFromPrefs() async {
@@ -95,18 +98,24 @@ class _RepayLoanScreenState extends State<RepayLoanScreen> {
     }
   }
 
-  @override
+@override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const CustomAppBar(),
-      backgroundColor: const Color(0xFF3C4B9D), // Consistent background color
-      body: _currentTab == 0
-          ? _buildRepaymentForm()
-          : _currentTab == 1
-              ? _buildPinEntry()
-              : _buildConfirmation(),
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () => SessionManager()
+          .updateActivity(), // Reset session timer on user interaction
+      child: Scaffold(
+        appBar: const CustomAppBar(),
+        backgroundColor: const Color(0xFF3C4B9D), // Consistent background color
+        body: _currentTab == 0
+            ? _buildRepaymentForm()
+            : _currentTab == 1
+                ? _buildPinEntry()
+                : _buildConfirmation(),
+      ),
     );
   }
+
 
   // Repayment form screen
   Widget _buildRepaymentForm() {

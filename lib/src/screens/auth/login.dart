@@ -5,6 +5,9 @@ import "package:kitokopay/src/screens/auth/otp.dart";
 import 'package:kitokopay/service/api_client_helper_utils.dart'; // Import the ElmsSSL class
 import 'package:country_picker/country_picker.dart';
 import 'dart:convert';
+import 'package:kitokopay/src/screens/utils/session_manager.dart';
+import 'package:kitokopay/src/screens/utils/session_manager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -209,6 +212,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                               _isLoading = true;
                                               _errorMessage = null;
                                             });
+
                                             String phoneNumber =
                                                 _phoneController.text;
                                             String pin = _pinController.text;
@@ -224,6 +228,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                               });
                                               return;
                                             }
+
                                             try {
                                               ElmsSSL elmsSSL = ElmsSSL();
                                               String result = await elmsSSL
@@ -233,6 +238,21 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                               if (resultMap['status'] ==
                                                   'success') {
+                                                // Save login details and session start time
+                                                SharedPreferences prefs =
+                                                    await SharedPreferences
+                                                        .getInstance();
+                                                await prefs.setInt(
+                                                    'sessionStartTime',
+                                                    DateTime.now()
+                                                        .millisecondsSinceEpoch);
+
+                                                // Start session timeout watcher
+                                                SessionManager()
+                                                    .startSessionTimeoutWatcher(
+                                                        context);
+
+                                                // Navigate to the home screen
                                                 Navigator.pushReplacement(
                                                   context,
                                                   MaterialPageRoute(
@@ -274,57 +294,38 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 16),
-                                // Register Link
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                                // Register and Activate Links with Proper Spacing
+                                Wrap(
+                                  alignment: WrapAlignment.center,
+                                  spacing: 8,
+                                  runSpacing: 8,
                                   children: [
-                                    const Text(
-                                      "Don't have an account?",
-                                      style: TextStyle(fontSize: 16),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                const RegistrationScreen(),
-                                          ),
-                                        );
-                                      },
-                                      child: const Text(
-                                        " Register Now",
-                                        style: TextStyle(
-                                          color: Colors.blue,
-                                          fontWeight: FontWeight.bold,
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Text(
+                                          "Don't have an account?",
+                                          style: TextStyle(fontSize: 16),
                                         ),
-                                      ),
-                                    ),
-                                    // Vertical divider
-                                    Container(
-                                      margin: const EdgeInsets.symmetric(
-                                          horizontal: 8.0),
-                                      height: 20, // Adjust height as needed
-                                      width: 1, // Thin line
-                                      color: Colors.grey, // Line color
-                                    ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                const OtpPage(), // Replace with your activation screen
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const OtpPage(),
+                                              ),
+                                            );
+                                          },
+                                          child: const Text(
+                                            "Activate account",
+                                            style: TextStyle(
+                                              color: Colors.blue,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
-                                        );
-                                      },
-                                      child: const Text(
-                                        " Activate account",
-                                        style: TextStyle(
-                                          color: Colors.blue,
-                                          fontWeight: FontWeight.bold,
                                         ),
-                                      ),
+                                      ],
                                     ),
                                   ],
                                 )
