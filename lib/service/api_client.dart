@@ -40,12 +40,10 @@ class ApiClient extends GetConnect {
       if (response.statusCode == 200) {
         TokenStorage().setToken(response.body);
       }
-    } catch (e) {
-      print(e);
-    }
+    } catch (e) {}
   }
 
-  Future<String> coreRequest(
+  Future<Map<String, dynamic>> coreRequest(
       String token, Map<String, dynamic> coreRequest, String command) async {
     var headers = {
       'Content-Type': 'application/json',
@@ -60,19 +58,20 @@ class ApiClient extends GetConnect {
         body: jsonEncode(coreRequest),
       );
 
-      // Handle specific status codes
-      if (response.statusCode == 200) {
-        return response.body; // Success case
-      } else if (response.statusCode == 401) {
-        return "${response.statusCode}";
-      } else if (response.statusCode == 400) {
-        return response.body; // Bad request case
-      } else {
-        return "Unexpected Error: ${response.statusCode}"; // Unexpected status codes
-      }
+      // Return the status code and response body
+      return {
+        "statusCode": response.statusCode,
+        "body": response.body,
+      };
     } catch (e) {
-      // Handle exceptions
-      return "Exception occurred: ${e.toString()}";
+      // Return an error structure in case of exceptions
+      return {
+        "statusCode": 500, // Custom status code for exceptions
+        "body": jsonEncode({
+          "status": "error",
+          "message": "Exception occurred: ${e.toString()}",
+        }),
+      };
     }
   }
 }

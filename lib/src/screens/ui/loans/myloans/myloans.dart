@@ -26,8 +26,7 @@ class _MyLoansPageState extends State<MyLoansPage> {
   void initState() {
     super.initState();
     _fetchLoans();
-    SessionManager()
-        .startSessionTimeoutWatcher(context); // Start session timeout
+    GlobalSessionManager().startMonitoring(context);
   }
 
   Future<void> _fetchLoans() async {
@@ -43,19 +42,27 @@ class _MyLoansPageState extends State<MyLoansPage> {
       final cleanedLogin = elmsSSL.cleanResponse(loginDetails);
       final loans = cleanedLogin['Data']['Loans'];
 
+      setState(() {
+        _isLoading = false; // Stop the loading spinner
+      });
+
       if (loans == null || loans.isEmpty) {
-        throw Exception("No loans found in the response.");
+        // Set loans to an empty list and display "No loans found!"
+        setState(() {
+          _loans = [];
+        });
+        return;
       }
 
       final decodedLoans = jsonDecode(loans);
 
       setState(() {
-        _loans = decodedLoans;
-        _isLoading = false;
+        _loans = decodedLoans; // Populate the loans if they exist
       });
     } catch (error) {
       setState(() {
         _isLoading = false;
+        _loans = []; // Clear loans in case of error
       });
       _showErrorDialog("Failed to fetch loans: $error");
     }
@@ -152,8 +159,7 @@ class _MyLoansPageState extends State<MyLoansPage> {
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () => SessionManager()
-          .updateActivity(), // Reset session timer on user interaction
+      onTap: () => GlobalSessionManager().updateActivity(context),
       child: Scaffold(
         backgroundColor: const Color(0xFF3C4B9D),
         appBar: AppBar(
@@ -191,37 +197,53 @@ class _MyLoansPageState extends State<MyLoansPage> {
                 _buildCardTabBar(), // Tabs
                 const SizedBox(height: 20),
                 Expanded(
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      if (constraints.maxWidth > 600) {
-                        // Desktop or large screen
-                        return Row(
-                          children: [
-                            Expanded(
-                              flex: 1,
-                              child: _buildLoansList(),
+                  child: _isLoading
+                      ? const Center(
+                          child: CircularProgressIndicator(),
+                        )
+                      : _loans.isEmpty
+                          ? const Center(
+                              child: Text(
+                                "No loans found!",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            )
+                          : LayoutBuilder(
+                              builder: (context, constraints) {
+                                if (constraints.maxWidth > 600) {
+                                  // Desktop or large screen
+                                  return Row(
+                                    children: [
+                                      Expanded(
+                                        flex: 1,
+                                        child: _buildLoansList(),
+                                      ),
+                                      Container(
+                                        width: 1,
+                                        color: Colors.white.withOpacity(0.5),
+                                      ),
+                                      Expanded(
+                                        flex: 2,
+                                        child: _isFetchingDetails
+                                            ? const Center(
+                                                child:
+                                                    CircularProgressIndicator())
+                                            : _buildLoanDetails(),
+                                      ),
+                                    ],
+                                  );
+                                } else {
+                                  // Mobile screen
+                                  return _isDetailView
+                                      ? _buildLoanDetails()
+                                      : _buildLoansList();
+                                }
+                              },
                             ),
-                            Container(
-                              width: 1,
-                              color: Colors.white.withOpacity(0.5),
-                            ),
-                            Expanded(
-                              flex: 2,
-                              child: _isFetchingDetails
-                                  ? const Center(
-                                      child: CircularProgressIndicator())
-                                  : _buildLoanDetails(),
-                            ),
-                          ],
-                        );
-                      } else {
-                        // Mobile screen
-                        return _isDetailView
-                            ? _buildLoanDetails()
-                            : _buildLoansList();
-                      }
-                    },
-                  ),
                 ),
               ],
             ),

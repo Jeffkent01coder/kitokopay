@@ -25,6 +25,9 @@ class _LoansPageState extends State<LoansPage> {
   String loanAmount = '';
   String loanStatus = '';
   String dueDate = '';
+  String _interest = '0.0';
+  String _loanTerm = 'N/A';
+  String _dueDate = 'N/A';
 
   // Variables to hold loan details
   String _loanStatus = "N/A";
@@ -43,8 +46,7 @@ class _LoansPageState extends State<LoansPage> {
   void initState() {
     super.initState();
     _fetchLimitAmount();
-    SessionManager()
-        .startSessionTimeoutWatcher(context); // Start session timeout
+    GlobalSessionManager().startMonitoring(context);
   }
 
   bool _isLoading = false; // Add to track loading state
@@ -69,9 +71,13 @@ class _LoansPageState extends State<LoansPage> {
 
   Future<void> _fetchLimitAmount() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    ElmsSSL elmsSSL = ElmsSSL();
+
     String? loginDetails = prefs.getString('loginDetails');
     if (loginDetails != null) {
-      final parsedLogin = jsonDecode(loginDetails);
+      final parsedLogin = elmsSSL.cleanResponse(loginDetails);
+
       setState(() {
         _limitAmount =
             double.tryParse(parsedLogin['Data']['LimitAmount'].toString()) ??
@@ -85,6 +91,15 @@ class _LoansPageState extends State<LoansPage> {
         _repaymentDate = parsedLogin['Data']['RepaymentDate'] ?? "N/A";
         _requestType = parsedLogin['Data']['RequestType'] ?? "N/A";
         _mobileNumber = parsedLogin['Data']['MobileNumber'] ?? "N/A";
+        _interest = parsedLogin['Data']['InterestRate'] ?? "0.0";
+        _loanTerm = parsedLogin['Data']['LoanTermPeriod'] ?? "N/A";
+
+        String dueDate = parsedLogin['Data']['DueDate'] ?? "N/A";
+        if (dueDate != "") {
+          _dueDate = dueDate;
+        } else {
+          _dueDate = "N/A";
+        }
 
         // Fetch the currency
         _currency = parsedLogin['Data']['Currency'] ?? "N/A";
@@ -109,8 +124,7 @@ class _LoansPageState extends State<LoansPage> {
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () => SessionManager()
-          .updateActivity(), // Reset session timer on user interaction
+      onTap: () => GlobalSessionManager().updateActivity(context),
       child: Scaffold(
         appBar: const CustomAppBar(),
         backgroundColor:
@@ -240,17 +254,17 @@ class _LoansPageState extends State<LoansPage> {
         ),
         const SizedBox(height: 16),
         _buildDetailsRow(
-          "Repayment Date",
-          _repaymentDate,
+          "Due Date",
+          _dueDate,
           "Loan Status",
           _loanStatus,
         ),
         const SizedBox(height: 16),
         _buildDetailsRow(
-          "Reference ID",
-          _referenceId,
-          "Request Type",
-          _requestType,
+          "Loan Term",
+          _loanTerm,
+          "Interest Rate",
+          _interest,
         ),
         const SizedBox(height: 16),
         const Text(
@@ -289,6 +303,14 @@ class _LoansPageState extends State<LoansPage> {
 
   Widget _buildSliderSection(
       String title, String rightLabel, String leftValue, String rightValue) {
+    bool isDisabled = _loanStatus == "PendingPayment"; // Check loan status
+    double minAmount = isDisabled ? 0 : 1000; // Min is 0 if PendingPayment
+    double maxAmount =
+        isDisabled ? 0 : _limitAmount; // Max is 0 if PendingPayment
+    double displayedAmount = isDisabled
+        ? 0
+        : _selectedAmount; // Selected amount is 0 if PendingPayment
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -305,7 +327,7 @@ class _LoansPageState extends State<LoansPage> {
           children: [
             // Min Label
             Text(
-              "Min: $_currency 1000",
+              "Min: $_currency ${minAmount.toStringAsFixed(0)}",
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 16,
@@ -314,7 +336,7 @@ class _LoansPageState extends State<LoansPage> {
             ),
             // Max Label
             Text(
-              "Max: $_currency ${_limitAmount.toStringAsFixed(0)}",
+              "Max: $_currency ${maxAmount.toStringAsFixed(0)}",
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 16,
@@ -327,7 +349,7 @@ class _LoansPageState extends State<LoansPage> {
         // Amount textview displayed above the slider
         Center(
           child: Text(
-            "Selected Amount: $_currency ${_selectedAmount.toStringAsFixed(0)}",
+            "Selected Amount: $_currency ${displayedAmount.toStringAsFixed(0)}",
             style: const TextStyle(
               color: Colors.white,
               fontSize: 18,
@@ -337,28 +359,32 @@ class _LoansPageState extends State<LoansPage> {
         ),
         const SizedBox(height: 16),
         Slider(
-          value: _selectedAmount,
-          min: 1000, // Set minimum amount to 1000
-          max: _limitAmount,
-          onChanged: (value) {
-            setState(() {
-              _selectedAmount = value;
-            });
-          },
-          activeColor: Colors.white,
+          value: displayedAmount,
+          min: minAmount,
+          max: maxAmount,
+          onChanged: isDisabled
+              ? null
+              : (value) {
+                  setState(() {
+                    _selectedAmount = value;
+                  });
+                },
+          activeColor: isDisabled ? Colors.grey : Colors.white,
           inactiveColor: Colors.white.withOpacity(0.3),
         ),
         const SizedBox(height: 30),
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: () {
-              setState(() {
-                _leftPanelStage = "confirmation";
-              });
-            },
+            onPressed: isDisabled
+                ? null
+                : () {
+                    setState(() {
+                      _leftPanelStage = "confirmation";
+                    });
+                  },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.lightBlue,
+              backgroundColor: isDisabled ? Colors.grey : Colors.lightBlue,
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
             child: const Text(

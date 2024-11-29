@@ -25,8 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadUserDetails();
-    SessionManager()
-        .startSessionTimeoutWatcher(context); // Start session timeout
+    GlobalSessionManager().startMonitoring(context);
   }
 
   Future<void> _loadUserDetails() async {
@@ -49,28 +48,53 @@ class _HomeScreenState extends State<HomeScreen> {
     String? loanDetailsStr = prefs.getString('loanDetails');
     String? loginDetailsStr = prefs.getString('loginDetails');
 
-    print("Login details: $loginDetailsStr");
-
     ElmsSSL elmsSSL = ElmsSSL();
 
-    final parsedResult = elmsSSL.cleanResponse(loanDetailsStr as String);
-    final parsedLogin = elmsSSL.cleanResponse(loginDetailsStr as String);
+    if (loginDetailsStr == null) {
+      // Return default values if login details are null
+      return {
+        "transactions": <Map<String, dynamic>>[], // Empty list for transactions
+        "currency": "N/A",
+        "limit": "0",
+      };
+    }
 
-    print("Parsed result: $parsedResult");
-    print("Parsed login: $parsedLogin");
+    final parsedLogin = elmsSSL.cleanResponse(loginDetailsStr);
 
-    String currency = parsedLogin['Data']['Currency'];
-    String limit = parsedLogin['Data']['LimitAmount'].toString();
+    String currency = parsedLogin['Data']['Currency'] ?? "N/A";
+    String limit = parsedLogin['Data']['LimitAmount']?.toString() ?? "0";
 
-    String transactionsStr = parsedResult['Data']['Transactions'];
-    List<Map<String, dynamic>> transactionsList =
-        List<Map<String, dynamic>>.from(jsonDecode(transactionsStr));
+    // If loanDetailsStr is null, return empty transactions with currency and limit
+    if (loanDetailsStr == null) {
+      return {
+        "transactions": <Map<String, dynamic>>[], // Empty list for transactions
+        "currency": currency,
+        "limit": limit,
+      };
+    }
 
-    return {
-      "transactions": transactionsList,
-      "currency": currency,
-      "limit": limit,
-    };
+    try {
+      final parsedResult = elmsSSL.cleanResponse(loanDetailsStr);
+
+      String transactionsStr = parsedResult['Data']['Transactions'] ?? "[]";
+
+      List<dynamic> rawTransactions = jsonDecode(transactionsStr);
+      List<Map<String, dynamic>> transactionsList = rawTransactions
+          .map((item) => Map<String, dynamic>.from(item as Map))
+          .toList();
+
+      return {
+        "transactions": transactionsList,
+        "currency": currency,
+        "limit": limit,
+      };
+    } catch (e) {
+      return {
+        "transactions": <Map<String, dynamic>>[], // Return empty list on error
+        "currency": currency,
+        "limit": limit,
+      };
+    }
   }
 
   String formatNumber(String number) {
@@ -91,8 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
-        onTap: () => SessionManager()
-            .updateActivity(), // Reset session timer on interaction
+        onTap: () => GlobalSessionManager().updateActivity(context),
         child: Stack(
           children: [
             // Background gradient
@@ -479,6 +502,16 @@ class _HomeScreenState extends State<HomeScreen> {
         final transactions =
             snapshot.data!['transactions'] as List<Map<String, dynamic>>;
         final currency = snapshot.data!['currency'] as String;
+
+        // Check if the transactions list is empty
+        if (transactions.isEmpty) {
+          return const Center(
+            child: Text(
+              'No transactions available',
+              style: TextStyle(color: Colors.white),
+            ),
+          );
+        }
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,

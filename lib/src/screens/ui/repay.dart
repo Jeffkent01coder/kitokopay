@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kitokopay/src/customs/appbar.dart';
-import "package:kitokopay/src/screens/ui/home.dart";
+import "package:kitokopay/src/screens/ui/loans.dart";
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:kitokopay/service/api_client_helper_utils.dart';
@@ -26,13 +26,13 @@ class _RepayLoanScreenState extends State<RepayLoanScreen> {
   String interestRate = "N/A";
   String outstandingAmount = "N/A";
   String mobileNumber = "N/A";
+  String loanStatus = ""; // Track loan status
 
   @override
   void initState() {
     super.initState();
     _loadDetailsFromPrefs();
-    SessionManager()
-        .startSessionTimeoutWatcher(context); // Start session timeout
+    GlobalSessionManager().startMonitoring(context);
   }
 
   Future<void> _loadDetailsFromPrefs() async {
@@ -47,6 +47,7 @@ class _RepayLoanScreenState extends State<RepayLoanScreen> {
             loanDetails['Data']['Details']['InterestRate'].toString();
         outstandingAmount =
             loanDetails['Data']['Details']['TotalOutstanding'].toString();
+        loanStatus = loanDetails['Data']['Details']['LoanStatus'] ?? "";
       });
     }
 
@@ -98,24 +99,66 @@ class _RepayLoanScreenState extends State<RepayLoanScreen> {
     }
   }
 
-@override
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () => SessionManager()
-          .updateActivity(), // Reset session timer on user interaction
+      onTap: () => GlobalSessionManager().updateActivity(context),
       child: Scaffold(
         appBar: const CustomAppBar(),
         backgroundColor: const Color(0xFF3C4B9D), // Consistent background color
-        body: _currentTab == 0
-            ? _buildRepaymentForm()
-            : _currentTab == 1
-                ? _buildPinEntry()
-                : _buildConfirmation(),
+        body: loanStatus == "PendingPayment"
+            ? _currentTab == 0
+                ? _buildRepaymentForm()
+                : _currentTab == 1
+                    ? _buildPinEntry()
+                    : _buildConfirmation()
+            : _buildNoLoansMessage(),
       ),
     );
   }
 
+  // Show message when no loans are available to repay
+  Widget _buildNoLoansMessage() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text(
+            "No loans to repay.",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const LoansPage()),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF7FC1E4), // Button color
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: const Text(
+              "Apply Loan",
+              style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   // Repayment form screen
   Widget _buildRepaymentForm() {
@@ -126,7 +169,6 @@ class _RepayLoanScreenState extends State<RepayLoanScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 20),
-
             // Loan Information Section
             _buildNonEditableField("Mobile Number", mobileNumber),
             const SizedBox(height: 10),
@@ -134,9 +176,7 @@ class _RepayLoanScreenState extends State<RepayLoanScreen> {
             const SizedBox(height: 10),
             _buildNonEditableField(
                 "Total Outstanding Amount", outstandingAmount),
-
             const SizedBox(height: 20),
-
             // Dropdown for Payment Type
             const Text(
               "Select Payment Method",
@@ -183,7 +223,6 @@ class _RepayLoanScreenState extends State<RepayLoanScreen> {
                 },
               ),
             ),
-
             // Conditional Input for Partial Payment
             if (paymentType == "PARTIALPAY") ...[
               const SizedBox(height: 20),
@@ -219,9 +258,7 @@ class _RepayLoanScreenState extends State<RepayLoanScreen> {
                 },
               ),
             ],
-
             const SizedBox(height: 30),
-
             // Make Repayment Button
             Center(
               child: ElevatedButton(
@@ -290,7 +327,6 @@ class _RepayLoanScreenState extends State<RepayLoanScreen> {
           style: TextStyle(fontSize: 16, color: Colors.white), // White text
         ),
         const SizedBox(height: 30),
-
         // PIN circles
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -311,12 +347,9 @@ class _RepayLoanScreenState extends State<RepayLoanScreen> {
           ),
         ),
         const SizedBox(height: 30),
-
         // PIN Dialpad
         _buildDialPad(),
-
         const SizedBox(height: 30),
-
         // Submit Button
         ElevatedButton(
           onPressed: isPinSubmitting ? null : _submitRepayment,
@@ -346,12 +379,11 @@ class _RepayLoanScreenState extends State<RepayLoanScreen> {
     );
   }
 
-// Confirmation screen
+  // Confirmation screen
   Widget _buildConfirmation() {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-            horizontal: 20.0), // Add space around the message
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -366,10 +398,7 @@ class _RepayLoanScreenState extends State<RepayLoanScreen> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const HomeScreen()),
-                );
+                Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF7FC1E4),
@@ -393,7 +422,7 @@ class _RepayLoanScreenState extends State<RepayLoanScreen> {
     );
   }
 
-// PIN Dialpad with Backspace functionality
+  // PIN Dialpad
   Widget _buildDialPad() {
     List<int> numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
     return Column(
@@ -409,16 +438,16 @@ class _RepayLoanScreenState extends State<RepayLoanScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(width: 60), // Placeholder for alignment
-            _buildDialButton(0), // Zero in the middle
-            _buildBackspaceButton(), // Backspace on the right
+            const SizedBox(width: 60),
+            _buildDialButton(0),
+            _buildBackspaceButton(),
           ],
         ),
       ],
     );
   }
 
-// Individual Dial Button
+  // Individual Dial Button
   Widget _buildDialButton(int number) {
     return GestureDetector(
       onTap: () {
@@ -449,7 +478,7 @@ class _RepayLoanScreenState extends State<RepayLoanScreen> {
     );
   }
 
-// Backspace Button
+  // Backspace Button
   Widget _buildBackspaceButton() {
     return GestureDetector(
       onTap: () {
@@ -479,6 +508,7 @@ class _RepayLoanScreenState extends State<RepayLoanScreen> {
     );
   }
 
+  // Non-editable field builder
   Widget _buildNonEditableField(String title, String value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:kitokopay/src/screens/auth/register.dart';
 import 'package:kitokopay/src/screens/ui/home.dart';
 import "package:kitokopay/src/screens/auth/otp.dart";
-import 'package:kitokopay/service/api_client_helper_utils.dart'; // Import the ElmsSSL class
+import 'package:kitokopay/service/api_client_helper_utils.dart';
 import 'package:country_picker/country_picker.dart';
 import 'dart:convert';
-import 'package:kitokopay/src/screens/utils/session_manager.dart';
 import 'package:kitokopay/src/screens/utils/session_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -37,7 +35,6 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
-  // Method to format phone number by removing spaces or non-numeric characters
   String getFormattedPhoneNumber(String phone) {
     return phone.replaceAll(
         RegExp(r'[^0-9]'), ''); // Remove non-numeric characters
@@ -53,10 +50,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 return Row(
                   children: [
-                    // Left-side image takes more space
                     if (isWideScreen)
                       Expanded(
-                        flex: 3, // Adjusted flex value to make the image wider
+                        flex: 3,
                         child: Container(
                           color: Colors.grey[200],
                           child: Image.asset(
@@ -67,9 +63,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ),
-                    // Main content takes less space
                     Expanded(
-                      flex: 2, // Adjusted flex value to make the form narrower
+                      flex: 2,
                       child: Center(
                         child: SingleChildScrollView(
                           padding: const EdgeInsets.all(24.0),
@@ -81,7 +76,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                // Logo
                                 Center(
                                   child: Image.asset(
                                     'assets/images/Kitokopaylogo.png',
@@ -90,7 +84,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 16),
-                                // Welcome Text
                                 const Text(
                                   "Welcome Back",
                                   style: TextStyle(
@@ -100,7 +93,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                   textAlign: TextAlign.center,
                                 ),
                                 const SizedBox(height: 32),
-                                // Phone Number Input
                                 const Text("Phone Number",
                                     style: TextStyle(fontSize: 16)),
                                 const SizedBox(height: 8),
@@ -154,7 +146,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                       child: TextField(
                                         controller: _phoneController,
                                         keyboardType: TextInputType.number,
+                                        maxLength: 10,
                                         decoration: InputDecoration(
+                                          counterText: "",
                                           hintText: "Enter your phone number",
                                           border: OutlineInputBorder(
                                             borderRadius:
@@ -169,7 +163,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ],
                                 ),
                                 const SizedBox(height: 24),
-                                // PIN Input
                                 const Text("PIN",
                                     style: TextStyle(fontSize: 16)),
                                 const SizedBox(height: 8),
@@ -177,7 +170,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   controller: _pinController,
                                   obscureText: true,
                                   keyboardType: TextInputType.number,
+                                  maxLength: 4,
                                   decoration: InputDecoration(
+                                    counterText: "",
                                     hintText: "Enter your PIN",
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
@@ -187,7 +182,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 24),
-                                // Error Message
                                 if (_errorMessage != null)
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
@@ -197,11 +191,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                       style: const TextStyle(color: Colors.red),
                                     ),
                                   ),
-                                // Loading Indicator
                                 if (_isLoading)
                                   const Center(
                                       child: CircularProgressIndicator()),
-                                // Login Button
                                 SizedBox(
                                   width: double.infinity,
                                   child: ElevatedButton(
@@ -238,7 +230,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                               if (resultMap['status'] ==
                                                   'success') {
-                                                // Save login details and session start time
                                                 SharedPreferences prefs =
                                                     await SharedPreferences
                                                         .getInstance();
@@ -248,11 +239,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                                         .millisecondsSinceEpoch);
 
                                                 // Start session timeout watcher
-                                                SessionManager()
-                                                    .startSessionTimeoutWatcher(
-                                                        context);
+                                                GlobalSessionManager()
+                                                    .startMonitoring(context);
 
-                                                // Navigate to the home screen
                                                 Navigator.pushReplacement(
                                                   context,
                                                   MaterialPageRoute(
@@ -294,7 +283,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 16),
-                                // Register and Activate Links with Proper Spacing
                                 Wrap(
                                   alignment: WrapAlignment.center,
                                   spacing: 8,
@@ -340,7 +328,7 @@ class _LoginScreenState extends State<LoginScreen> {
               },
             )
           : const Center(
-              child: CircularProgressIndicator(), // Loading screen
+              child: CircularProgressIndicator(),
             ),
     );
   }
