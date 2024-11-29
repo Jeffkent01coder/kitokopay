@@ -43,7 +43,7 @@ public class KitokoApis {
           {"Status":"000","Type":"object","Token":"","Data":"{\"Status\":\"pending\",\"AppId\":\"ELMSRWA001\",\"CustomerId\":\"2000000\"}"}
         * */
 
-        KitokoApis.ActivateTestExisting();
+        // KitokoApis.ActivateTestExisting();
 
         /* Response for ActivateTestExisting()
         * StatusCode:401
@@ -66,7 +66,7 @@ public class KitokoApis {
           {"Status":"000","Type":"object","Token":"","Data":"{\"LoanAmount\":\"\",\"LoanId\":\"11\",\"LoanStatus\":\"PendingPayment\",\"PaymentMethod\":\"\",\"DueDate\":\"08 October 2024\"}"}
         *
         * */
-        //  KitokoApis.LoanDetailsTestExisting();
+        KitokoApis.LoanDetailsTestExisting();
         /*Response for LoanDetailsTestExisting
         * StatusCode:200
         {"Status":"000","Type":"object","Token":"","Data":"{\"Schedules\":\"[{\\\"id\\\":1,\\\"daysinperiod\\\":31,\\\"totalcredits\\\":0,\\\"fromdate\\\":\\\"2024-07-08\\\",\\\"duedate\\\":\\\"2024-08-08\\\",\\\"principaldue\\\":16018.000000,\\\"amountdueforperiod\\\":18018.000000,\\\"balance\\\":33982.000000}, {\\\"id\\\":2,\\\"daysinperiod\\\":31,\\\"totalcredits\\\":0,\\\"fromdate\\\":\\\"2024-08-08\\\",\\\"duedate\\\":\\\"2024-09-08\\\",\\\"principaldue\\\":16658.720000,\\\"amountdueforperiod\\\":18018.000000,\\\"balance\\\":17323.280000}, {\\\"id\\\":3,\\\"daysinperiod\\\":30,\\\"totalcredits\\\":0,\\\"fromdate\\\":\\\"2024-09-08\\\",\\\"duedate\\\":\\\"2024-10-08\\\",\\\"principaldue\\\":17323.280000,\\\"amountdueforperiod\\\":18016.210000,\\\"balance\\\":0.000000}]\",\"Transactions\":\"[{\\\"id\\\":21,\\\"type\\\":\\\"Disbursement\\\",\\\"date\\\":\\\"2024-07-08\\\",\\\"amount\\\":50000.000000,\\\"disbursalamount\\\":50000.000000,\\\"balance\\\":50000.000000,\\\"receiptnumber\\\":\\\"N/A\\\"}, {\\\"id\\\":22,\\\"type\\\":\\\"Accrual\\\",\\\"date\\\":\\\"2024-07-08\\\",\\\"amount\\\":4052.210000,\\\"disbursalamount\\\":50000.000000,\\\"balance\\\":0,\\\"receiptnumber\\\":\\\"N/A\\\"}]\",\"Details\":{\"TotalRepaymentExpected\":\"54052.21\",\"TotalPrincipalDisbursed\":\"50000.00\",\"Currency\":\"RWF\",\"PastDueDays\":\"\",\"TotalPrincipalExpected\":\"50000.00\",\"LoanTermInDays\":\"92\",\"id\":\"11\",\"PaymentBeforeDate\":\"\",\"InterestRate\":\"48.000000\",\"Principal\":\"50000.00\",\"TotalOutstanding\":\"54052.21\"}}"}

@@ -133,7 +133,6 @@ class ElmsSSL {
     int statusCode = coreResult['statusCode'];
     String responseBody = coreResult['body'];
 
-
     if (statusCode == 400) {
       // Return error JSON with the message from the 400 response
       return jsonEncode({
@@ -253,10 +252,8 @@ class ElmsSSL {
       "LOGIN",
     );
 
-
     int statusCode = coreResult['statusCode'];
     String responseBody = coreResult['body'];
-
 
     if (statusCode == 400) {
       return jsonEncode({
@@ -269,16 +266,24 @@ class ElmsSSL {
       // Store the parsed response in preferences
       await prefs.setString('loginDetails', jsonEncode(parsedResponse));
 
+      final loans = jsonDecode(parsedResponse['Data']['Loans']);
 
-      String? loans = parsedResponse['Data']['Loans'];
-
-
-      if (loans == null || loans.isEmpty) {
+      if (loans == null || loans == "") {
         return jsonEncode({"status": "success", "message": "Login successful"});
       } else {
-        await loanDetails(parsedResponse['Data']['Loans'][0]['LoanId']);
+        final firstLoan = loans[0];
 
-        return jsonEncode({"status": "success", "message": "Login successful"});
+        print("The first loan is: $firstLoan");
+        print("The first loan is: ${firstLoan['LoanId']}");
+
+        // final firstLoan = jsonDecode(result);
+
+        // print the type of first loan
+        // print("The first loan is: $result");
+
+        final res = await loanDetails(firstLoan['LoanId']);
+
+        return res;
       }
     } else {
       return jsonEncode({
@@ -732,6 +737,7 @@ class ElmsSSL {
   }
 
   Future<String> loanDetails(String loanId) async {
+    print("The received id is $loanId");
     var uuid = const Uuid();
     String uid = uuid.v4();
 
@@ -779,6 +785,8 @@ class ElmsSSL {
 
     int statusCode = coreResult['statusCode'];
     String responseBody = coreResult['body'];
+
+    print("The response returned is: $responseBody");
 
     if (statusCode == 400) {
       return jsonEncode({"status": "error", "message": responseBody});
