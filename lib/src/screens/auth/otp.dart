@@ -120,8 +120,12 @@ class _OtpPageState extends State<OtpPage> {
                                 child: TextField(
                                   controller: _phoneController,
                                   keyboardType: TextInputType.phone,
+                                  maxLength:
+                                      10, // Limit phone number to 10 digits
                                   decoration: InputDecoration(
                                     hintText: "Enter phone number",
+                                    counterText:
+                                        "", // Hides the character count
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(8.0),
                                     ),
@@ -148,8 +152,10 @@ class _OtpPageState extends State<OtpPage> {
                           TextField(
                             controller: _otpController,
                             keyboardType: TextInputType.number,
+                            maxLength: 6, // Limit OTP to 6 digits
                             decoration: InputDecoration(
                               hintText: "Enter OTP",
+                              counterText: "", // Hides the character count
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8.0),
                               ),
@@ -275,25 +281,6 @@ class _OtpPageState extends State<OtpPage> {
                                   },
                                   child: const Text(
                                     "Already have an account? Log in",
-                                    style: TextStyle(
-                                      color: Colors.lightBlue,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const RegistrationScreen(),
-                                      ),
-                                    );
-                                  },
-                                  child: const Text(
-                                    "Don't have an account? Register",
                                     style: TextStyle(
                                       color: Colors.lightBlue,
                                       fontWeight: FontWeight.bold,

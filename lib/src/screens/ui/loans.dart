@@ -41,6 +41,10 @@ class _LoansPageState extends State<LoansPage> {
   String? _errorMessage; // Holds error messages for display
 
   String _currency = "N/A";
+  String _selectedCurrency = "N/A";
+
+  List<String> _currencies = [];
+  Map<String, double> _rates = {}; // Store rates for dynamic conversion
 
   @override
   void initState() {
@@ -78,6 +82,8 @@ class _LoansPageState extends State<LoansPage> {
     if (loginDetails != null) {
       final parsedLogin = elmsSSL.cleanResponse(loginDetails);
 
+      _initializeCurrenciesAndRates(parsedLogin);
+
       setState(() {
         _limitAmount =
             double.tryParse(parsedLogin['Data']['LimitAmount'].toString()) ??
@@ -93,6 +99,7 @@ class _LoansPageState extends State<LoansPage> {
         _mobileNumber = parsedLogin['Data']['MobileNumber'] ?? "N/A";
         _interest = parsedLogin['Data']['InterestRate'] ?? "0.0";
         _loanTerm = parsedLogin['Data']['LoanTermPeriod'] ?? "N/A";
+        _selectedCurrency = parsedLogin['Data']['Currency'] ?? "RWF";
 
         String dueDate = parsedLogin['Data']['DueDate'] ?? "N/A";
         if (dueDate != "") {
@@ -107,6 +114,22 @@ class _LoansPageState extends State<LoansPage> {
     }
   }
 
+  double _getConvertedAmount(double amount, String selectedCurrency) {
+    if (_rates.isEmpty || !_rates.containsKey(selectedCurrency)) {
+      // Return the original amount if no rates are available or the selected currency is not found
+      return amount;
+    }
+
+    // Retrieve the base currency rate (assuming the first currency is the base rate)
+    double baseRate = _rates[_currencies.first] ?? 1.0;
+
+    // Retrieve the target currency rate
+    double targetRate = _rates[selectedCurrency] ?? 1.0;
+
+    // Convert the amount from the base currency to the target currency
+    return (amount / baseRate) * targetRate;
+  }
+
   Future<void> _loadLoanDetails() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? loanDetails = prefs.getString('applyLoanDetails');
@@ -117,6 +140,33 @@ class _LoansPageState extends State<LoansPage> {
         loanStatus = parsedResponse['Data']['LoanStatus'] ?? '';
         dueDate = parsedResponse['Data']['DueDate'] ?? '';
       });
+    }
+  }
+
+  void _initializeCurrenciesAndRates(Map<String, dynamic> parsedLogin) {
+    ElmsSSL elmsSSL = ElmsSSL();
+    String currencyField = parsedLogin['Data']['Currency'] ?? "";
+
+    if (currencyField.isNotEmpty) {
+      if (currencyField.contains(",")) {
+        _currencies = currencyField.split(",").map((e) => e.trim()).toList();
+      } else {
+        _currencies = [currencyField];
+      }
+    }
+
+    Map<String, dynamic> ratesField =
+        elmsSSL.cleanResponse(parsedLogin['Data']['Rates']) ?? {};
+
+    _rates = ratesField.isNotEmpty
+        ? ratesField.map((key, value) =>
+            MapEntry(key, double.tryParse(value.toString()) ?? 1.0))
+        : {"RWF": 1.0}; // Default fallback rate
+
+    if (_currencies.isNotEmpty) {
+      _selectedCurrency = _currencies.first;
+    } else {
+      _selectedCurrency = "";
     }
   }
 
@@ -307,9 +357,17 @@ class _LoansPageState extends State<LoansPage> {
     double minAmount = isDisabled ? 0 : 1000; // Min is 0 if PendingPayment
     double maxAmount =
         isDisabled ? 0 : _limitAmount; // Max is 0 if PendingPayment
-    double displayedAmount = isDisabled
-        ? 0
-        : _selectedAmount; // Selected amount is 0 if PendingPayment
+
+    // Ensure minAmount is less than or equal to maxAmount
+    if (minAmount > maxAmount) {
+      minAmount = maxAmount;
+    }
+
+    double displayedAmount = isDisabled ? 0 : _selectedAmount;
+
+    // Calculate converted amount based on the selected currency
+    double convertedAmount =
+        _getConvertedAmount(displayedAmount, _selectedCurrency);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -322,21 +380,49 @@ class _LoansPageState extends State<LoansPage> {
           ),
         ),
         const SizedBox(height: 8),
+
+        // Dropdown for currency selection
+        if (_currencies.isNotEmpty)
+          DropdownButton<String>(
+            value: _selectedCurrency,
+            items: _currencies.map((currency) {
+              return DropdownMenuItem(
+                value: currency,
+                child: Text(
+                  currency,
+                  style: const TextStyle(color: Colors.black),
+                ),
+              );
+            }).toList(),
+            onChanged: isDisabled
+                ? null
+                : (newValue) {
+                    setState(() {
+                      _selectedCurrency = newValue!;
+                    });
+                  },
+          )
+        else
+          const Text(
+            "No currencies available.",
+            style: TextStyle(color: Colors.white, fontSize: 16),
+          ),
+        const SizedBox(height: 16),
+
+        // Min and Max Labels
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Min Label
             Text(
-              "Min: $_currency ${minAmount.toStringAsFixed(0)}",
+              "Min: $_selectedCurrency ${minAmount.toStringAsFixed(0)}",
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            // Max Label
             Text(
-              "Max: $_currency ${maxAmount.toStringAsFixed(0)}",
+              "Max: $_selectedCurrency ${maxAmount.toStringAsFixed(0)}",
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 16,
@@ -346,18 +432,22 @@ class _LoansPageState extends State<LoansPage> {
           ],
         ),
         const SizedBox(height: 8),
-        // Amount textview displayed above the slider
+
+        // Display Selected Amount and Converted Amount
         Center(
           child: Text(
-            "Selected Amount: $_currency ${displayedAmount.toStringAsFixed(0)}",
+            "Selected Amount: $_selectedCurrency ${convertedAmount.toStringAsFixed(2)} (${_currencies.isNotEmpty ? _currencies.first : ''} ${displayedAmount.toStringAsFixed(0)})",
             style: const TextStyle(
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
+            textAlign: TextAlign.center,
           ),
         ),
         const SizedBox(height: 16),
+
+        // Slider
         Slider(
           value: displayedAmount,
           min: minAmount,
@@ -373,6 +463,8 @@ class _LoansPageState extends State<LoansPage> {
           inactiveColor: Colors.white.withOpacity(0.3),
         ),
         const SizedBox(height: 30),
+
+        // Continue Button
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
@@ -642,16 +734,15 @@ class _LoansPageState extends State<LoansPage> {
   }
 
   // PIN Entry Screen
+// PIN Entry Screen
   Widget _buildPinScreen() {
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Determine the size of the image based on screen width
         double imageSize = constraints.maxWidth > 600 ? 250 : 150;
 
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Responsive Centered Image
             Container(
               width: imageSize,
               height: imageSize,
@@ -664,8 +755,6 @@ class _LoansPageState extends State<LoansPage> {
               ),
             ),
             const SizedBox(height: 25),
-
-            // Confirmation Text
             const Text(
               "Enter PIN",
               style: TextStyle(
@@ -674,50 +763,29 @@ class _LoansPageState extends State<LoansPage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
-
-            // Instruction Text
-            const Text(
-              "Please enter your PIN to \n complete loan request.",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
-            ),
             const SizedBox(height: 20),
-
-            // PIN Circles
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                4,
-                (index) => Container(
+              children: List.generate(4, (index) {
+                bool isFilled = index < _pinController.text.length;
+                return Container(
                   margin: const EdgeInsets.symmetric(horizontal: 8),
                   width: 20,
                   height: 20,
                   decoration: BoxDecoration(
-                    color: index < _pinController.text.length
-                        ? Colors.lightBlue
-                        : Colors.transparent,
+                    color: isFilled ? Colors.green : Colors.transparent,
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.lightBlue),
+                    border: Border.all(color: Colors.white, width: 2),
                   ),
-                ),
-              ),
+                );
+              }),
             ),
             const SizedBox(height: 30),
-
-            // Dial Pad with Backspace
             _buildDialPad(),
-
             const SizedBox(height: 20),
-
-            // Buttons Row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                // Back Button
                 ElevatedButton(
                   onPressed: () {
                     setState(() {
@@ -727,7 +795,7 @@ class _LoansPageState extends State<LoansPage> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
-                    side: const BorderSide(color: Colors.white), // White border
+                    side: const BorderSide(color: Colors.white),
                   ),
                   child: const Text(
                     "Back",
@@ -737,8 +805,6 @@ class _LoansPageState extends State<LoansPage> {
                     ),
                   ),
                 ),
-
-                // Confirm Payment Button
                 ElevatedButton(
                   onPressed: () async {
                     String pin = _pinController.text.trim();
@@ -749,16 +815,25 @@ class _LoansPageState extends State<LoansPage> {
                       return;
                     }
 
-                    setState(() => _isLoading = true); // Show loading spinner
+                    setState(() => _isLoading = true);
 
                     try {
-                      // ElmsSSL Logic
                       ElmsSSL elmsSSL = ElmsSSL();
+
+                      // Determine the amount based on selected currency
+                      double amountToApply = _selectedCurrency == "USD"
+                          ? _getConvertedAmount(_selectedAmount, "USD")
+                          : _selectedAmount;
+
+                      // Apply the loan with the calculated amount and currency
                       String result = await elmsSSL.applyLoan(
-                          _selectedAmount.toString(), pin);
+                        amountToApply.toStringAsFixed(2),
+                        pin,
+                        _selectedCurrency,
+                      );
+
                       Map<String, dynamic> resultMap = jsonDecode(result);
 
-                      // Navigate to Success or Failure based on result
                       if (resultMap['status'] == 'success') {
                         setState(() => _leftPanelStage = "success");
                       } else {
@@ -767,8 +842,7 @@ class _LoansPageState extends State<LoansPage> {
                     } catch (e) {
                       _showErrorDialog('An error occurred: $e');
                     } finally {
-                      setState(
-                          () => _isLoading = false); // Hide loading spinner
+                      setState(() => _isLoading = false);
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -784,16 +858,6 @@ class _LoansPageState extends State<LoansPage> {
                 ),
               ],
             ),
-            if (_isLoading) const SizedBox(height: 20),
-            if (_isLoading) const CircularProgressIndicator(),
-            if (_errorMessage != null)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                child: Text(
-                  _errorMessage!,
-                  style: const TextStyle(color: Colors.red),
-                ),
-              ),
           ],
         );
       },

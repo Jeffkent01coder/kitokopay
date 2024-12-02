@@ -38,25 +38,32 @@ class _RepayLoanScreenState extends State<RepayLoanScreen> {
   Future<void> _loadDetailsFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    // Fetch and parse loanDetails
-    String? loanDetailsStr = prefs.getString('loanDetails');
-    if (loanDetailsStr != null) {
-      final loanDetails = jsonDecode(loanDetailsStr);
-      setState(() {
-        interestRate =
-            loanDetails['Data']['Details']['InterestRate'].toString();
-        outstandingAmount =
-            loanDetails['Data']['Details']['TotalOutstanding'].toString();
-        loanStatus = loanDetails['Data']['Details']['LoanStatus'] ?? "";
-      });
-    }
+    ElmsSSL elmsSSL = ElmsSSL();
 
     // Fetch and parse loginDetails
     String? loginDetailsStr = prefs.getString('loginDetails');
     if (loginDetailsStr != null) {
-      final loginDetails = jsonDecode(loginDetailsStr);
+      final cleanedLogin = elmsSSL.cleanResponse(loginDetailsStr);
+
       setState(() {
-        mobileNumber = loginDetails['Data']['MobileNumber'] ?? "N/A";
+        interestRate = cleanedLogin['Data']['InterestRate']?.toString() ??
+            "N/A"; // Extract InterestRate
+        mobileNumber = cleanedLogin['Data']['MobileNumber'] ??
+            "N/A"; // Extract MobileNumber
+        loanStatus =
+            cleanedLogin['Data']['LoanStatus'] ?? ""; // Extract LoanStatus
+      });
+    }
+
+    // Fetch and parse loanDetails
+    String? loanDetailsStr = prefs.getString('loanDetails');
+    if (loanDetailsStr != null) {
+      final loanDetails = elmsSSL.cleanResponse(loanDetailsStr);
+
+      setState(() {
+        outstandingAmount =
+            loanDetails['Data']['Details']['TotalOutstanding']?.toString() ??
+                "0.0"; // Extract Outstanding Amount
       });
     }
   }
@@ -172,7 +179,7 @@ class _RepayLoanScreenState extends State<RepayLoanScreen> {
             // Loan Information Section
             _buildNonEditableField("Mobile Number", mobileNumber),
             const SizedBox(height: 10),
-            _buildNonEditableField("Interest Rate", "$interestRate%"),
+            _buildNonEditableField("Interest Rate", "$interestRate"),
             const SizedBox(height: 10),
             _buildNonEditableField(
                 "Total Outstanding Amount", outstandingAmount),

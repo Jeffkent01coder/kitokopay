@@ -7,7 +7,16 @@ import 'package:kitokopay/src/screens/ui/loans.dart';
 import 'package:kitokopay/src/screens/ui/payments.dart';
 import 'package:kitokopay/src/screens/ui/remittance.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding
+      .ensureInitialized(); // Ensure Flutter bindings are initialized
+
+  // try {
+  //   await dotenv.load(fileName: ".env"); // Load environment variables
+  // } catch (e) {
+  //   debugPrint("Error loading .env file: $e"); // Handle error gracefully
+  // }
+
   runApp(const MyApp());
 }
 
@@ -30,7 +39,7 @@ class MyApp extends StatelessWidget {
           initialRoute: '/',
           routes: {
             '/': (context) => const LoginScreen(), // Initial screen
-            '/otp': (context) => const OtpPage(), //otp
+            '/otp': (context) => const OtpPage(), // OTP
             '/home': (context) => const HomeScreen(), // Home screen
             '/payments': (context) => const PaymentPage(), // Payments screen
             '/loans': (context) => const LoansPage(), // Loans screen

@@ -12,13 +12,25 @@ import 'package:encrypt/encrypt.dart' as encryptPackage;
 import 'package:kitokopay/service/token_storage.dart';
 import 'dart:html' as html; // Import html for localStorage
 import 'dart:async'; // Import for Timer
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ElmsSSL {
   static String basic_username = "L@T0wU8eR";
   static String basic_password = "TGF0MHdDb1IzU3Yz";
 
-  String publicKeyString =
-      "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0OTq4FBkCO/5kZbBgt+7tHUKmqa6NSvzGnvo8Pia2C7moYDF77TGNcMk5Q5bYjE91QCauAYWxse2thARA1X6FjJz/jeVfYpcV43uuKd8FDaI7P7ah4A+WO4CTwRu95x2a5Hzg0y3qWsxuuBtBeV66uWzKtKcWObPwsblPjfgWkpAxhaIdWhnAk1cXDrukGLrzRIhdY+m3M6yyoW9E+htP9oSkhBF39TxjNtGM0vTSA/w9rVv3x1DGCc7hlvo8DOaj4aG60pdsA7VkVeBnEsXS/lba5dVRFCUHAlMUQfKVx7pZJ9fuHP9IZIfRE0wTPPZwqJSlU8/YQ0ARa5ic5NLjQIDAQAB";
+  // String get publicKeyString =>
+  //     dotenv.env['PUBLIC_KEY'] ?? 'No Public Key Found';
+
+  // String publicKeyString = "";
+
+  String get publicKeyString {
+    // Load PUBLIC_KEY from compile-time variables or fallback to runtime dotenv
+    return const String.fromEnvironment('PUBLIC_KEY',
+                defaultValue: 'No Public Key Found') !=
+            'No Public Key Found'
+        ? const String.fromEnvironment('PUBLIC_KEY')
+        : (dotenv.env['PUBLIC_KEY'] ?? 'No Public Key Found');
+  }
 
   void printLongString(String text) {
     final RegExp pattern = RegExp('.{1,800}'); // 800 is the size of each chunk
@@ -266,20 +278,14 @@ class ElmsSSL {
       // Store the parsed response in preferences
       await prefs.setString('loginDetails', jsonEncode(parsedResponse));
 
-      final loans = jsonDecode(parsedResponse['Data']['Loans']);
+      final loanStatus = parsedResponse['Data']['LoanStatus'];
 
-      if (loans == null || loans == "") {
+      if (loanStatus == null || loanStatus == "") {
         return jsonEncode({"status": "success", "message": "Login successful"});
       } else {
+        final loans = jsonDecode(parsedResponse['Data']['Loans']);
+
         final firstLoan = loans[0];
-
-        print("The first loan is: $firstLoan");
-        print("The first loan is: ${firstLoan['LoanId']}");
-
-        // final firstLoan = jsonDecode(result);
-
-        // print the type of first loan
-        // print("The first loan is: $result");
 
         final res = await loanDetails(firstLoan['LoanId']);
 
@@ -442,7 +448,8 @@ class ElmsSSL {
     }
   }
 
-  Future<String> applyLoan(String appliedAmount, String pin) async {
+  Future<String> applyLoan(
+      String appliedAmount, String pin, String currency) async {
     var uuid = const Uuid();
     var Uid = uuid.v4();
 
@@ -463,14 +470,13 @@ class ElmsSSL {
 
     // Retrieve login details to get mobileNumber
     String mobileNumber = '';
-    String currency = "";
     String limitAmount = "";
     String? loginResponseStr = prefs.getString('loginDetails');
 
     if (loginResponseStr != null) {
       final loginResponse = jsonDecode(loginResponseStr);
       mobileNumber = loginResponse['Data']['MobileNumber'] ?? '';
-      currency = loginResponse['Data']['Currency'] ?? '';
+      // currency = loginResponse['Data']['Currency'] ?? '';
       limitAmount = loginResponse['Data']['LimitAmount'] ?? '';
     }
 
@@ -672,48 +678,97 @@ class ElmsSSL {
     }
   }
 
-  Future<String> fetchLoanDetailsById(String loanId) async {
+  Future<String> fetchLoanDetailsById(String loadId) async {
     var uuid = const Uuid();
     String uid = uuid.v4();
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     ApiClient apiClient = ApiClient();
 
+    String service = "LOAN";
+    String action = "BASE";
+    String command = "DETAILS";
+    String platform = "WEB";
+
+    // Retrieve appId and customerId from SharedPreferences
     String appId = prefs.getString("appId") ?? '';
     String customerId = prefs.getString("customerId") ?? '';
-    String mobileNumber = '';
 
+    // Retrieve login details to get mobileNumber
+    String mobileNumber = '';
     String? loginResponseStr = prefs.getString('loginDetails');
+
     if (loginResponseStr != null) {
+      // Parse the login response to extract mobileNumber
       final loginResponse = jsonDecode(loginResponseStr);
       mobileNumber = loginResponse['Data']['MobileNumber'] ?? '';
     }
 
     String device = "WEB";
+    String lat = "0.200";
+    String lon = "-1.01";
 
+    // Prepare transaction data (trxData) fields
     Map<String, String> trxDataMap = {
-      "F000": "LOAN",
-      "F001": "BASE",
-      "F002": "DETAILS",
+      "F000": service,
+      "F001": action,
+      "F002": command,
       "F003": appId,
       "F004": customerId,
       "F005": mobileNumber,
+      "F009": device,
+      "F010": device,
+      "F014": platform,
       "F021": mobileNumber,
-      "F022": loanId,
+      "F022": loadId,
     };
 
     String trxData = jsonEncode(trxDataMap);
 
+    String appData = jsonEncode({
+      "UniqueId": uid,
+      "AppId": appId,
+      "Device": device,
+      "Platform": platform,
+      "CustomerId": customerId,
+      "MobileNumber": mobileNumber,
+      "Lat": lat,
+      "Lon": lon,
+    });
+
+    String hashedTrxData = hash(trxData, device);
+
+    // Encryption setup
     String strKey = apiClient.generateRandomString(16);
     String strIV = apiClient.generateRandomString(16);
 
+    String rsc = hashedTrxData;
+    String rrk = encrypt(strKey, publicKeyString);
+    String rrv = encrypt(strIV, publicKeyString);
+    String aad = encrypt1(appData, strKey, strIV);
+
     String coreData = encrypt1(trxData, strKey, strIV);
+
+    Map<String, String> authRequest = {
+      "H00": uid,
+      "H03": rsc,
+      "H01": rrk,
+      "H02": rrv,
+      "H04": aad,
+    };
 
     Map<String, String> coreRequest = {"Data": coreData};
 
+    // Perform authentication request
+    await apiClient.authRequest(authRequest);
+
+    // Get the token and perform core request
     final token = await TokenStorage().getToken();
+    final coreResultStr =
+        await apiClient.coreRequest(token as String, coreRequest, "DETAILS");
+
     final coreResult = await apiClient.coreRequest(
-      token as String,
+      token,
       coreRequest,
       "DETAILS",
     );
@@ -726,8 +781,7 @@ class ElmsSSL {
     } else if (statusCode == 200) {
       var parsedResponse = cleanResponse(decrypt(responseBody, strKey, strIV));
       await prefs.setString('fetchedLoanDetails', jsonEncode(parsedResponse));
-      return jsonEncode(
-          {"status": "success", "message": "Loan details fetched!"});
+      return jsonEncode({"status": "success"});
     } else {
       return jsonEncode({
         "status": "error",
@@ -736,57 +790,103 @@ class ElmsSSL {
     }
   }
 
-  Future<String> loanDetails(String loanId) async {
-    print("The received id is $loanId");
+  Future<String> loanDetails(String loadId) async {
     var uuid = const Uuid();
     String uid = uuid.v4();
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     ApiClient apiClient = ApiClient();
 
+    String service = "LOAN";
+    String action = "BASE";
+    String command = "DETAILS";
+    String platform = "WEB";
+
+    // Retrieve appId and customerId from SharedPreferences
     String appId = prefs.getString("appId") ?? '';
     String customerId = prefs.getString("customerId") ?? '';
-    String mobileNumber = '';
 
+    // Retrieve login details to get mobileNumber
+    String mobileNumber = '';
     String? loginResponseStr = prefs.getString('loginDetails');
+
     if (loginResponseStr != null) {
+      // Parse the login response to extract mobileNumber
       final loginResponse = jsonDecode(loginResponseStr);
       mobileNumber = loginResponse['Data']['MobileNumber'] ?? '';
     }
 
     String device = "WEB";
+    String lat = "0.200";
+    String lon = "-1.01";
 
+    // Prepare transaction data (trxData) fields
     Map<String, String> trxDataMap = {
-      "F000": "LOAN",
-      "F001": "BASE",
-      "F002": "DETAILS",
+      "F000": service,
+      "F001": action,
+      "F002": command,
       "F003": appId,
       "F004": customerId,
       "F005": mobileNumber,
+      "F009": device,
+      "F010": device,
+      "F014": platform,
       "F021": mobileNumber,
-      "F022": loanId,
+      "F022": loadId,
     };
 
     String trxData = jsonEncode(trxDataMap);
 
+    String appData = jsonEncode({
+      "UniqueId": uid,
+      "AppId": appId,
+      "Device": device,
+      "Platform": platform,
+      "CustomerId": customerId,
+      "MobileNumber": mobileNumber,
+      "Lat": lat,
+      "Lon": lon,
+    });
+
+    String hashedTrxData = hash(trxData, device);
+
+    // Encryption setup
     String strKey = apiClient.generateRandomString(16);
     String strIV = apiClient.generateRandomString(16);
 
+    String rsc = hashedTrxData;
+    String rrk = encrypt(strKey, publicKeyString);
+    String rrv = encrypt(strIV, publicKeyString);
+    String aad = encrypt1(appData, strKey, strIV);
+
     String coreData = encrypt1(trxData, strKey, strIV);
+
+    Map<String, String> authRequest = {
+      "H00": uid,
+      "H03": rsc,
+      "H01": rrk,
+      "H02": rrv,
+      "H04": aad,
+    };
 
     Map<String, String> coreRequest = {"Data": coreData};
 
+    // Perform authentication request
+    await apiClient.authRequest(authRequest);
+
+    // Get the token and perform core request
     final token = await TokenStorage().getToken();
+    final coreResultStr =
+        await apiClient.coreRequest(token as String, coreRequest, "DETAILS");
+
     final coreResult = await apiClient.coreRequest(
-      token as String,
+      token,
       coreRequest,
       "DETAILS",
     );
 
     int statusCode = coreResult['statusCode'];
     String responseBody = coreResult['body'];
-
-    print("The response returned is: $responseBody");
 
     if (statusCode == 400) {
       return jsonEncode({"status": "error", "message": responseBody});
