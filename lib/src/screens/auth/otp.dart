@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:kitokopay/src/screens/auth/login.dart';
-import 'package:kitokopay/src/screens/auth/register.dart'; // Assuming a Register screen exists
+// Assuming a Register screen exists
 import 'package:kitokopay/service/api_client_helper_utils.dart'; // Import the ElmsSSL class
 
 class OtpPage extends StatefulWidget {
@@ -221,12 +221,33 @@ class _OtpPageState extends State<OtpPage> {
                                             jsonDecode(response);
 
                                         if (resultMap['status'] == 'success') {
-                                          Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const LoginScreen(),
-                                            ),
+                                          // Show the success dialog
+                                          showDialog(
+                                            context: context,
+                                            barrierDismissible:
+                                                false, // Prevent dismissing the dialog by tapping outside
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                title: const Text("Success"),
+                                                content: const Text(
+                                                    "Your account has been activated successfully."),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      // Navigate to login screen
+                                                      Navigator.pushReplacement(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              const LoginScreen(),
+                                                        ),
+                                                      );
+                                                    },
+                                                    child: const Text("OK"),
+                                                  ),
+                                                ],
+                                              );
+                                            },
                                           );
                                         } else {
                                           setState(() {
