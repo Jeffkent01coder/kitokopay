@@ -42,6 +42,7 @@ class _LoansPageState extends State<LoansPage> {
 
   String _currency = "N/A";
   String _selectedCurrency = "N/A";
+  String _sliderCurrency = "N/A";
 
   List<String> _currencies = [];
   Map<String, double> _rates = {}; // Store rates for dynamic conversion
@@ -91,7 +92,7 @@ class _LoansPageState extends State<LoansPage> {
         _selectedAmount = _limitAmount / 2;
         _loanStatus = parsedLogin['Data']['LoanStatus'] ?? "N/A";
         _principalAmount = parsedLogin['Data']['PrincipalAmount'] ?? "0.0";
-        _currentBalance = parsedLogin['Data']['CurrentBalance'] ?? "0.0";
+        _currentBalance = parsedLogin['Data']['LoanBalance'] ?? "0.0";
         _date = parsedLogin['Data']['Date'] ?? "N/A";
         _referenceId = parsedLogin['Data']['ReferenceId'] ?? "N/A";
         _repaymentDate = parsedLogin['Data']['RepaymentDate'] ?? "N/A";
@@ -99,7 +100,7 @@ class _LoansPageState extends State<LoansPage> {
         _mobileNumber = parsedLogin['Data']['MobileNumber'] ?? "N/A";
         _interest = parsedLogin['Data']['InterestRate'] ?? "0.0";
         _loanTerm = parsedLogin['Data']['LoanTermPeriod'] ?? "N/A";
-        _selectedCurrency = parsedLogin['Data']['Currency'] ?? "RWF";
+        _selectedCurrency = parsedLogin['Data']['Currency'] ?? "";
 
         String dueDate = parsedLogin['Data']['DueDate'] ?? "N/A";
         if (dueDate != "") {
@@ -161,13 +162,13 @@ class _LoansPageState extends State<LoansPage> {
     _rates = ratesField.isNotEmpty
         ? ratesField.map((key, value) =>
             MapEntry(key, double.tryParse(value.toString()) ?? 1.0))
-        : {"RWF": 1.0}; // Default fallback rate
+        : {}; // Default fallback rate
 
-    if (_currencies.isNotEmpty) {
-      _selectedCurrency = _currencies.first;
-    } else {
-      _selectedCurrency = "";
-    }
+    // Set the slider currency to the first currency
+    _sliderCurrency = _currencies.isNotEmpty ? _currencies.first : "RWF";
+
+    // Set the selected currency to the first currency by default
+    _selectedCurrency = _currencies.isNotEmpty ? _currencies.first : "RWF";
   }
 
   @override
@@ -299,7 +300,7 @@ class _LoansPageState extends State<LoansPage> {
         _buildDetailsRow(
           "Principal Amount",
           "$_currency $_principalAmount",
-          "Current Balance",
+          "Loan Balance",
           "$_currency $_currentBalance",
         ),
         const SizedBox(height: 16),
@@ -354,7 +355,7 @@ class _LoansPageState extends State<LoansPage> {
   Widget _buildSliderSection(
       String title, String rightLabel, String leftValue, String rightValue) {
     bool isDisabled = _loanStatus == "PendingPayment"; // Check loan status
-    double minAmount = isDisabled ? 0 : 1000; // Min is 0 if PendingPayment
+    double minAmount = isDisabled ? 0 : 500; // Min is 0 if PendingPayment
     double maxAmount =
         isDisabled ? 0 : _limitAmount; // Max is 0 if PendingPayment
 
@@ -366,8 +367,9 @@ class _LoansPageState extends State<LoansPage> {
     double displayedAmount = isDisabled ? 0 : _selectedAmount;
 
     // Calculate converted amount based on the selected currency
-    double convertedAmount =
-        _getConvertedAmount(displayedAmount, _selectedCurrency);
+    double convertedAmount = _selectedCurrency == _sliderCurrency
+        ? displayedAmount
+        : _getConvertedAmount(displayedAmount, _selectedCurrency);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -414,7 +416,7 @@ class _LoansPageState extends State<LoansPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "Min: $_selectedCurrency ${minAmount.toStringAsFixed(0)}",
+              "Min: $_sliderCurrency ${minAmount.toStringAsFixed(0)}",
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 16,
@@ -422,7 +424,7 @@ class _LoansPageState extends State<LoansPage> {
               ),
             ),
             Text(
-              "Max: $_selectedCurrency ${maxAmount.toStringAsFixed(0)}",
+              "Max: $_sliderCurrency ${maxAmount.toStringAsFixed(0)}",
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 16,
@@ -436,7 +438,10 @@ class _LoansPageState extends State<LoansPage> {
         // Display Selected Amount and Converted Amount
         Center(
           child: Text(
-            "Selected Amount: $_selectedCurrency ${convertedAmount.toStringAsFixed(2)} (${_currencies.isNotEmpty ? _currencies.first : ''} ${displayedAmount.toStringAsFixed(0)})",
+            isDisabled
+                ? "Selected Amount: $_sliderCurrency 0.00"
+                : "Selected Amount: $_sliderCurrency ${displayedAmount.toStringAsFixed(2)} "
+                    "(${_selectedCurrency != _sliderCurrency ? 'Converted: $_selectedCurrency ${convertedAmount.toStringAsFixed(2)}' : ''})",
             style: const TextStyle(
               color: Colors.white,
               fontSize: 18,
@@ -449,19 +454,33 @@ class _LoansPageState extends State<LoansPage> {
 
         // Slider
         Slider(
-          value: displayedAmount,
+          value: isDisabled ? 0 : _selectedAmount,
           min: minAmount,
           max: maxAmount,
           onChanged: isDisabled
               ? null
               : (value) {
                   setState(() {
-                    _selectedAmount = value;
+                    // Round the value to the nearest 500 step
+                    _selectedAmount = (value ~/ 500) * 500;
                   });
                 },
+          onChangeEnd: isDisabled
+              ? null
+              : (value) {
+                  setState(() {
+                    // Ensure final value is also snapped to 500
+                    _selectedAmount = (value ~/ 500) * 500;
+                  });
+                },
+          divisions: isDisabled
+              ? null
+              : ((maxAmount - minAmount) ~/ 500)
+                  .toInt(), // Set steps based on limit
           activeColor: isDisabled ? Colors.grey : Colors.white,
           inactiveColor: Colors.white.withOpacity(0.3),
         ),
+
         const SizedBox(height: 30),
 
         // Continue Button

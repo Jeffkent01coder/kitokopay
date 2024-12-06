@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:kitokopay/service/api_client_helper_utils.dart';
 import 'package:kitokopay/src/screens/utils/session_manager.dart';
+import 'package:flutter/services.dart';
 
 class RepayLoanScreen extends StatefulWidget {
   const RepayLoanScreen({super.key});
@@ -179,7 +180,7 @@ class _RepayLoanScreenState extends State<RepayLoanScreen> {
             // Loan Information Section
             _buildNonEditableField("Mobile Number", mobileNumber),
             const SizedBox(height: 10),
-            _buildNonEditableField("Interest Rate", "$interestRate"),
+            _buildNonEditableField("Interest Rate", interestRate),
             const SizedBox(height: 10),
             _buildNonEditableField(
                 "Total Outstanding Amount", outstandingAmount),
@@ -231,6 +232,7 @@ class _RepayLoanScreenState extends State<RepayLoanScreen> {
               ),
             ),
             // Conditional Input for Partial Payment
+// Conditional Input for Partial Payment
             if (paymentType == "PARTIALPAY") ...[
               const SizedBox(height: 20),
               const Text(
@@ -243,6 +245,10 @@ class _RepayLoanScreenState extends State<RepayLoanScreen> {
               const SizedBox(height: 10),
               TextField(
                 keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter
+                      .digitsOnly, // Restrict input to digits only
+                ],
                 decoration: InputDecoration(
                   hintText: "Enter amount",
                   hintStyle: const TextStyle(color: Colors.grey),
@@ -260,11 +266,12 @@ class _RepayLoanScreenState extends State<RepayLoanScreen> {
                 ),
                 onChanged: (value) {
                   setState(() {
-                    partialAmount = value;
+                    partialAmount = value; // Update the partial amount
                   });
                 },
               ),
             ],
+
             const SizedBox(height: 30),
             // Make Repayment Button
             Center(
