@@ -23,14 +23,17 @@ class _FooterState extends State<Footer> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Logo
-                Image.asset(
-                  'assets/images/Kitokopaylogo.png',
-                  width: 150,
-                  height: 50,
+                SizedBox(
+                  height: 100, // Adjust height as needed
+                  width: 100, // Adjust width as needed
+                  child: Image.asset(
+                    'assets/images/logo.png',
+                    fit: BoxFit.cover, // Adjust how the image fills the space
+                  ),
                 ),
                 const SizedBox(height: 16),
 
-                // Company
+                // Company Section
                 _buildColumn('Company', const [
                   'About Us',
                   'Get In Touch',
@@ -39,7 +42,7 @@ class _FooterState extends State<Footer> {
 
                 const SizedBox(height: 16),
 
-                // Resources
+                // Resources Section
                 _buildColumn('Resources', const [
                   'Testimonials',
                   'How it works',
@@ -48,7 +51,7 @@ class _FooterState extends State<Footer> {
 
                 const SizedBox(height: 16),
 
-                // Socials
+                // Socials Section
                 _buildSocials(),
               ],
             )
@@ -57,27 +60,30 @@ class _FooterState extends State<Footer> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Logo
-                Image.asset(
-                  'assets/images/Kitokopaylogo.png',
-                  width: 150,
+                SizedBox(
                   height: 50,
+                  width: 150,
+                  child: Image.asset(
+                    'assets/images/Kitokopaylogo.png',
+                    fit: BoxFit.contain, // Adjust for a sleek appearance
+                  ),
                 ),
 
-                // Company
+                // Company Section
                 _buildColumn('Company', const [
                   'About Us',
                   'Get In Touch',
                   'FAQs',
                 ]),
 
-                // Resources
+                // Resources Section
                 _buildColumn('Resources', const [
                   'Testimonials',
                   'How it works',
                   'Blog',
                 ]),
 
-                // Socials
+                // Socials Section
                 _buildSocials(),
               ],
             ),
@@ -98,9 +104,12 @@ class _FooterState extends State<Footer> {
           ),
         ),
         const SizedBox(height: 8),
-        ...items.map((item) => Text(
-              item,
-              style: const TextStyle(color: Colors.white),
+        ...items.map((item) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
+              child: Text(
+                item,
+                style: const TextStyle(color: Colors.white),
+              ),
             )),
       ],
     );

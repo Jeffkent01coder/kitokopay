@@ -59,10 +59,15 @@ class _CustomAppBarState extends State<CustomAppBar> {
                 onTap: () {
                   Navigator.pushReplacementNamed(context, '/home');
                 },
-                child: Image.asset(
-                  'assets/images/Kitokopaylogo.png', // Replace with your logo asset path
-                  height: 40,
+                child: SizedBox(
+                  height: 200,
+                  width: 200,
+                  child: Image.asset(
+                    'assets/images/logo.png',
+                    fit: BoxFit.cover, // Adjust how the image fills the space
+                  ),
                 ),
+
               ),
               if (!isCompact)
                 Expanded(
