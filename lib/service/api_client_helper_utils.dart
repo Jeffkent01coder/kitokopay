@@ -12,6 +12,8 @@ import 'package:encrypt/encrypt.dart' as encryptPackage;
 import 'package:kitokopay/service/token_storage.dart';
 import 'dart:html' as html; // Import html for localStorage
 import 'dart:async'; // Import for Timer
+// import dotenv
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ElmsSSL {
   static String basic_username = "L@T0wU8eR";
@@ -20,17 +22,17 @@ class ElmsSSL {
   // String get publicKeyString =>
   //     dotenv.env['PUBLIC_KEY'] ?? 'No Public Key Found';
 
-  String publicKeyString =
-      "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0OTq4FBkCO/5kZbBgt+7tHUKmqa6NSvzGnvo8Pia2C7moYDF77TGNcMk5Q5bYjE91QCauAYWxse2thARA1X6FjJz/jeVfYpcV43uuKd8FDaI7P7ah4A+WO4CTwRu95x2a5Hzg0y3qWsxuuBtBeV66uWzKtKcWObPwsblPjfgWkpAxhaIdWhnAk1cXDrukGLrzRIhdY+m3M6yyoW9E+htP9oSkhBF39TxjNtGM0vTSA/w9rVv3x1DGCc7hlvo8DOaj4aG60pdsA7VkVeBnEsXS/lba5dVRFCUHAlMUQfKVx7pZJ9fuHP9IZIfRE0wTPPZwqJSlU8/YQ0ARa5ic5NLjQIDAQAB";
+  // String publicKeyString =
+  //     "";
 
-  // String get publicKeyString {
-  //   // Load PUBLIC_KEY from compile-time variables or fallback to runtime dotenv
-  //   return const String.fromEnvironment('PUBLIC_KEY',
-  //               defaultValue: 'No Public Key Found') !=
-  //           'No Public Key Found'
-  //       ? const String.fromEnvironment('PUBLIC_KEY')
-  //       : (dotenv.env['PUBLIC_KEY'] ?? 'No Public Key Found');
-  // }
+  String get publicKeyString {
+    // Load PUBLIC_KEY from compile-time variables or fallback to runtime dotenv
+    return const String.fromEnvironment('PUBLIC_KEY',
+                defaultValue: 'No Public Key Found') !=
+            'No Public Key Found'
+        ? const String.fromEnvironment('PUBLIC_KEY')
+        : (dotenv.env['PUBLIC_KEY'] ?? 'No Public Key Found');
+  }
 
   void printLongString(String text) {
     final RegExp pattern = RegExp('.{1,800}'); // 800 is the size of each chunk
@@ -167,7 +169,6 @@ class ElmsSSL {
   }
 
   Future<String> login(String pin, String mobileNumber) async {
-    print("Pin is: $pin, mobile number is: $mobileNumber");
     var uuid = const Uuid();
     String Uid = uuid.v4();
 
@@ -269,16 +270,12 @@ class ElmsSSL {
     String responseBody = coreResult['body'];
 
     if (statusCode == 400) {
-      print("The response body is: $responseBody");
-
       return jsonEncode({
         "status": "error",
         "message": responseBody,
       });
     } else if (statusCode == 200) {
       var parsedResponse = cleanResponse(decrypt(responseBody, strKey, strIV));
-
-      print("Parsed response: $parsedResponse");
 
       // Store the parsed response in preferences
       await prefs.setString('loginDetails', jsonEncode(parsedResponse));
@@ -441,7 +438,6 @@ class ElmsSSL {
       // Return success message directly for 401 status
       final coreDecrypted = cleanResponse(decrypt(responseBody, strKey, strIV));
 
-      print("Decrypted core is: ${coreDecrypted['Data']['Display']}");
       return jsonEncode(
           {"status": "success", "message": coreDecrypted['Data']['Display']});
     } else if (statusCode == 200) {
@@ -458,9 +454,6 @@ class ElmsSSL {
 
   Future<String> applyLoan(
       String appliedAmount, String pin, String currency) async {
-    print(
-        "Applied amount is: $appliedAmount, pin is: $pin, currency is: $currency");
-
     var uuid = const Uuid();
     var Uid = uuid.v4();
 

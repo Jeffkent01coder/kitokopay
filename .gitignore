@@ -41,3 +41,13 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Ignore all .env files
+.env
+.env.development
+.env.production
+.env.staging
+
+
+# Allow the .env file inside the ./assets folder
+!assets/.env

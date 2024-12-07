@@ -24,8 +24,8 @@ class _FooterState extends State<Footer> {
               children: [
                 // Logo
                 SizedBox(
-                  height: 100, // Adjust height as needed
-                  width: 100, // Adjust width as needed
+                  height: 200,
+                  width: 200, // Adjust width as needed
                   child: Image.asset(
                     'assets/images/logo.png',
                     fit: BoxFit.cover, // Adjust how the image fills the space
@@ -61,15 +61,16 @@ class _FooterState extends State<Footer> {
               children: [
                 // Logo
                 SizedBox(
-                  height: 50,
-                  width: 150,
+                  height: 200,
+                  width: 200,
                   child: Image.asset(
-                    'assets/images/Kitokopaylogo.png',
+                    'assets/images/logo.png',
                     fit: BoxFit.contain, // Adjust for a sleek appearance
                   ),
                 ),
 
                 // Company Section
+                
                 _buildColumn('Company', const [
                   'About Us',
                   'Get In Touch',

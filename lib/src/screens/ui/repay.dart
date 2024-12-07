@@ -266,7 +266,22 @@ class _RepayLoanScreenState extends State<RepayLoanScreen> {
                 ),
                 onChanged: (value) {
                   setState(() {
-                    partialAmount = value; // Update the partial amount
+                    double inputAmount = double.tryParse(value) ?? 0.0;
+                    double maxOutstandingAmount =
+                        double.tryParse(outstandingAmount) ?? 0.0;
+
+                    if (inputAmount > maxOutstandingAmount) {
+                      partialAmount = maxOutstandingAmount.toString();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content:
+                              Text("Amount cannot exceed outstanding balance."),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    } else {
+                      partialAmount = value; // Update the partial amount
+                    }
                   });
                 },
               ),

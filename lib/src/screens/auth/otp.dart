@@ -213,15 +213,22 @@ class _OtpPageState extends State<OtpPage> {
                                       try {
                                         ElmsSSL elmsSSL = ElmsSSL();
 
+                                        // Make API call to activate with phone number and OTP
                                         String response =
                                             await elmsSSL.activate(
                                                 formattedPhoneNumber, otp);
 
+                                        // Decode the response
                                         Map<String, dynamic> resultMap =
                                             jsonDecode(response);
 
+                                        // Check API response status
                                         if (resultMap['status'] == 'success') {
-                                          // Show the success dialog
+                                          String message =
+                                              resultMap['message'] ??
+                                                  'Activation successful!';
+
+                                          // Show success dialog
                                           showDialog(
                                             context: context,
                                             barrierDismissible:
@@ -229,8 +236,7 @@ class _OtpPageState extends State<OtpPage> {
                                             builder: (BuildContext context) {
                                               return AlertDialog(
                                                 title: const Text("Success"),
-                                                content: const Text(
-                                                    "Your account has been activated successfully."),
+                                                content: Text(message),
                                                 actions: [
                                                   TextButton(
                                                     onPressed: () {
@@ -250,6 +256,7 @@ class _OtpPageState extends State<OtpPage> {
                                             },
                                           );
                                         } else {
+                                          // Display error message from API response
                                           setState(() {
                                             _errorMessage =
                                                 resultMap['message'] ??
@@ -257,11 +264,13 @@ class _OtpPageState extends State<OtpPage> {
                                           });
                                         }
                                       } catch (e) {
+                                        // Handle any exceptions or errors
                                         setState(() {
                                           _errorMessage =
                                               'An error occurred: $e';
                                         });
                                       } finally {
+                                        // Ensure loading state is updated
                                         setState(() => _isLoading = false);
                                       }
                                     },

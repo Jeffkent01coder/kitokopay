@@ -109,10 +109,17 @@ class _LoansPageState extends State<LoansPage> {
           _dueDate = "N/A";
         }
 
+        _currentBalance =
+            _currentBalance == "" ? _currentBalance = "0.0" : _currentBalance;
+
         // Fetch the currency
         _currency = parsedLogin['Data']['Currency'] ?? "N/A";
       });
     }
+  }
+
+  double _ceilToNearest5(double value) {
+    return (value / 5).ceil() * 5;
   }
 
   double _getConvertedAmount(double amount, String selectedCurrency) {
@@ -841,7 +848,8 @@ class _LoansPageState extends State<LoansPage> {
 
                       // Determine the amount based on selected currency
                       double amountToApply = _selectedCurrency == "USD"
-                          ? _getConvertedAmount(_selectedAmount, "USD")
+                          ? _ceilToNearest5(
+                              _getConvertedAmount(_selectedAmount, "USD"))
                           : _selectedAmount;
 
                       // Apply the loan with the calculated amount and currency
